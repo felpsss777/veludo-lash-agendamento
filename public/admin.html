@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin • Veludo Lash</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="admin-page loaded">
+  <!-- FUNDO -->
+  <div class="ig-bg" aria-hidden="true">
+    <div class="ig-bg__img" id="igBgImg"></div>
+    <div class="ig-bg__overlay"></div>
+  </div>
+
+  <!-- TOPBAR PREMIUM -->
+  <header class="admin-topbar">
+    <div class="brand-mini">
+      <img class="brand-logo" src="img/veludo-lash-logo.png" alt="Veludo Lash">
+    </div>
+
+    <div class="topbar-actions">
+      <button class="chip" type="button" id="btnRefresh">Atualizar</button>
+    </div>
+  </header>
+
+  <!-- NAV (DESKTOP) / (MOBILE VIRA BARRA EMBAIXO VIA CSS) -->
+  <nav class="admin-tabs" aria-label="Navegação do Admin">
+    <button class="tab active" type="button" data-tab="agenda">
+      <span class="tab-ico">📅</span><span class="tab-txt">Agenda</span>
+    </button>
+    <button class="tab" type="button" data-tab="lembretes">
+      <span class="tab-ico">⏰</span><span class="tab-txt">Lembretes</span>
+    </button>
+    <button class="tab" type="button" data-tab="clientes">
+      <span class="tab-ico">👤</span><span class="tab-txt">Clientes</span>
+    </button>
+  </nav>
+
+  <!-- CONTEÚDO -->
+  <main class="admin-shell">
+    <div class="admin-card">
+
+      <div id="msg" class="small"></div>
+
+      <!-- ================== AGENDA ================== -->
+      <section id="pane-agenda" class="pane active" data-page="agenda">
+        <h2>Agenda</h2>
+        <div class="row">
+          <input id="filtroData" type="date" />
+          <button class="btn2" type="button" id="btnAtualizarAgenda">Atualizar</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Horário</th>
+                <th>Serviço</th>
+                <th>Cliente</th>
+                <th>Status</th>
+                <th style="text-align:right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="agendaBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================== LEMBRETES ================== -->
+      <section id="pane-lembretes" class="pane" data-page="lembretes">
+        <h2>Lembretes</h2>
+        <p class="mut">Aqui aparecem agendamentos confirmados com lembrete ainda não enviado.</p>
+
+        <div class="row">
+          <button class="btn2" type="button" id="btnAtualizarLembretes">Atualizar</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Horário</th>
+                <th>Serviço</th>
+                <th>Cliente</th>
+                <th style="text-align:right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="lembretesBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================== CLIENTES ================== -->
+      <section id="pane-clientes" class="pane" data-page="clientes">
+  <h2>Clientes</h2>
+
+  <div class="row">
+    <input id="cliNome" placeholder="Nome do cliente" />
+  </div>
+
+  <!-- DDD + Número -->
+  <div class="row row-tel">
+    <input id="cliDDD" placeholder="DDD" inputmode="numeric" maxlength="2" />
+    <input id="cliTel" placeholder="Número (9 dígitos)" inputmode="numeric" maxlength="9" />
+  </div>
+
+  <!-- Botão separado (EMBAIXO) -->
+  <div class="row">
+    <button class="btn-glass gold" type="button" id="btnCriarCliente">
+      Adicionar
+    </button>
+  </div>
+
+  <p class="small mut">Ex: DDD 11 + Número 950235221</p>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>WhatsApp</th>
+          <th>Obs</th>
+          <th style="text-align:right;">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="clientesBody"></tbody>
+    </table>
+  </div>
+</section>
+
+    </div>
+  </main>
+
+  <script src="admin.js"></script>
+
+  <!-- parallax do fundo (igual no booking) -->
+  <script>
+    (function(){
+      const el = document.getElementById("igBgImg");
+      if(!el) return;
+      const speed = 0.35;
+      function onScroll(){
+        const y = Math.round(window.scrollY * speed);
+        el.style.backgroundPosition = `center ${-y}px`;
+      }
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+
+  <!-- troca de abas (caso seu admin.js ainda não faça) -->
+  <script>
+    (function(){
+      const tabs = document.querySelectorAll(".admin-tabs .tab");
+      const panes = document.querySelectorAll(".pane");
+
+      function setActive(name){
+        tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+        panes.forEach(p => p.classList.toggle("active", p.dataset.page === name));
+      }
+
+      tabs.forEach(t => t.addEventListener("click", () => setActive(t.dataset.tab)));
+
+      document.getElementById("btnRefresh")?.addEventListener("click", () => location.reload());
+    })();
+  </script>
+</body>
+</html>

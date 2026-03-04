@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studio Lash • Agenda</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- ✅ Calendário moderno (Flatpickr) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_dark.css">
+</head>
+<body>
+
+  <!-- ✅ FUNDO INSTAGRAM (imagem longa) - tem que ficar no INÍCIO do body -->
+  <div class="ig-bg" aria-hidden="true">
+    <div class="ig-bg__img" id="igBgImg"></div>
+    <div class="ig-bg__overlay"></div>
+  </div>
+
+  <div class="container">
+
+    <div class="header">
+      <div class="brand">
+        <h1>Studio Lash</h1>
+        <p>Clientes • Agenda • Lembretes</p>
+      </div>
+
+      <div class="menu">
+        <a href="index.html">Clientes</a>
+        <a href="agenda.html">Agenda</a>
+        <a href="lembretes.html">Lembretes</a>
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <!-- NOVO AGENDAMENTO -->
+      <div class="card">
+        <h2>Novo Agendamento</h2>
+
+        <select id="cliente_id"></select>
+
+        <div class="row">
+
+          <!-- ✅ agora controlado pelo Flatpickr -->
+          <input id="data" type="text" placeholder="Selecione a data" readonly>
+
+          <div class="slot-wrapper">
+            <button type="button" id="slot_toggle" class="slot-toggle">
+              <span id="horario_label">--:--</span>
+              <span id="slot_chev">▾</span>
+            </button>
+
+            <div id="horarios_grid" class="hidden"></div>
+          </div>
+
+          <input type="hidden" id="horario" value="">
+        </div>
+
+        <p id="horario_hint" class="small hint-right">
+          Clique na seta para ver os horários.
+        </p>
+
+        <input id="servico" placeholder="Serviço (ex: Volume Russo)">
+        <input id="obs" placeholder="Observação (opcional)">
+
+        <button onclick="agendar()">Agendar</button>
+
+        <p class="small">Dica: cadastre clientes primeiro.</p>
+      </div>
+
+      <!-- LISTA -->
+      <div class="card">
+        <h2>Agendamentos</h2>
+
+        <div class="row">
+          <!-- ✅ filtro com calendário moderno (aqui pode escolher passado pra ver histórico) -->
+          <input id="filtroData" type="text" placeholder="Filtrar por data" readonly>
+          <button class="btn2" style="flex:0;" onclick="limparFiltroData()">Limpar</button>
+        </div>
+
+        <hr class="sep">
+        <ul id="lista_agenda" class="list"></ul>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="agenda.js"></script>
+
+  <!-- ✅ Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // ✅ Novo Agendamento: bloqueia dias passados
+      flatpickr("#data", {
+        locale: "pt",
+        dateFormat: "Y-m-d",
+        minDate: "today",     // ✅ não deixa escolher datas passadas
+        disableMobile: true,  // ✅ mesmo calendário no celular
+        onChange: () => {
+          // se seu agenda.js já escuta "change", isso garante compatibilidade
+          document.getElementById("data").dispatchEvent(new Event("change"));
+        }
+      });
+
+      // ✅ Filtro: deixa livre pra consultar passado (histórico)
+      flatpickr("#filtroData", {
+        locale: "pt",
+        dateFormat: "Y-m-d",
+        disableMobile: true,
+        onChange: () => carregarAgendamentos()
+      });
+    });
+  </script>
+
+  <!-- ✅ PARALLAX da imagem longa (acompanha o scroll do site) -->
+  <script>
+    (function(){
+      const el = document.getElementById("igBgImg");
+      if(!el) return;
+
+      const speed = 0.35;
+
+      function onScroll(){
+        const y = Math.round(window.scrollY * speed);
+        el.style.backgroundPosition = `center ${-y}px`;
+      }
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+
+</body>
+</html>

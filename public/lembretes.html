@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Veludo Lash • Lembretes</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ✅ FUNDO INSTAGRAM (imagem longa) -->
+  <div class="ig-bg" aria-hidden="true">
+    <div class="ig-bg__img" id="igBgImg"></div>
+    <div class="ig-bg__overlay"></div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+
+      <!-- ✅ IDENTIDADE VELUDO LASH (logo central + by pequeno) -->
+      <div class="brand">
+        <div class="logo-wrap">
+          <img
+            class="brand-logo-img"
+            src="img/veludo-lash-logo.png"
+            alt="Veludo Lash"
+            draggable="false"
+          >
+          <div class="byline">by Vitória Mell</div>
+        </div>
+      </div>
+
+      <div class="menu">
+        <a href="index.html">Clientes</a>
+        <a href="agenda.html">Agenda</a>
+        <a href="lembretes.html">Lembretes</a>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Filtros</h2>
+
+        <div class="row">
+          <label class="badge" style="justify-content:center;">
+            <input type="checkbox" id="soHoje" checked onchange="carregar()" style="margin:0 8px 0 0;">
+            Somente hoje
+          </label>
+
+          <button class="btn2" onclick="carregar()">Atualizar</button>
+        </div>
+
+        <p class="small">Aqui ficam os lembretes pendentes para abrir o WhatsApp e confirmar.</p>
+      </div>
+
+      <div class="card">
+        <h2>Lembretes Pendentes</h2>
+        <hr class="sep">
+        <ul id="lista_lembretes" class="list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="lembretes.js"></script>
+
+  <!-- ✅ PARALLAX da imagem longa -->
+  <script>
+    (function(){
+      const el = document.getElementById("igBgImg");
+      if(!el) return;
+
+      const speed = 0.35;
+
+      function onScroll(){
+        const y = Math.round(window.scrollY * speed);
+        el.style.backgroundPosition = `center ${-y}px`;
+      }
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+
+</body>
+</html>

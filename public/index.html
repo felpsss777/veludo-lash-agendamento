@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studio Lash • Clientes</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ✅ FUNDO INSTAGRAM (imagem longa) - tem que ficar no INÍCIO do body -->
+  <div class="ig-bg" aria-hidden="true">
+    <div class="ig-bg__img" id="igBgImg"></div>
+    <div class="ig-bg__overlay"></div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <h1>Studio Lash</h1>
+        <p>Clientes • Agenda • Lembretes</p>
+      </div>
+
+      <div class="menu">
+        <a href="index.html">Clientes</a>
+        <a href="agenda.html">Agenda</a>
+        <a href="lembretes.html">Lembretes</a>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Novo Cliente</h2>
+
+        <input id="nome" placeholder="Nome do cliente">
+        <input id="telefone" placeholder="Telefone (com DDD)">
+        <input id="observacao" placeholder="Observação (opcional)">
+
+        <button onclick="cadastrarCliente()">Cadastrar</button>
+
+        <p class="small">Dica: use telefone no formato 11999999999</p>
+      </div>
+
+      <div class="card">
+        <h2>Clientes</h2>
+        <input id="busca" placeholder="Buscar por nome ou telefone" oninput="carregarClientes()">
+        <hr class="sep">
+        <ul id="lista" class="list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+  <!-- ✅ PARALLAX da imagem longa (acompanha o scroll do site) -->
+  <script>
+    (function(){
+      const el = document.getElementById("igBgImg");
+      if(!el) return;
+
+      const speed = 0.35;
+
+      function onScroll(){
+        const y = Math.round(window.scrollY * speed);
+        el.style.backgroundPosition = `center ${-y}px`;
+      }
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,1372 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
+:root{
+  /* fundo */
+  --bg: transparent;
+
+  /* paleta premium */
+  --text: rgba(255,255,255,0.92);
+  --muted: rgba(255,255,255,0.70);
+
+  /* dourado premium */
+  --gold: #c9a46c;
+  --gold2: #f1d9aa;
+
+  /* bordas / sombras */
+  --line: rgba(255,255,255,0.14);
+  --shadow: 0 18px 40px rgba(0,0,0,0.35);
+
+  /* glass */
+  --glass: rgba(20, 20, 24, 0.35);
+  --glass-2: rgba(20, 20, 24, 0.28);
+
+  /* flatpickr */
+  --fp-bg: rgba(10, 10, 12, 0.96);
+  --fp-panel: rgba(18, 18, 22, 0.96);
+  --fp-border: rgba(255,255,255,0.10);
+  --fp-text: rgba(255,255,255,0.92);
+  --fp-muted: rgba(255,255,255,0.55);
+  --fp-gold: var(--gold);
+  --fp-gold2: var(--gold2);
+}
+
+*{ box-sizing: border-box; }
+
+html, body{ height: 100%; }
+html{ background:#000; }
+body{
+  margin:0;
+  font-family: Inter, sans-serif;
+  background: #000; /* garante preto até o final */
+  color: var(--text);
+}
+
+/* ================== FUNDO IG (IMAGEM LONGA) ================== */
+
+.ig-bg{
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ig-bg__img{
+  position: absolute;
+  inset: 0;
+  background-image: url("img/instagram-longo.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center 0px;
+  transform: translateZ(0);
+  will-change: background-position;
+
+  /* entrada lenta e elegante */
+  opacity: 0;
+  transform: scale(1.06);
+  filter: blur(8px);
+}
+
+@media (prefers-reduced-motion: no-preference){
+  .ig-bg__img{
+    animation: bgFadeIn 1.8s cubic-bezier(.16, 1, .3, 1) forwards;
+  }
+  @keyframes bgFadeIn{
+    0%{ opacity:0; transform: scale(1.08); filter: blur(10px); }
+    40%{ opacity:.6; }
+    100%{ opacity:1; transform: scale(1); filter: blur(1px); }
+  }
+}
+
+.ig-bg__overlay{
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+
+/* garante que conteúdo fique acima do fundo */
+.container, .header, .grid, .card,
+.admin-topbar, .admin-tabs, .admin-shell{
+  position: relative;
+  z-index: 2;
+}
+
+/* ================== LAYOUT (BOOKING) ================== */
+
+.container{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 22px 16px 28px;
+}
+
+.header{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 6px 0 18px;
+}
+
+.brand{
+  text-align: center;
+}
+
+.brand h1{
+  margin:0;
+  font-family: "Playfair Display", serif;
+  font-weight: 600;
+  font-size: 26px;
+  color: var(--text);
+  text-shadow: 0 10px 26px rgba(0,0,0,0.55);
+}
+.brand p{
+  margin:4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-shadow: 0 10px 26px rgba(0,0,0,0.45);
+}
+
+.menu{
+  display:flex;
+  gap:10px;
+  background: rgba(15,15,18,0.30);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  padding: 8px;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+.menu a{
+  text-decoration:none;
+  color: rgba(255,255,255,0.88);
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13px;
+  transition: .15s;
+}
+.menu a:hover{ background: rgba(255,255,255,0.10); }
+
+.grid{
+  display:grid;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+  align-items:start;
+}
+
+/* ================== CARD / FORM ================== */
+
+.card{
+  background: rgba(18,18,22,0.55);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+
+/* animação elegante do card */
+@media (prefers-reduced-motion: no-preference){
+  .card{
+    animation: cardInElegant .85s cubic-bezier(.16, 1, .3, 1) both;
+  }
+  @keyframes cardInElegant{
+    from{ opacity:0; transform: translateY(18px) scale(.985); filter: blur(2px); }
+    to{ opacity:1; transform: translateY(0) scale(1); filter: blur(0); }
+  }
+}
+
+/* títulos (Seus dados / Serviço / Agendamento) */
+.card h2{
+  font-family: 'Great Vibes', cursive;
+  font-size: 40px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  position: relative;
+  margin: 0 0 22px;
+}
+.card h2::after{
+  content: "";
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  margin-top: 6px;
+  border-radius: 4px;
+}
+
+input, select{
+  width:100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: var(--glass-2);
+  backdrop-filter: blur(0.6px);
+  font-size: 14px;
+  margin-bottom: 10px;
+  outline:none;
+  color: rgba(255,255,255,0.92);
+}
+
+input::placeholder{ color: rgba(255,255,255,0.65); }
+
+input:focus, select:focus{
+  border-color: rgba(201,164,108,0.85);
+  box-shadow: 0 0 0 4px rgba(201,164,108,0.14);
+}
+
+.row{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  flex-wrap: wrap;
+}
+.row > *{
+  flex: 1;
+  min-width: 0;
+}
+
+.muted{ color: var(--muted); font-size: 13px; }
+.small{ font-size: 12px; color: var(--muted); }
+
+.badge{
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(15,15,18,0.35);
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid rgba(255,255,255,0.14);
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  backdrop-filter: blur(0.6px);
+  color: rgba(255,255,255,0.92);
+}
+
+/* botões */
+.btn, .btn2, .btn-glass{
+  border-radius: 14px;
+  border: 1px solid transparent;
+  cursor:pointer;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 11px 14px;
+  transition:.15s;
+  width:auto;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.btn{
+  display:inline-block;
+  text-decoration:none;
+  background: linear-gradient(135deg, #0f0f12, #1b1b22);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.92);
+}
+.btn:hover{ opacity:.92; }
+
+.btn2{
+  background: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.90);
+  border: 1px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(0.6px);
+}
+.btn2:hover{ background: rgba(255,255,255,0.14); }
+
+.btn-glass{
+  background: linear-gradient(135deg, rgba(201,164,108,0.55), rgba(241,217,170,0.45));
+  border: 1px solid rgba(201,164,108,0.40);
+  color: #2a211b;
+}
+
+.card > button,
+.card button[onclick="agendar()"],
+.btn-glass.gold{
+  width:100%;
+  border-radius: 14px;
+  border: none;
+  cursor:pointer;
+  font-weight: 900;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: #2a211b;
+  transition:.15s;
+  box-shadow: 0 16px 35px rgba(201,164,108,0.16);
+}
+.card > button:hover,
+.card button[onclick="agendar()"]:hover,
+.btn-glass.gold:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
+/* brilho no hover */
+.btn::after, .btn2::after, .btn-glass::after, .btn-glass.gold::after, .card > button::after{
+  content:"";
+  position:absolute;
+  inset:-40% -60%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.18), transparent);
+  transform: translateX(-60%) rotate(10deg);
+  transition: transform .8s ease;
+  pointer-events:none;
+}
+.btn:hover::after, .btn2:hover::after, .btn-glass:hover::after, .btn-glass.gold:hover::after, .card > button:hover::after{
+  transform: translateX(60%) rotate(10deg);
+}
+
+/* ================== LISTA ================== */
+
+.list{
+  display:grid;
+  gap: 12px;
+  padding:0;
+  margin:0;
+  list-style:none;
+}
+
+.item{
+  background: rgba(15,15,18,0.32);
+  backdrop-filter: blur(0.6px);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 18px;
+  padding: 14px;
+  color: rgba(255,255,255,0.90);
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+}
+
+.item .row{
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 10px;
+}
+.item .row .btn{ flex: 1 1 auto; }
+.item .row .btn-glass,
+.item .row .btn2{ flex: 0 0 auto; }
+
+hr.sep{
+  border: none;
+  height: 1px;
+  background: rgba(255,255,255,0.12);
+  margin: 14px 0;
+}
+
+/* ================== DROPDOWN HORÁRIOS ================== */
+
+.slot-wrapper{
+  position: relative;
+  width: 160px;
+  margin-left:auto;
+  z-index: 30;
+}
+
+.slot-toggle{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 12px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.14);
+  background: rgba(15,15,18,0.30);
+  backdrop-filter: blur(0.6px);
+  cursor:pointer;
+  font-weight:900;
+  color: rgba(255,255,255,0.92);
+}
+
+#slot_chev{ transition: transform .2s ease; }
+#slot_chev.open{ transform: rotate(180deg); }
+
+#horarios_grid{
+  position: absolute;
+  right:0;
+  top:48px;
+  width:170px;
+  max-height:210px;
+  padding:10px;
+  background: rgba(15,15,18,0.35);
+  backdrop-filter: blur(0.6px);
+  border-radius:18px;
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 25px 45px rgba(0,0,0,.35);
+  display:grid;
+  grid-template-columns: repeat(2,1fr);
+  gap:8px;
+  overflow-y:auto;
+
+  opacity:0;
+  transform: translateY(-6px) scale(.98);
+  transition: all .18s ease;
+  pointer-events:none;
+}
+
+#horarios_grid:not(.hidden){
+  opacity:1;
+  transform: translateY(0) scale(1);
+  pointer-events:auto;
+}
+
+#horarios_grid.hidden{ display:none; }
+
+#horarios_grid .slot{
+  width: 100%;
+  padding:8px 0;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(0.6px);
+  font-weight:900;
+  cursor:pointer;
+  transition:.15s;
+  color: rgba(255,255,255,0.92);
+}
+#horarios_grid .slot:hover{ transform: translateY(-2px); }
+
+#horarios_grid .slot.ocupado{
+  background: rgba(0,0,0,0.30);
+  color: rgba(255,255,255,0.55);
+  border-color: rgba(255,255,255,0.10);
+  cursor:not-allowed;
+}
+
+#horarios_grid .slot.ativo{
+  outline: 2px solid rgba(201,164,108,0.95);
+  box-shadow: 0 14px 28px rgba(201,164,108,0.12);
+}
+
+#horarios_grid::-webkit-scrollbar{ width:6px; }
+#horarios_grid::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,0.22);
+  border-radius:10px;
+}
+
+/* ================== CATÁLOGO (SERVIÇOS) ================== */
+
+.services{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 10px 0 6px;
+}
+
+.service-card{
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 18px;
+  overflow:hidden;
+  background: rgba(15,15,18,0.28);
+  backdrop-filter: blur(0.6px);
+  cursor:pointer;
+  transition: transform .22s ease, box-shadow .22s ease, outline-color .22s ease, filter .22s ease;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.20);
+}
+.service-card:hover{
+  transform: translateY(-3px);
+  filter: brightness(1.03);
+}
+
+.service-card img{
+  width:100%;
+  height: 120px;
+  object-fit: cover;
+  display:block;
+}
+
+.service-body{ padding: 10px 10px 12px; }
+
+.service-name{
+  font-weight: 900;
+  color: rgba(255,255,255,0.92);
+}
+.service-price{
+  margin-top: 4px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.75);
+}
+
+.service-card.active{
+  transform: translateY(-2px) scale(1.01);
+  outline: 2px solid rgba(201,164,108,0.95);
+  box-shadow: 0 14px 34px rgba(201,164,108,0.14);
+}
+
+/* ================== IDENTIDADE (LOGO TEXTO, SE USAR) ================== */
+
+.brand.brand-card{ margin: 0 0 0px; }
+
+.logo-wrap{
+  position: relative;
+  display: inline-block;
+  padding-bottom: 10px;
+}
+
+.logo{
+  font-family: "Playfair Display", serif;
+  font-size: 20px;
+  letter-spacing: 3px;
+  line-height: 1.1;
+  text-shadow: 0 12px 35px rgba(0,0,0,0.55);
+}
+
+.logo-gold{
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 10px rgba(201,164,108,.12));
+}
+
+.byline{
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  font-size: 9px;
+  letter-spacing: 2.6px;
+  text-transform: lowercase;
+  color: rgba(255,255,255,0.60);
+  text-shadow: 0 10px 26px rgba(0,0,0,0.55);
+}
+
+/* Substituição exata do texto pela logo (img) */
+.logo-img{
+  height: 200px;
+  width: auto;
+  display: block;
+}
+
+/* ================== DDD + WHATSAPP (BOOKING) ================== */
+
+.row input#ddd{
+  flex: 0 0 70px;
+  max-width: 70px;
+  text-align: center;
+}
+.row input#telefone{ flex: 1; }
+
+/* ================== FLATPICKR ================== */
+
+.flatpickr-calendar{
+  background: var(--fp-bg) !important;
+  border: 1px solid var(--fp-border) !important;
+  box-shadow: 0 22px 60px rgba(0,0,0,0.55) !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+}
+
+.flatpickr-months,
+.flatpickr-weekdays{
+  background: var(--fp-panel) !important;
+  border-bottom: 1px solid var(--fp-border) !important;
+}
+
+.flatpickr-current-month,
+.flatpickr-monthDropdown-months,
+.flatpickr-monthDropdown-months .flatpickr-monthDropdown-month,
+.numInputWrapper span.arrowUp,
+.numInputWrapper span.arrowDown{
+  color: var(--fp-gold) !important;
+}
+
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg{ fill: var(--fp-gold) !important; }
+.flatpickr-prev-month:hover svg,
+.flatpickr-next-month:hover svg{ fill: var(--fp-gold2) !important; }
+
+.flatpickr-weekday{
+  color: rgba(201,164,108,0.95) !important;
+  font-weight: 800 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  font-size: 11px !important;
+}
+
+.flatpickr-day{
+  color: rgba(201,164,108,0.92) !important;
+  border-radius: 14px !important;
+  font-weight: 800 !important;
+}
+
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay{ color: rgba(201,164,108,0.35) !important; }
+
+.flatpickr-day:hover{
+  background: rgba(201,164,108,0.14) !important;
+  border-color: rgba(201,164,108,0.25) !important;
+}
+
+.flatpickr-day.today{ border-color: rgba(201,164,108,0.55) !important; }
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange{
+  background: linear-gradient(135deg, var(--fp-gold), var(--fp-gold2)) !important;
+  color: #17171b !important;
+  border-color: rgba(0,0,0,0.15) !important;
+}
+
+.flatpickr-day.inRange{
+  background: rgba(201,164,108,0.16) !important;
+  color: rgba(201,164,108,0.95) !important;
+}
+
+.flatpickr-day.disabled,
+.flatpickr-day.disabled:hover{
+  color: rgba(255,255,255,0.18) !important;
+  background: transparent !important;
+  cursor: not-allowed !important;
+}
+
+.flatpickr-innerContainer,
+.flatpickr-rContainer{ border-top: 1px solid var(--fp-border) !important; }
+
+input.flatpickr-input{
+  background: var(--glass-2) !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+  color: rgba(255,255,255,0.92) !important;
+}
+input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
+
+/* ================== PIX MODAL ================== */
+.pix-modal{ z-index: 9999 !important; }
+
+/* ================== RESPONSIVO (BOOKING) ================== */
+
+@media (max-width: 860px){
+  .grid{ grid-template-columns: 1fr; }
+  .header{ flex-direction: column; }
+  .slot-wrapper{ width: 100%; margin-left:0; }
+}
+
+@media (max-width: 520px){
+  .container{
+    max-width: 380px;
+    margin: 0 auto;
+    padding: 10px 10px 22px;
+  }
+
+  .brand h1{ font-size: 20px; }
+  .brand p{ font-size: 12px; }
+
+  .card{
+    max-width: 340px;
+    margin: 0 auto;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .card h2{
+    font-size: 36px;
+    margin: 6px 0 18px;
+  }
+
+  input, select{
+    padding: 10px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .row{ gap: 8px; }
+  .small{ font-size: 11px; }
+
+  .card > button,
+  .card button[onclick="agendar()"]{
+    padding: 10px;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+
+  .services{
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin: 8px 0 4px;
+  }
+
+  .service-card{ border-radius: 14px; }
+  .service-card img{ height: 78px; }
+
+  .service-body{ padding: 8px 8px 10px; }
+  .service-name{ font-size: 13px; }
+  .service-price{ font-size: 12px; }
+
+  .slot-wrapper{ width: 140px; }
+  .slot-toggle{
+    padding: 9px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+  #horarios_grid{
+    width: 150px;
+    top: 44px;
+    padding: 8px;
+    border-radius: 14px;
+  }
+  #horarios_grid .slot{
+    padding: 7px 0;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+
+  .item .row{ flex-wrap: wrap; }
+  .item .row .btn{ flex: 1 1 100%; }
+
+  .flatpickr-calendar{
+    width: 320px !important;
+    border-radius: 16px !important;
+  }
+  .flatpickr-day{ border-radius: 12px !important; }
+}
+
+/* =========================================================
+   ADMIN PREMIUM (usa: <body class="admin-page">)
+========================================================= */
+
+.admin-page .container{ max-width: 1100px; }
+
+/* topbar */
+.admin-topbar{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  margin: 10px auto 10px;
+  max-width: 1100px;
+
+  background: rgba(15,15,18,0.45);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+
+.brand-mini{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand-logo{
+  height: 30px;
+  width: auto;
+  display:block;
+  filter: drop-shadow(0 10px 25px rgba(0,0,0,.45));
+}
+
+.topbar-actions{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+}
+
+.chip{
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.92);
+  font-weight: 900;
+  cursor:pointer;
+  transition: .2s ease;
+}
+.chip:hover{
+  background: rgba(255,255,255,0.10);
+  transform: translateY(-1px);
+}
+
+/* tabs */
+.admin-tabs{
+  display:flex;
+  gap: 10px;
+  padding: 10px 12px;
+  margin: 0 auto 12px;
+  max-width: 1100px;
+
+  background: rgba(15,15,18,0.30);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18px;
+  backdrop-filter: blur(10px);
+}
+
+.admin-tabs .tab{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.20);
+  color: rgba(255,255,255,0.90);
+  font-weight: 900;
+  cursor:pointer;
+  transition: .2s ease;
+  min-width: 0;
+}
+
+.admin-tabs .tab .tab-txt{ white-space: nowrap; }
+.admin-tabs .tab:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.08); }
+.admin-tabs .tab.active{
+  outline: 2px solid rgba(201,164,108,0.55);
+  background: rgba(201,164,108,0.10);
+}
+
+.admin-shell{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 14px 40px;
+}
+
+.admin-card{
+  background: rgba(18,18,22,0.60);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.30);
+  padding: 16px;
+}
+
+/* panes */
+.pane{ display:none; }
+.pane.active{ display:block; }
+
+.admin-page .pane h2{
+  margin-top: 6px;
+}
+
+/* tabelas no admin */
+.table-wrap{
+  width:100%;
+  overflow:auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.18);
+}
+
+.table{
+  width:100%;
+  border-collapse: collapse;
+  min-width: 860px; /* evita quebrar feio no desktop */
+}
+
+.table th{
+  text-align:left;
+  font-size: 12px;
+  color: rgba(255,255,255,0.70);
+  font-weight: 900;
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.20);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.table td{
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.88);
+}
+
+.table tr:hover td{
+  background: rgba(255,255,255,0.04);
+}
+
+/* deixa o date input mais consistente no admin */
+.admin-page input[type="date"]{
+  min-width: 180px;
+}
+
+/* MOBILE: tabs viram barra fixa embaixo */
+@media (max-width: 720px){
+  .admin-topbar{
+    border-radius: 16px;
+    margin: 10px 10px 10px;
+  }
+
+  .admin-tabs{
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: 12px;
+    z-index: 60;
+    margin: 0;
+    padding: 10px;
+    border-radius: 18px;
+    justify-content: space-between;
+  }
+
+  .admin-tabs .tab{
+    flex: 1;
+    padding: 10px 10px;
+    border-radius: 16px;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .admin-tabs .tab .tab-txt{
+    font-size: 11px;
+  }
+
+  .admin-shell{
+    padding: 0 10px 92px; /* espaço pra barra fixa embaixo */
+  }
+
+  .admin-card{
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  /* tabela: em mobile a gente deixa scroll horizontal */
+  .table{ min-width: 760px; }
+}
+
+/* micro ajustes de consistência */
+.admin-page .row{ align-items: stretch; }
+.admin-page .btn2{ height: 44px; }
+.admin-page input{ height: 44px; }
+/* =========================================================
+   FIX ADMIN LAYOUT DEFINITIVO
+========================================================= */
+
+/* Remove limitação do booking */
+.admin-page .container,
+.admin-page .grid{
+  all: unset;
+}
+
+/* Corpo admin ocupa tela inteira */
+.admin-page{
+  display: block;
+}
+
+/* Shell ocupa largura real */
+.admin-shell{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 20px 60px;
+}
+
+/* Card maior e elegante */
+.admin-card{
+  width: 100%;
+  padding: 24px;
+  border-radius: 22px;
+}
+
+/* Título maior */
+.admin-page h2{
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+/* Ajusta linha de filtro */
+.admin-page .row{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+
+.admin-page input{
+  height: 46px;
+}
+
+/* Tabela ocupa largura correta */
+.admin-page .table{
+  min-width: 900px;
+}
+
+/* MOBILE */
+@media (max-width: 720px){
+
+  .admin-shell{
+    padding: 10px 14px 100px;
+  }
+
+  .admin-card{
+    padding: 16px;
+  }
+
+  .admin-page h2{
+    font-size: 22px;
+  }
+
+}
+/* =========================================================
+   ADMIN = MESMA ESTÉTICA DO BOOKING (CARD CENTRAL)
+   Cole no FINAL do style.css
+========================================================= */
+
+/* 1) Admin volta a se comportar como página "booking" */
+.admin-page .admin-shell{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 22px 16px 40px;
+}
+
+/* 2) Card do admin igual card do booking */
+.admin-page .admin-card{
+  background: var(--glass);
+  backdrop-filter: blur(0.6px);
+  border: none;
+  box-shadow: none;
+  border-radius: 18px;
+  padding: 18px;
+  width: 100%;
+  max-width: 360px;      /* MESMA pegada do booking */
+  margin: 0 auto;        /* centraliza */
+}
+
+/* 3) Topbar não atrapalhar (fica fora do visual) */
+.admin-page .admin-topbar{
+  display: none;
+}
+
+/* 4) Tabs iguais ao menu do booking */
+.admin-page .admin-tabs{
+  display:flex;
+  gap:10px;
+  background: rgba(15,15,18,0.30);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  padding: 8px;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  width: fit-content;
+  margin: 0 auto 14px;   /* centraliza */
+}
+
+.admin-page .admin-tabs .tab{
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.88);
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13px;
+  transition: .15s;
+  cursor: pointer;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.admin-page .admin-tabs .tab:hover{
+  background: rgba(255,255,255,0.10);
+}
+
+.admin-page .admin-tabs .tab.active{
+  outline:2px solid rgba(201,164,108,0.85);
+  background: rgba(201,164,108,0.10);
+}
+
+/* 5) Títulos do admin no mesmo estilo (Great Vibes dourado) */
+.admin-page .admin-card h2{
+  font-family: 'Great Vibes', cursive;
+  font-size: 50px;
+  font-weight: normal;
+  color: var(--gold);
+  letter-spacing: 1px;
+  margin: 6px 0 10px;
+}
+
+/* 6) Tabelas: no "modo booking" vira lista rolável (porque o card é estreito) */
+.admin-page .table-wrap{
+  overflow-x: auto;
+  border-radius: 16px;
+}
+
+.admin-page .table{
+  width: 100%;
+  min-width: 720px; /* força scroll horizontal dentro do card */
+}
+
+/* 7) Mobile: bem parecido com seu booking atual */
+@media (max-width: 520px){
+  .admin-page .admin-shell{
+    max-width: 380px;
+    margin: 0 auto;
+    padding: 10px 10px 22px;
+  }
+
+  .admin-page .admin-card{
+    max-width: 310px;
+    padding: 12px;
+    border-radius: 14px;
+    background: rgba(15,15,18,0.26);
+    backdrop-filter: blur(0.6px);
+  }
+
+  .admin-page .admin-card h2{
+    font-size: 28px;
+    margin: 6px 0 8px;
+  }
+}
+/* =========================================
+   ADMIN: TABELA SEM SCROLL LATERAL (MOBILE)
+   transforma linhas em "cards"
+========================================= */
+@media (max-width: 520px){
+
+  /* não força largura grande */
+  .admin-page .table-wrap{
+    overflow: visible !important;
+  }
+
+  .admin-page .table{
+    min-width: 0 !important;
+    width: 100% !important;
+    border-spacing: 0 10px;
+  }
+
+  /* esconde o cabeçalho */
+  .admin-page .table thead{
+    display: none !important;
+  }
+
+  /* cada linha vira um bloco */
+  .admin-page .table tbody tr.rowcard{
+    display: block !important;
+    margin-bottom: 10px;
+  }
+
+  /* cada célula vira linha */
+  .admin-page .table tbody tr.rowcard td{
+    display: flex !important;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100% !important;
+
+    background: rgba(15,15,18,0.32) !important;
+    border: 1px solid rgba(255,255,255,0.14) !important;
+    border-radius: 16px !important;
+    padding: 10px 12px !important;
+
+    /* evita “estourar” */
+    white-space: normal !important;
+    overflow: hidden !important;
+  }
+
+  /* Remove bordas especiais de "primeiro/último td" */
+  .admin-page .rowcard td:first-child,
+  .admin-page .rowcard td:last-child{
+    border-radius: 16px !important;
+    border-left: 1px solid rgba(255,255,255,0.14) !important;
+    border-right: 1px solid rgba(255,255,255,0.14) !important;
+  }
+
+  /* labels automáticos por coluna (Agenda) */
+  .admin-page #pane-agenda .rowcard td:nth-child(1)::before{ content:"Data"; }
+  .admin-page #pane-agenda .rowcard td:nth-child(2)::before{ content:"Horário"; }
+  .admin-page #pane-agenda .rowcard td:nth-child(3)::before{ content:"Serviço"; }
+  .admin-page #pane-agenda .rowcard td:nth-child(4)::before{ content:"Cliente"; }
+  .admin-page #pane-agenda .rowcard td:nth-child(5)::before{ content:"Status"; }
+  .admin-page #pane-agenda .rowcard td:nth-child(6)::before{ content:"Ações"; }
+
+  /* labels automáticos (Lembretes) */
+  .admin-page #pane-lembretes .rowcard td:nth-child(1)::before{ content:"Data"; }
+  .admin-page #pane-lembretes .rowcard td:nth-child(2)::before{ content:"Horário"; }
+  .admin-page #pane-lembretes .rowcard td:nth-child(3)::before{ content:"Serviço"; }
+  .admin-page #pane-lembretes .rowcard td:nth-child(4)::before{ content:"Cliente"; }
+  .admin-page #pane-lembretes .rowcard td:nth-child(5)::before{ content:"Ações"; }
+
+  /* labels automáticos (Clientes) */
+  .admin-page #pane-clientes .rowcard td:nth-child(1)::before{ content:"Nome"; }
+  .admin-page #pane-clientes .rowcard td:nth-child(2)::before{ content:"WhatsApp"; }
+  .admin-page #pane-clientes .rowcard td:nth-child(3)::before{ content:"Obs"; }
+  .admin-page #pane-clientes .rowcard td:nth-child(4)::before{ content:"Ações"; }
+
+  /* estilo do "label" */
+  .admin-page .table tbody tr.rowcard td::before{
+    flex: 0 0 auto;
+    font-size: 11px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  /* ações ficarem em coluna (sem quebrar layout) */
+  .admin-page .actions{
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  /* WhatsApp e botões ocuparem largura boa */
+  .admin-page .actions .btn,
+  .admin-page .actions .btn2,
+  .admin-page .actions .btn-glass{
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  /* evita “corte” de textos grandes */
+  .admin-page .wrapline{
+    white-space: normal !important;
+  }
+}
+/* ========================================
+   BOTÕES ADMIN – HIERARQUIA VISUAL
+======================================== */
+
+/* WhatsApp = dourado */
+.admin-page .actions .btn{
+  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
+  border: none !important;
+  color: #2a211b !important;
+  font-weight: 900;
+  box-shadow: 0 12px 28px rgba(201,164,108,0.25);
+}
+
+.admin-page .actions .btn:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+/* Excluir = vermelho premium */
+.admin-page .actions .btn2{
+  background: linear-gradient(135deg, #000000, #000000) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(184,50,50,0.25);
+}
+
+.admin-page .actions .btn2:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+/* Ajuste mobile (mantém largura total) */
+@media (max-width: 520px){
+  .admin-page .actions .btn,
+  .admin-page .actions .btn2{
+    width: 100% !important;
+  }
+}
+/* Clientes: DDD + Número */
+.row.row-tel{
+  flex-wrap: nowrap;
+  gap: 10px;
+}
+#cliDDD{
+  flex: 0 0 74px;
+  max-width: 74px;
+  text-align: center;
+  letter-spacing: .08em;
+}
+#cliTel{
+  flex: 1 1 auto;
+}
+
+/* Mobile */
+@media (max-width: 520px){
+  .row.row-tel{ gap: 8px; }
+  #cliDDD{ flex: 0 0 66px; max-width: 66px; }
+}
+/* ===== FIX MOBILE CLIENTES (DDD + NUM + BOTÃO) ===== */
+
+/* não deixar msg colar no título */
+#msg{
+  margin: 0 0 12px;
+}
+#msg .badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+}
+
+/* linha de telefone */
+.row.row-tel{
+  flex-wrap: nowrap;
+  gap: 10px;
+}
+
+/* ddd menor */
+#cliDDD{
+  flex: 0 0 74px;
+  max-width: 74px;
+  text-align: center;
+  letter-spacing: .08em;
+}
+
+/* número ocupa o resto */
+#cliTel{
+  flex: 1 1 auto;
+}
+
+/* botão embaixo sempre full */
+#btnCriarCliente{
+  width: 100%;
+}
+
+/* MOBILE: garante que nada sobreponha */
+@media (max-width: 520px){
+  .row.row-tel{
+    gap: 8px;
+  }
+  #cliDDD{
+    flex: 0 0 66px;
+    max-width: 66px;
+  }
+
+  /* dá mais respiro pro topo do card no admin */
+  .admin-card{
+    padding-top: 14px;
+  }
+}
+/* ===== CLIENTES FIX DEFINITIVO ===== */
+
+.row.row-tel{
+  display: flex;
+  gap: 10px;
+}
+
+#cliDDD{
+  width: 70px;
+  text-align: center;
+}
+
+#cliTel{
+  flex: 1;
+}
+
+#btnCriarCliente{
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* Garante que nada sobreponha */
+.row{
+  flex-wrap: wrap;
+}
+
+/* espaço da mensagem */
+#msg{
+  margin-bottom: 12px;
+}
