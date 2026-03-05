@@ -930,3 +930,269 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
     text-align:center !important;
   }
 }
+/* =========================================
+   RESET VISUAL LIMPO DO ADMIN
+   cola no FINAL do style.css
+========================================= */
+
+/* some com a topbar velha que ficou flutuando */
+.admin-topbar{
+  display: none !important;
+}
+
+/* admin centralizado igual booking */
+.admin-shell{
+  max-width: 380px !important;
+  margin: 0 auto !important;
+  padding: 8px 10px 24px !important;
+}
+
+.admin-card{
+  max-width: 340px !important;
+  margin: 0 auto !important;
+  padding: 14px !important;
+  border-radius: 18px !important;
+  background: rgba(15,15,18,0.28) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.28) !important;
+}
+
+/* título menor e elegante */
+.admin-card h2{
+  font-family: 'Great Vibes', cursive !important;
+  font-size: 34px !important;
+  line-height: 1 !important;
+  margin: 4px 0 10px !important;
+  color: var(--gold) !important;
+  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+/* menu do topo menor e bonito */
+.admin-tabs{
+  position: relative !important;
+  top: 0 !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+
+  max-width: 340px !important;
+  margin: 10px auto 12px !important;
+  padding: 8px !important;
+
+  display: flex !important;
+  gap: 8px !important;
+  justify-content: space-between !important;
+
+  background: rgba(15,15,18,0.38) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  border-radius: 18px !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25) !important;
+}
+
+.admin-tabs .tab{
+  flex: 1 !important;
+  min-height: 58px !important;
+  padding: 8px 6px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  background: rgba(255,255,255,0.04) !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+
+  color: #fff !important;
+  font-weight: 800 !important;
+}
+
+.admin-tabs .tab .tab-ico{
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+
+.admin-tabs .tab .tab-txt{
+  font-size: 11px !important;
+  line-height: 1.1 !important;
+}
+
+.admin-tabs .tab.active{
+  background: rgba(201,164,108,0.10) !important;
+  outline: 2px solid rgba(201,164,108,0.55) !important;
+  box-shadow: none !important;
+}
+
+/* linhas do admin mais organizadas */
+.admin-page .row{
+  display: flex !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 10px !important;
+}
+
+/* inputs */
+.admin-page input,
+.admin-page select{
+  height: 44px !important;
+  padding: 10px 12px !important;
+  border-radius: 14px !important;
+  font-size: 13px !important;
+  margin-bottom: 0 !important;
+}
+
+/* agenda: botão atualizar menor */
+#btnAtualizarAgenda,
+#btnAtualizarLembretes{
+  width: auto !important;
+  min-width: 110px !important;
+  padding: 0 14px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+}
+
+/* clientes: DDD + número */
+.row.row-tel{
+  display: grid !important;
+  grid-template-columns: 74px 1fr !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+#cliDDD{
+  width: 74px !important;
+  max-width: 74px !important;
+  text-align: center !important;
+}
+
+#cliTel{
+  width: 100% !important;
+}
+
+/* botão adicionar embaixo, bonito */
+#btnCriarCliente{
+  width: 100% !important;
+  margin-top: 2px !important;
+}
+
+/* texto de exemplo menor */
+#pane-clientes .small.mut{
+  font-size: 11px !important;
+  margin-top: 2px !important;
+}
+
+/* mensagem do topo */
+#msg{
+  margin: 0 0 10px !important;
+}
+
+/* remove OBS da tabela */
+#pane-clientes table thead th:nth-child(3),
+#pane-clientes table tbody td:nth-child(3){
+  display: none !important;
+}
+
+/* tabela mobile vira cards */
+@media (max-width: 520px){
+  .table-wrap{
+    overflow: visible !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .table{
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .table thead{
+    display: none !important;
+  }
+
+  .table tbody tr.rowcard{
+    display: block !important;
+    margin-bottom: 10px !important;
+  }
+
+  .table tbody tr.rowcard td{
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    width: 100% !important;
+
+    background: rgba(15,15,18,0.32) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    border-radius: 14px !important;
+    padding: 10px 12px !important;
+    white-space: normal !important;
+  }
+
+  /* labels automáticos */
+  #pane-agenda .rowcard td:nth-child(1)::before{ content:"Data"; }
+  #pane-agenda .rowcard td:nth-child(2)::before{ content:"Horário"; }
+  #pane-agenda .rowcard td:nth-child(3)::before{ content:"Serviço"; }
+  #pane-agenda .rowcard td:nth-child(4)::before{ content:"Cliente"; }
+  #pane-agenda .rowcard td:nth-child(5)::before{ content:"Status"; }
+  #pane-agenda .rowcard td:nth-child(6)::before{ content:"Ações"; }
+
+  #pane-lembretes .rowcard td:nth-child(1)::before{ content:"Data"; }
+  #pane-lembretes .rowcard td:nth-child(2)::before{ content:"Horário"; }
+  #pane-lembretes .rowcard td:nth-child(3)::before{ content:"Serviço"; }
+  #pane-lembretes .rowcard td:nth-child(4)::before{ content:"Cliente"; }
+  #pane-lembretes .rowcard td:nth-child(5)::before{ content:"Ações"; }
+
+  #pane-clientes .rowcard td:nth-child(1)::before{ content:"Nome"; }
+  #pane-clientes .rowcard td:nth-child(2)::before{ content:"WhatsApp"; }
+  #pane-clientes .rowcard td:nth-child(4)::before{ content:"Ações"; }
+
+  .table tbody tr.rowcard td::before{
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    color: rgba(255,255,255,0.65) !important;
+    text-transform: uppercase !important;
+    letter-spacing: .05em !important;
+    flex: 0 0 auto !important;
+  }
+}
+
+/* ações sempre visíveis */
+.actions{
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  justify-content: flex-start !important;
+}
+
+/* WhatsApp dourado */
+.actions .btn{
+  width: 100% !important;
+  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
+  color: #2a211b !important;
+  border: none !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  justify-content: center !important;
+}
+
+/* Excluir vermelho */
+.actions .btn2{
+  width: 100% !important;
+  background: linear-gradient(135deg, #d93a3a, #8f1010) !important;
+  color: #fff !important;
+  border: none !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+}
+
+/* Confirmar */
+.actions .btn-glass{
+  width: 100% !important;
+  justify-content: center !important;
+}
