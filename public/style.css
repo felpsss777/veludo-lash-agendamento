@@ -1666,3 +1666,109 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
     right: auto !important;
   }
 }
+/* =========================================================
+   OVERRIDE FINAL — ADMIN MOBILE/TABS/AÇÕES/OBS
+   (Cole no FINAL do style.css)
+========================================================= */
+
+/* 1) Tabs sempre no topo (mata qualquer regra antiga de bottom) */
+.admin-tabs{
+  position: sticky !important;
+  top: 72px !important;         /* mais pra baixo (ajuste 60~90 se quiser) */
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: 80 !important;
+
+  width: calc(100% - 20px) !important;
+  margin: 10px auto 14px !important;
+  padding: 10px 10px !important;
+
+  background: rgba(10,10,12,.42) !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  border-radius: 18px !important;
+
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+
+  display: flex !important;
+  gap: 10px !important;
+  justify-content: space-between !important;
+}
+
+/* 2) Botões das abas menores */
+.admin-tabs .tab{
+  flex: 1 1 0 !important;
+  min-height: 52px !important;
+  padding: 10px 10px !important;
+  border-radius: 16px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+
+.admin-tabs .tab .tab-ico{
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+.admin-tabs .tab .tab-txt{
+  font-size: 12px !important;
+  line-height: 1.1 !important;
+  opacity: .95 !important;
+}
+
+/* 3) Estado ativo com dourado premium */
+.admin-tabs .tab.active{
+  outline: 2px solid rgba(201,164,108,.55) !important;
+  background: rgba(201,164,108,.10) !important;
+}
+
+/* 4) Conteúdo não ficar “colado” embaixo das tabs */
+.admin-shell{
+  padding-top: 10px !important;
+}
+
+/* 5) REMOVER "OBS" (coluna 3 da tabela de clientes) */
+#pane-clientes table thead th:nth-child(3),
+#pane-clientes table tbody td:nth-child(3){
+  display: none !important;
+}
+
+/* 6) AÇÕES: garantir que apareçam sempre */
+.actions{
+  display: flex !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+}
+
+/* 7) WhatsApp dourado + Excluir vermelho (forçando estilo) */
+.actions .btn{
+  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  color: #2a211b !important;
+  font-weight: 900 !important;
+  box-shadow: 0 12px 28px rgba(201,164,108,0.20) !important;
+}
+
+.actions .btn2{
+  background: linear-gradient(135deg, rgba(220,60,60,.95), rgba(160,15,15,.95)) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  box-shadow: 0 12px 28px rgba(220,60,60,0.18) !important;
+}
+
+/* 8) Mobile: botões em coluna pra nunca sumir/cortar */
+@media (max-width: 420px){
+  .actions{
+    justify-content: flex-start !important;
+  }
+  .actions .btn,
+  .actions .btn2,
+  .actions .btn-glass{
+    width: 100% !important;
+  }
+}
