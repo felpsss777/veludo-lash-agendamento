@@ -29,21 +29,23 @@
   --fp-muted: rgba(255,255,255,0.55);
   --fp-gold: var(--gold);
   --fp-gold2: var(--gold2);
+
+  /* ADMIN: alturas / offsets */
+  --admin-top-offset: 64px;     /* distância do topo até as tabs */
+  --admin-tabs-top: 64px;       /* tabs “mais para baixo” */
 }
 
 *{ box-sizing: border-box; }
-
 html, body{ height: 100%; }
 html{ background:#000; }
 body{
   margin:0;
   font-family: Inter, sans-serif;
-  background: #000; /* garante preto até o final */
+  background:#000;
   color: var(--text);
 }
 
 /* ================== FUNDO IG (IMAGEM LONGA) ================== */
-
 .ig-bg{
   position: fixed;
   inset: 0;
@@ -51,7 +53,6 @@ body{
   overflow: hidden;
   pointer-events: none;
 }
-
 .ig-bg__img{
   position: absolute;
   inset: 0;
@@ -62,12 +63,10 @@ body{
   transform: translateZ(0);
   will-change: background-position;
 
-  /* entrada lenta e elegante */
   opacity: 0;
   transform: scale(1.06);
   filter: blur(8px);
 }
-
 @media (prefers-reduced-motion: no-preference){
   .ig-bg__img{
     animation: bgFadeIn 1.8s cubic-bezier(.16, 1, .3, 1) forwards;
@@ -78,7 +77,6 @@ body{
     100%{ opacity:1; transform: scale(1); filter: blur(1px); }
   }
 }
-
 .ig-bg__overlay{
   position: absolute;
   inset: 0;
@@ -94,13 +92,11 @@ body{
 }
 
 /* ================== LAYOUT (BOOKING) ================== */
-
 .container{
   max-width: 980px;
   margin: 0 auto;
   padding: 22px 16px 28px;
 }
-
 .header{
   display:flex;
   align-items:center;
@@ -108,11 +104,7 @@ body{
   gap: 14px;
   margin: 6px 0 18px;
 }
-
-.brand{
-  text-align: center;
-}
-
+.brand{ text-align: center; }
 .brand h1{
   margin:0;
   font-family: "Playfair Display", serif;
@@ -157,7 +149,6 @@ body{
 }
 
 /* ================== CARD / FORM ================== */
-
 .card{
   background: rgba(18,18,22,0.55);
   backdrop-filter: blur(6px);
@@ -166,8 +157,6 @@ body{
   padding: 18px;
   box-shadow: 0 12px 30px rgba(0,0,0,0.25);
 }
-
-/* animação elegante do card */
 @media (prefers-reduced-motion: no-preference){
   .card{
     animation: cardInElegant .85s cubic-bezier(.16, 1, .3, 1) both;
@@ -178,7 +167,7 @@ body{
   }
 }
 
-/* títulos (Seus dados / Serviço / Agendamento) */
+/* títulos booking */
 .card h2{
   font-family: 'Great Vibes', cursive;
   font-size: 40px;
@@ -213,9 +202,7 @@ input, select{
   outline:none;
   color: rgba(255,255,255,0.92);
 }
-
 input::placeholder{ color: rgba(255,255,255,0.65); }
-
 input:focus, select:focus{
   border-color: rgba(201,164,108,0.85);
   box-shadow: 0 0 0 4px rgba(201,164,108,0.14);
@@ -227,10 +214,7 @@ input:focus, select:focus{
   align-items:center;
   flex-wrap: wrap;
 }
-.row > *{
-  flex: 1;
-  min-width: 0;
-}
+.row > *{ flex: 1; min-width: 0; }
 
 .muted{ color: var(--muted); font-size: 13px; }
 .small{ font-size: 12px; color: var(--muted); }
@@ -249,7 +233,7 @@ input:focus, select:focus{
   color: rgba(255,255,255,0.92);
 }
 
-/* botões */
+/* botões (base) */
 .btn, .btn2, .btn-glass{
   border-radius: 14px;
   border: 1px solid transparent;
@@ -267,7 +251,9 @@ input:focus, select:focus{
 }
 
 .btn{
-  display:inline-block;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   text-decoration:none;
   background: linear-gradient(135deg, #0f0f12, #1b1b22);
   border: 1px solid rgba(255,255,255,0.14);
@@ -289,6 +275,7 @@ input:focus, select:focus{
   color: #2a211b;
 }
 
+/* botão principal dourado (booking e admin onde usar .btn-glass.gold) */
 .card > button,
 .card button[onclick="agendar()"],
 .btn-glass.gold{
@@ -325,7 +312,6 @@ input:focus, select:focus{
 }
 
 /* ================== LISTA ================== */
-
 .list{
   display:grid;
   gap: 12px;
@@ -333,7 +319,6 @@ input:focus, select:focus{
   margin:0;
   list-style:none;
 }
-
 .item{
   background: rgba(15,15,18,0.32);
   backdrop-filter: blur(0.6px);
@@ -342,14 +327,12 @@ input:focus, select:focus{
   padding: 14px;
   color: rgba(255,255,255,0.90);
 }
-
 .top{
   display:flex;
   justify-content:space-between;
   gap:10px;
   align-items:flex-start;
 }
-
 .item .row{
   flex-wrap: nowrap;
   justify-content: flex-start;
@@ -367,14 +350,12 @@ hr.sep{
 }
 
 /* ================== DROPDOWN HORÁRIOS ================== */
-
 .slot-wrapper{
   position: relative;
   width: 160px;
   margin-left:auto;
   z-index: 30;
 }
-
 .slot-toggle{
   width:100%;
   display:flex;
@@ -389,7 +370,6 @@ hr.sep{
   font-weight:900;
   color: rgba(255,255,255,0.92);
 }
-
 #slot_chev{ transition: transform .2s ease; }
 #slot_chev.open{ transform: rotate(180deg); }
 
@@ -415,13 +395,11 @@ hr.sep{
   transition: all .18s ease;
   pointer-events:none;
 }
-
 #horarios_grid:not(.hidden){
   opacity:1;
   transform: translateY(0) scale(1);
   pointer-events:auto;
 }
-
 #horarios_grid.hidden{ display:none; }
 
 #horarios_grid .slot{
@@ -437,19 +415,16 @@ hr.sep{
   color: rgba(255,255,255,0.92);
 }
 #horarios_grid .slot:hover{ transform: translateY(-2px); }
-
 #horarios_grid .slot.ocupado{
   background: rgba(0,0,0,0.30);
   color: rgba(255,255,255,0.55);
   border-color: rgba(255,255,255,0.10);
   cursor:not-allowed;
 }
-
 #horarios_grid .slot.ativo{
   outline: 2px solid rgba(201,164,108,0.95);
   box-shadow: 0 14px 28px rgba(201,164,108,0.12);
 }
-
 #horarios_grid::-webkit-scrollbar{ width:6px; }
 #horarios_grid::-webkit-scrollbar-thumb{
   background: rgba(255,255,255,0.22);
@@ -457,14 +432,12 @@ hr.sep{
 }
 
 /* ================== CATÁLOGO (SERVIÇOS) ================== */
-
 .services{
   display:grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin: 10px 0 6px;
 }
-
 .service-card{
   border: 1px solid rgba(255,255,255,0.14);
   border-radius: 18px;
@@ -479,70 +452,22 @@ hr.sep{
   transform: translateY(-3px);
   filter: brightness(1.03);
 }
-
 .service-card img{
   width:100%;
   height: 120px;
   object-fit: cover;
   display:block;
 }
-
 .service-body{ padding: 10px 10px 12px; }
-
-.service-name{
-  font-weight: 900;
-  color: rgba(255,255,255,0.92);
-}
-.service-price{
-  margin-top: 4px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.75);
-}
-
+.service-name{ font-weight: 900; color: rgba(255,255,255,0.92); }
+.service-price{ margin-top: 4px; font-weight: 800; color: rgba(255,255,255,0.75); }
 .service-card.active{
   transform: translateY(-2px) scale(1.01);
   outline: 2px solid rgba(201,164,108,0.95);
   box-shadow: 0 14px 34px rgba(201,164,108,0.14);
 }
 
-/* ================== IDENTIDADE (LOGO TEXTO, SE USAR) ================== */
-
-.brand.brand-card{ margin: 0 0 0px; }
-
-.logo-wrap{
-  position: relative;
-  display: inline-block;
-  padding-bottom: 10px;
-}
-
-.logo{
-  font-family: "Playfair Display", serif;
-  font-size: 20px;
-  letter-spacing: 3px;
-  line-height: 1.1;
-  text-shadow: 0 12px 35px rgba(0,0,0,0.55);
-}
-
-.logo-gold{
-  background: linear-gradient(135deg, var(--gold), var(--gold2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 0 10px rgba(201,164,108,.12));
-}
-
-.byline{
-  position: absolute;
-  right: 0;
-  bottom: -2px;
-  font-size: 9px;
-  letter-spacing: 2.6px;
-  text-transform: lowercase;
-  color: rgba(255,255,255,0.60);
-  text-shadow: 0 10px 26px rgba(0,0,0,0.55);
-}
-
-/* Substituição exata do texto pela logo (img) */
+/* ================== IDENTIDADE ================== */
 .logo-img{
   height: 200px;
   width: auto;
@@ -550,7 +475,6 @@ hr.sep{
 }
 
 /* ================== DDD + WHATSAPP (BOOKING) ================== */
-
 .row input#ddd{
   flex: 0 0 70px;
   max-width: 70px;
@@ -559,7 +483,6 @@ hr.sep{
 .row input#telefone{ flex: 1; }
 
 /* ================== FLATPICKR ================== */
-
 .flatpickr-calendar{
   background: var(--fp-bg) !important;
   border: 1px solid var(--fp-border) !important;
@@ -567,13 +490,11 @@ hr.sep{
   border-radius: 18px !important;
   overflow: hidden !important;
 }
-
 .flatpickr-months,
 .flatpickr-weekdays{
   background: var(--fp-panel) !important;
   border-bottom: 1px solid var(--fp-border) !important;
 }
-
 .flatpickr-current-month,
 .flatpickr-monthDropdown-months,
 .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month,
@@ -581,7 +502,6 @@ hr.sep{
 .numInputWrapper span.arrowDown{
   color: var(--fp-gold) !important;
 }
-
 .flatpickr-prev-month svg,
 .flatpickr-next-month svg{ fill: var(--fp-gold) !important; }
 .flatpickr-prev-month:hover svg,
@@ -594,23 +514,18 @@ hr.sep{
   text-transform: uppercase !important;
   font-size: 11px !important;
 }
-
 .flatpickr-day{
   color: rgba(201,164,108,0.92) !important;
   border-radius: 14px !important;
   font-weight: 800 !important;
 }
-
 .flatpickr-day.prevMonthDay,
 .flatpickr-day.nextMonthDay{ color: rgba(201,164,108,0.35) !important; }
-
 .flatpickr-day:hover{
   background: rgba(201,164,108,0.14) !important;
   border-color: rgba(201,164,108,0.25) !important;
 }
-
 .flatpickr-day.today{ border-color: rgba(201,164,108,0.55) !important; }
-
 .flatpickr-day.selected,
 .flatpickr-day.startRange,
 .flatpickr-day.endRange{
@@ -618,22 +533,18 @@ hr.sep{
   color: #17171b !important;
   border-color: rgba(0,0,0,0.15) !important;
 }
-
 .flatpickr-day.inRange{
   background: rgba(201,164,108,0.16) !important;
   color: rgba(201,164,108,0.95) !important;
 }
-
 .flatpickr-day.disabled,
 .flatpickr-day.disabled:hover{
   color: rgba(255,255,255,0.18) !important;
   background: transparent !important;
   cursor: not-allowed !important;
 }
-
 .flatpickr-innerContainer,
 .flatpickr-rContainer{ border-top: 1px solid var(--fp-border) !important; }
-
 input.flatpickr-input{
   background: var(--glass-2) !important;
   border: 1px solid rgba(255,255,255,0.16) !important;
@@ -645,20 +556,17 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
 .pix-modal{ z-index: 9999 !important; }
 
 /* ================== RESPONSIVO (BOOKING) ================== */
-
 @media (max-width: 860px){
   .grid{ grid-template-columns: 1fr; }
   .header{ flex-direction: column; }
   .slot-wrapper{ width: 100%; margin-left:0; }
 }
-
 @media (max-width: 520px){
   .container{
     max-width: 380px;
     margin: 0 auto;
     padding: 10px 10px 22px;
   }
-
   .brand h1{ font-size: 20px; }
   .brand p{ font-size: 12px; }
 
@@ -668,19 +576,16 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
     padding: 12px;
     border-radius: 14px;
   }
-
   .card h2{
     font-size: 36px;
     margin: 6px 0 18px;
   }
-
   input, select{
     padding: 10px 10px;
     border-radius: 12px;
     font-size: 13px;
     margin-bottom: 8px;
   }
-
   .row{ gap: 8px; }
   .small{ font-size: 11px; }
 
@@ -696,10 +601,8 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
     gap: 10px;
     margin: 8px 0 4px;
   }
-
   .service-card{ border-radius: 14px; }
   .service-card img{ height: 78px; }
-
   .service-body{ padding: 8px 8px 10px; }
   .service-name{ font-size: 13px; }
   .service-price{ font-size: 12px; }
@@ -733,86 +636,71 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
 }
 
 /* =========================================================
-   ADMIN PREMIUM (usa: <body class="admin-page">)
+   ADMIN (admin.html)
 ========================================================= */
 
-.admin-page .container{ max-width: 1100px; }
-
-/* topbar */
-.admin-topbar{
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  margin: 10px auto 10px;
-  max-width: 1100px;
-
-  background: rgba(15,15,18,0.45);
+/* layout geral admin */
+.admin-shell{
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 18px 16px 40px;
+}
+.admin-card{
+  background: rgba(15,15,18,0.26);
+  backdrop-filter: blur(0.6px);
   border: 1px solid rgba(255,255,255,0.10);
   border-radius: 18px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  padding: 16px;
 }
 
-.brand-mini{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-  min-width: 0;
+/* msg */
+#msg{ margin: 0 0 12px; }
+
+/* título admin */
+.admin-card h2{
+  font-family: 'Great Vibes', cursive;
+  font-size: 44px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 6px 0 10px;
 }
 
-.brand-logo{
-  height: 30px;
-  width: auto;
-  display:block;
-  filter: drop-shadow(0 10px 25px rgba(0,0,0,.45));
-}
+/* panes */
+.pane{ display:none; }
+.pane.active{ display:block; }
 
-.topbar-actions{
-  display:flex;
-  gap: 10px;
-  align-items:center;
-}
-
-.chip{
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.92);
-  font-weight: 900;
-  cursor:pointer;
-  transition: .2s ease;
-}
-.chip:hover{
-  background: rgba(255,255,255,0.10);
-  transform: translateY(-1px);
-}
-
-/* tabs */
+/* TABS (sempre no topo, menores e mais “para baixo”) */
 .admin-tabs{
+  position: sticky !important;
+  top: var(--admin-tabs-top) !important;
+  bottom: auto !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 80 !important;
+
   display:flex;
   gap: 10px;
-  padding: 10px 12px;
-  margin: 0 auto 12px;
-  max-width: 1100px;
+  justify-content: space-between;
 
-  background: rgba(15,15,18,0.30);
-  border: 1px solid rgba(255,255,255,0.10);
+  margin: 10px auto 12px;
+  max-width: 980px;
+  padding: 10px 12px;
+
+  background: rgba(10,10,12,.38);
+  border: 1px solid rgba(255,255,255,.10);
   border-radius: 18px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .admin-tabs .tab{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap: 10px;
-  padding: 12px 14px;
+  flex: 1;
+  min-height: 54px;     /* menor */
+  padding: 10px 10px;   /* menor */
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(0,0,0,0.20);
@@ -820,40 +708,46 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
   font-weight: 900;
   cursor:pointer;
   transition: .2s ease;
-  min-width: 0;
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+  justify-content:center;
+  gap: 6px;
 }
 
-.admin-tabs .tab .tab-txt{ white-space: nowrap; }
+.admin-tabs .tab .tab-ico{ font-size: 18px; line-height: 1; }
+.admin-tabs .tab .tab-txt{ font-size: 13px; line-height: 1.1; }
+
 .admin-tabs .tab:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.08); }
 .admin-tabs .tab.active{
-  outline: 2px solid rgba(201,164,108,0.55);
+  outline: 2px solid rgba(212, 175, 55, .45);
   background: rgba(201,164,108,0.10);
+  box-shadow: 0 0 0 6px rgba(212, 175, 55, .10);
 }
 
+/* garante que o conteúdo não “grude” na barra */
 .admin-shell{
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 14px 40px;
+  padding-top: 10px;
 }
 
-.admin-card{
-  background: rgba(18,18,22,0.60);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.30);
-  padding: 16px;
+/* ===== CLIENTES: DDD + Número ===== */
+.row.row-tel{
+  display:flex;
+  gap: 10px;
+  flex-wrap: nowrap;
 }
-
-/* panes */
-.pane{ display:none; }
-.pane.active{ display:block; }
-
-.admin-page .pane h2{
-  margin-top: 6px;
+#cliDDD{
+  flex: 0 0 74px;
+  max-width: 74px;
+  text-align: center;
+  letter-spacing: .08em;
 }
+#cliTel{
+  flex: 1 1 auto;
+}
+#btnCriarCliente{ width: 100%; }
 
-/* tabelas no admin */
+/* ================== TABELAS ADMIN ================== */
 .table-wrap{
   width:100%;
   overflow:auto;
@@ -865,7 +759,7 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
 .table{
   width:100%;
   border-collapse: collapse;
-  min-width: 860px; /* evita quebrar feio no desktop */
+  min-width: 860px;
 }
 
 .table th{
@@ -880,326 +774,141 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
   top: 0;
   z-index: 2;
 }
-
 .table td{
   padding: 12px 12px;
   border-bottom: 1px solid rgba(255,255,255,0.06);
   color: rgba(255,255,255,0.88);
 }
+.table tr:hover td{ background: rgba(255,255,255,0.04); }
 
-.table tr:hover td{
-  background: rgba(255,255,255,0.04);
+/* ===== REMOVE OBS (Clientes) ===== */
+#pane-clientes table th:nth-child(3),
+#pane-clientes table td:nth-child(3){
+  display:none !important;
 }
 
-/* deixa o date input mais consistente no admin */
-.admin-page input[type="date"]{
-  min-width: 180px;
+/* ================== AÇÕES (WhatsApp + Excluir) ================== */
+.actions{
+  display:flex !important;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
 }
 
-/* MOBILE: tabs viram barra fixa embaixo */
+/* WhatsApp = dourado */
+.admin-page .actions .btn,
+.actions .btn{
+  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
+  border: none !important;
+  color: #2a211b !important;
+  font-weight: 900 !important;
+  box-shadow: 0 12px 28px rgba(201,164,108,0.22);
+}
+
+/* Excluir = vermelho premium */
+.admin-page .actions .btn2,
+.actions .btn2{
+  background: linear-gradient(135deg, rgba(220,60,60,.95), rgba(255,120,120,.80)) !important;
+  border: none !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+}
+
+/* Confirmar (se aparecer) = glass douradinho suave */
+.actions .btn-glass{
+  background: linear-gradient(135deg, rgba(201,164,108,0.55), rgba(241,217,170,0.45)) !important;
+  border: 1px solid rgba(201,164,108,0.40) !important;
+  color: #2a211b !important;
+  font-weight: 900 !important;
+}
+
+/* ================== MOBILE ADMIN ================== */
 @media (max-width: 720px){
-  .admin-topbar{
-    border-radius: 16px;
-    margin: 10px 10px 10px;
-  }
-
-  .admin-tabs{
-    position: fixed;
-    left: 10px;
-    right: 10px;
-    bottom: 12px;
-    z-index: 60;
-    margin: 0;
-    padding: 10px;
-    border-radius: 18px;
-    justify-content: space-between;
-  }
-
-  .admin-tabs .tab{
-    flex: 1;
-    padding: 10px 10px;
-    border-radius: 16px;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .admin-tabs .tab .tab-txt{
-    font-size: 11px;
+  :root{
+    --admin-tabs-top: 58px; /* no mobile fica um tiquinho mais baixo */
   }
 
   .admin-shell{
-    padding: 0 10px 92px; /* espaço pra barra fixa embaixo */
-  }
-
-  .admin-card{
-    padding: 12px;
-    border-radius: 18px;
-  }
-
-  /* tabela: em mobile a gente deixa scroll horizontal */
-  .table{ min-width: 760px; }
-}
-
-/* micro ajustes de consistência */
-.admin-page .row{ align-items: stretch; }
-.admin-page .btn2{ height: 44px; }
-.admin-page input{ height: 44px; }
-/* =========================================================
-   FIX ADMIN LAYOUT DEFINITIVO
-========================================================= */
-
-/* Remove limitação do booking */
-.admin-page .container,
-.admin-page .grid{
-  all: unset;
-}
-
-/* Corpo admin ocupa tela inteira */
-.admin-page{
-  display: block;
-}
-
-/* Shell ocupa largura real */
-.admin-shell{
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px 20px 60px;
-}
-
-/* Card maior e elegante */
-.admin-card{
-  width: 100%;
-  padding: 24px;
-  border-radius: 22px;
-}
-
-/* Título maior */
-.admin-page h2{
-  font-size: 26px;
-  font-weight: 800;
-  margin-bottom: 18px;
-}
-
-/* Ajusta linha de filtro */
-.admin-page .row{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-bottom:16px;
-}
-
-.admin-page input{
-  height: 46px;
-}
-
-/* Tabela ocupa largura correta */
-.admin-page .table{
-  min-width: 900px;
-}
-
-/* MOBILE */
-@media (max-width: 720px){
-
-  .admin-shell{
-    padding: 10px 14px 100px;
-  }
-
-  .admin-card{
-    padding: 16px;
-  }
-
-  .admin-page h2{
-    font-size: 22px;
-  }
-
-}
-/* =========================================================
-   ADMIN = MESMA ESTÉTICA DO BOOKING (CARD CENTRAL)
-   Cole no FINAL do style.css
-========================================================= */
-
-/* 1) Admin volta a se comportar como página "booking" */
-.admin-page .admin-shell{
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 22px 16px 40px;
-}
-
-/* 2) Card do admin igual card do booking */
-.admin-page .admin-card{
-  background: var(--glass);
-  backdrop-filter: blur(0.6px);
-  border: none;
-  box-shadow: none;
-  border-radius: 18px;
-  padding: 18px;
-  width: 100%;
-  max-width: 360px;      /* MESMA pegada do booking */
-  margin: 0 auto;        /* centraliza */
-}
-
-/* 3) Topbar não atrapalhar (fica fora do visual) */
-.admin-page .admin-topbar{
-  display: none;
-}
-
-/* 4) Tabs iguais ao menu do booking */
-.admin-page .admin-tabs{
-  display:flex;
-  gap:10px;
-  background: rgba(15,15,18,0.30);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--line);
-  padding: 8px;
-  border-radius: 14px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-  width: fit-content;
-  margin: 0 auto 14px;   /* centraliza */
-}
-
-.admin-page .admin-tabs .tab{
-  border: none;
-  background: transparent;
-  color: rgba(255,255,255,0.88);
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 13px;
-  transition: .15s;
-  cursor: pointer;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.admin-page .admin-tabs .tab:hover{
-  background: rgba(255,255,255,0.10);
-}
-
-.admin-page .admin-tabs .tab.active{
-  outline:2px solid rgba(201,164,108,0.85);
-  background: rgba(201,164,108,0.10);
-}
-
-/* 5) Títulos do admin no mesmo estilo (Great Vibes dourado) */
-.admin-page .admin-card h2{
-  font-family: 'Great Vibes', cursive;
-  font-size: 50px;
-  font-weight: normal;
-  color: var(--gold);
-  letter-spacing: 1px;
-  margin: 6px 0 10px;
-}
-
-/* 6) Tabelas: no "modo booking" vira lista rolável (porque o card é estreito) */
-.admin-page .table-wrap{
-  overflow-x: auto;
-  border-radius: 16px;
-}
-
-.admin-page .table{
-  width: 100%;
-  min-width: 720px; /* força scroll horizontal dentro do card */
-}
-
-/* 7) Mobile: bem parecido com seu booking atual */
-@media (max-width: 520px){
-  .admin-page .admin-shell{
     max-width: 380px;
     margin: 0 auto;
     padding: 10px 10px 22px;
   }
 
-  .admin-page .admin-card{
-    max-width: 310px;
+  .admin-card{
+    max-width: 340px;
+    margin: 0 auto;
     padding: 12px;
     border-radius: 14px;
-    background: rgba(15,15,18,0.26);
-    backdrop-filter: blur(0.6px);
   }
 
-  .admin-page .admin-card h2{
-    font-size: 28px;
+  .admin-card h2{
+    font-size: 30px;
     margin: 6px 0 8px;
   }
-}
-/* =========================================
-   ADMIN: TABELA SEM SCROLL LATERAL (MOBILE)
-   transforma linhas em "cards"
-========================================= */
-@media (max-width: 520px){
 
-  /* não força largura grande */
-  .admin-page .table-wrap{
-    overflow: visible !important;
+  /* inputs mais compactos */
+  .admin-page input,
+  .admin-page select{
+    padding: 10px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    margin-bottom: 8px;
   }
 
-  .admin-page .table{
-    min-width: 0 !important;
-    width: 100% !important;
-    border-spacing: 0 10px;
-  }
+  /* DDD + número */
+  .row.row-tel{ gap: 8px; }
+  #cliDDD{ flex: 0 0 66px; max-width: 66px; }
 
-  /* esconde o cabeçalho */
-  .admin-page .table thead{
-    display: none !important;
-  }
+  /* MOBILE: tabela vira cards (sem scroll lateral) */
+  .table-wrap{ overflow: visible !important; border: none; background: transparent; }
+  .table{ min-width: 0 !important; width: 100% !important; }
+  .table thead{ display:none !important; }
 
-  /* cada linha vira um bloco */
-  .admin-page .table tbody tr.rowcard{
-    display: block !important;
+  .table tbody tr.rowcard{
+    display:block !important;
     margin-bottom: 10px;
   }
 
-  /* cada célula vira linha */
-  .admin-page .table tbody tr.rowcard td{
-    display: flex !important;
+  .table tbody tr.rowcard td{
+    display:flex !important;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items:flex-start;
     gap: 10px;
-    width: 100% !important;
 
     background: rgba(15,15,18,0.32) !important;
     border: 1px solid rgba(255,255,255,0.14) !important;
     border-radius: 16px !important;
     padding: 10px 12px !important;
 
-    /* evita “estourar” */
     white-space: normal !important;
     overflow: hidden !important;
   }
 
-  /* Remove bordas especiais de "primeiro/último td" */
-  .admin-page .rowcard td:first-child,
-  .admin-page .rowcard td:last-child{
-    border-radius: 16px !important;
-    border-left: 1px solid rgba(255,255,255,0.14) !important;
-    border-right: 1px solid rgba(255,255,255,0.14) !important;
-  }
+  /* Labels automáticos (Agenda) */
+  #pane-agenda .rowcard td:nth-child(1)::before{ content:"Data"; }
+  #pane-agenda .rowcard td:nth-child(2)::before{ content:"Horário"; }
+  #pane-agenda .rowcard td:nth-child(3)::before{ content:"Serviço"; }
+  #pane-agenda .rowcard td:nth-child(4)::before{ content:"Cliente"; }
+  #pane-agenda .rowcard td:nth-child(5)::before{ content:"Status"; }
+  #pane-agenda .rowcard td:nth-child(6)::before{ content:"Ações"; }
 
-  /* labels automáticos por coluna (Agenda) */
-  .admin-page #pane-agenda .rowcard td:nth-child(1)::before{ content:"Data"; }
-  .admin-page #pane-agenda .rowcard td:nth-child(2)::before{ content:"Horário"; }
-  .admin-page #pane-agenda .rowcard td:nth-child(3)::before{ content:"Serviço"; }
-  .admin-page #pane-agenda .rowcard td:nth-child(4)::before{ content:"Cliente"; }
-  .admin-page #pane-agenda .rowcard td:nth-child(5)::before{ content:"Status"; }
-  .admin-page #pane-agenda .rowcard td:nth-child(6)::before{ content:"Ações"; }
+  /* Labels automáticos (Lembretes) */
+  #pane-lembretes .rowcard td:nth-child(1)::before{ content:"Data"; }
+  #pane-lembretes .rowcard td:nth-child(2)::before{ content:"Horário"; }
+  #pane-lembretes .rowcard td:nth-child(3)::before{ content:"Serviço"; }
+  #pane-lembretes .rowcard td:nth-child(4)::before{ content:"Cliente"; }
+  #pane-lembretes .rowcard td:nth-child(5)::before{ content:"Ações"; }
 
-  /* labels automáticos (Lembretes) */
-  .admin-page #pane-lembretes .rowcard td:nth-child(1)::before{ content:"Data"; }
-  .admin-page #pane-lembretes .rowcard td:nth-child(2)::before{ content:"Horário"; }
-  .admin-page #pane-lembretes .rowcard td:nth-child(3)::before{ content:"Serviço"; }
-  .admin-page #pane-lembretes .rowcard td:nth-child(4)::before{ content:"Cliente"; }
-  .admin-page #pane-lembretes .rowcard td:nth-child(5)::before{ content:"Ações"; }
+  /* Labels automáticos (Clientes) — Obs está escondido */
+  #pane-clientes .rowcard td:nth-child(1)::before{ content:"Nome"; }
+  #pane-clientes .rowcard td:nth-child(2)::before{ content:"WhatsApp"; }
+  /* td 3 (Obs) hidden */
+  #pane-clientes .rowcard td:nth-child(4)::before{ content:"Ações"; }
 
-  /* labels automáticos (Clientes) */
-  .admin-page #pane-clientes .rowcard td:nth-child(1)::before{ content:"Nome"; }
-  .admin-page #pane-clientes .rowcard td:nth-child(2)::before{ content:"WhatsApp"; }
-  .admin-page #pane-clientes .rowcard td:nth-child(3)::before{ content:"Obs"; }
-  .admin-page #pane-clientes .rowcard td:nth-child(4)::before{ content:"Ações"; }
-
-  /* estilo do "label" */
-  .admin-page .table tbody tr.rowcard td::before{
+  /* Estilo do label */
+  .table tbody tr.rowcard td::before{
     flex: 0 0 auto;
     font-size: 11px;
     font-weight: 900;
@@ -1209,566 +918,15 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
     margin-top: 1px;
   }
 
-  /* ações ficarem em coluna (sem quebrar layout) */
-  .admin-page .actions{
+  /* Botões em coluna para nunca sumirem */
+  .actions{
     justify-content: flex-start !important;
-    flex-wrap: wrap !important;
     gap: 8px !important;
   }
-
-  /* WhatsApp e botões ocuparem largura boa */
-  .admin-page .actions .btn,
-  .admin-page .actions .btn2,
-  .admin-page .actions .btn-glass{
-    width: 100% !important;
-    text-align: center !important;
-  }
-
-  /* evita “corte” de textos grandes */
-  .admin-page .wrapline{
-    white-space: normal !important;
-  }
-}
-/* ========================================
-   BOTÕES ADMIN – HIERARQUIA VISUAL
-======================================== */
-
-/* WhatsApp = dourado */
-.admin-page .actions .btn{
-  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
-  border: none !important;
-  color: #2a211b !important;
-  font-weight: 900;
-  box-shadow: 0 12px 28px rgba(201,164,108,0.25);
-}
-
-.admin-page .actions .btn:hover{
-  transform: translateY(-1px);
-  filter: brightness(1.05);
-}
-
-/* Excluir = vermelho premium */
-.admin-page .actions .btn2{
-  background: linear-gradient(135deg, #000000, #000000) !important;
-  border: none !important;
-  color: white !important;
-  font-weight: 800;
-  box-shadow: 0 10px 24px rgba(184,50,50,0.25);
-}
-
-.admin-page .actions .btn2:hover{
-  transform: translateY(-1px);
-  filter: brightness(1.08);
-}
-
-/* Ajuste mobile (mantém largura total) */
-@media (max-width: 520px){
-  .admin-page .actions .btn,
-  .admin-page .actions .btn2{
-    width: 100% !important;
-  }
-}
-/* Clientes: DDD + Número */
-.row.row-tel{
-  flex-wrap: nowrap;
-  gap: 10px;
-}
-#cliDDD{
-  flex: 0 0 74px;
-  max-width: 74px;
-  text-align: center;
-  letter-spacing: .08em;
-}
-#cliTel{
-  flex: 1 1 auto;
-}
-
-/* Mobile */
-@media (max-width: 520px){
-  .row.row-tel{ gap: 8px; }
-  #cliDDD{ flex: 0 0 66px; max-width: 66px; }
-}
-/* ===== FIX MOBILE CLIENTES (DDD + NUM + BOTÃO) ===== */
-
-/* não deixar msg colar no título */
-#msg{
-  margin: 0 0 12px;
-}
-#msg .badge{
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-}
-
-/* linha de telefone */
-.row.row-tel{
-  flex-wrap: nowrap;
-  gap: 10px;
-}
-
-/* ddd menor */
-#cliDDD{
-  flex: 0 0 74px;
-  max-width: 74px;
-  text-align: center;
-  letter-spacing: .08em;
-}
-
-/* número ocupa o resto */
-#cliTel{
-  flex: 1 1 auto;
-}
-
-/* botão embaixo sempre full */
-#btnCriarCliente{
-  width: 100%;
-}
-
-/* MOBILE: garante que nada sobreponha */
-@media (max-width: 520px){
-  .row.row-tel{
-    gap: 8px;
-  }
-  #cliDDD{
-    flex: 0 0 66px;
-    max-width: 66px;
-  }
-
-  /* dá mais respiro pro topo do card no admin */
-  .admin-card{
-    padding-top: 14px;
-  }
-}
-/* ===== CLIENTES FIX DEFINITIVO ===== */
-
-.row.row-tel{
-  display: flex;
-  gap: 10px;
-}
-
-#cliDDD{
-  width: 70px;
-  text-align: center;
-}
-
-#cliTel{
-  flex: 1;
-}
-
-#btnCriarCliente{
-  width: 100%;
-  margin-top: 6px;
-}
-
-/* Garante que nada sobreponha */
-.row{
-  flex-wrap: wrap;
-}
-
-/* espaço da mensagem */
-#msg{
-  margin-bottom: 12px;
-}
-/* =========================
-   FIX: TABS SEMPRE NO TOPO
-   (override do mobile que jogava pro rodapé)
-========================= */
-
-/* garante que o header (topbar + tabs) fique acima de tudo */
-.admin-header,
-.admin-topbar,
-.admin-tabs{
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-
-/* o header inteiro em cima (topbar + tabs) */
-.admin-header{
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-
-/* topbar fica em cima e as tabs logo abaixo */
-.admin-topbar{
-  z-index: 60;
-}
-
-/* tabs sempre no topo: remove qualquer "bottom: 0" antigo */
-.admin-tabs{
-  position: sticky !important;
-  top: var(--topbar-h, 64px) !important;
-  bottom: auto !important;
-  left: auto !important;
-  right: auto !important;
-  width: 100% !important;
-
-  /* visual: mais "booking" */
-  background: rgba(10, 10, 12, 0.45);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-left: none;
-  border-right: none;
-}
-
-/* se seu CSS antigo tiver "nav embaixo no mobile", isso mata */
-@media (max-width: 768px){
-  .admin-tabs{
-    position: sticky !important;
-    top: var(--topbar-h, 64px) !important;
-    bottom: auto !important;
-  }
-}
-
-/* espaço no conteúdo para não ficar escondido atrás do header */
-.admin-shell{
-  padding-top: calc(var(--topbar-h, 64px) + var(--tabs-h, 56px) + 10px) !important;
-}
-
-/* define alturas padrão (ajuste se quiser) */
-:root{
-  --topbar-h: 64px;
-  --tabs-h: 56px;
-}
-
-/* =========================
-   CLIENTES: linha DDD + Número bonita
-========================= */
-.row-tel{
-  display: grid !important;
-  grid-template-columns: 90px 1fr auto !important;
-  gap: 10px !important;
-  align-items: center !important;
-}
-
-/* em telas bem pequenas o botão quebra pra baixo */
-@media (max-width: 420px){
-  .row-tel{
-    grid-template-columns: 90px 1fr !important;
-  }
-  .row-tel #btnCriarCliente{
-    grid-column: 1 / -1 !important;
-    width: 100% !important;
-  }
-}
-
-/* =========================
-   REMOVE OBS VISUAL (caso ainda exista)
-   Se você já removeu no HTML/JS, isso só garante.
-========================= */
-#pane-clientes th:nth-child(3),
-#pane-clientes td:nth-child(3){
-  display: none !important;
-}
-
-/* como removemos a 3ª coluna, a coluna de ações vira a 3ª */
-#pane-clientes th:nth-child(4),
-#pane-clientes td:nth-child(4){
-  display: table-cell !important;
-}
-
-/* =========================
-   (Opcional) Se ainda existir barra inferior em algum CSS antigo
-========================= */
-.admin-tabs--bottom,
-.bottom-nav,
-.mobile-tabs{
-  display: none !important;
-}
-/* ===============================
-   ADMIN - ajustes mobile (tabs + ações)
-   Cole no FINAL do style.css
-================================ */
-
-/* 1) Barra de abas menor e um pouco mais para baixo (cobrindo a foto) */
-.admin-tabs{
-  position: sticky;
-  top: 58px;                 /* desce a barra (ajuste: 50~80) */
-  z-index: 50;
-  padding: 10px 10px 12px;
-  margin: 6px 0 10px;
-  border-radius: 18px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-.admin-tabs .tab{
-  padding: 10px 10px;        /* menor */
-  min-height: 52px;          /* menor */
-  gap: 6px;
-}
-
-.admin-tabs .tab-ico{
-  font-size: 18px;           /* ícone menor */
-  line-height: 1;
-}
-
-.admin-tabs .tab-txt{
-  font-size: 14px;           /* texto menor */
-  line-height: 1.1;
-}
-
-/* 2) Garantir que a barra NÃO fique embaixo no mobile */
-@media (max-width: 720px){
-  .admin-tabs{
-    position: sticky !important;
-    bottom: auto !important;   /* mata qualquer regra de bottom */
-    top: 58px !important;      /* fica no topo */
-  }
-}
-
-/* 3) CLIENTES: remover coluna OBS visualmente (sem mexer no HTML) */
-@media (max-width: 720px){
-  /* some o cabeçalho "Obs" (3ª coluna) e o conteúdo da 3ª coluna */
-  #pane-clientes table thead th:nth-child(3),
-  #pane-clientes table tbody td:nth-child(3){
-    display: none !important;
-  }
-
-  /* Ajusta larguras para sobrar espaço para ações */
-  #pane-clientes table thead th:nth-child(1){ width: 40%; }
-  #pane-clientes table thead th:nth-child(2){ width: 40%; }
-  #pane-clientes table thead th:nth-child(4){ width: 20%; }
-}
-
-/* 4) Garantir que botões de ação apareçam (WhatsApp + Excluir) */
-.actions{
-  display: flex !important;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-/* Se algum CSS estiver escondendo .btn2/.btn, isso força aparecer */
-.actions .btn,
-.actions .btn2,
-.actions .btn-glass{
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  min-height: 42px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-/* 5) WhatsApp dourado (força cor e efeito) */
-.actions .btn{
-  background: linear-gradient(180deg, rgba(222,188,120,.95), rgba(186,140,70,.95)) !important;
-  color: #1a1209 !important;
-  border: 1px solid rgba(255, 255, 255, .18) !important;
-  box-shadow: 0 10px 24px rgba(0,0,0,.35);
-}
-
-/* 6) Excluir vermelho (força cor e destaque) */
-.actions .btn2{
-  background: linear-gradient(180deg, rgba(255,90,90,.95), rgba(200,30,30,.95)) !important;
-  color: #fff !important;
-  border: 1px solid rgba(255,255,255,.12) !important;
-  box-shadow: 0 10px 24px rgba(0,0,0,.35);
-}
-
-/* 7) Em telas pequenas, coloca as ações em “coluna” p/ nunca sumir */
-@media (max-width: 420px){
-  .actions{
-    justify-content: flex-start;
-  }
-  .actions .btn,
-  .actions .btn2,
-  .actions .btn-glass{
-    width: 100%;
-  }
-}
-/* =========================
-   FIX NAV: menor + mais pra baixo
-   ========================= */
-.admin-tabs{
-  position: sticky;             /* fica no topo ao rolar */
-  top: 64px;                    /* desce um pouco (ajuste fino) */
-  z-index: 50;
-  margin: 10px 0 14px;
-  padding: 10px 12px;
-  border-radius: 18px;
-
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-
-  background: rgba(10,10,12,.38);
-  border: 1px solid rgba(255,255,255,.10);
-
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-}
-
-/* botões menores */
-.admin-tabs .tab{
-  flex: 1;
-  min-height: 54px;             /* menor */
-  padding: 10px 10px;
-  border-radius: 16px;
-}
-
-.admin-tabs .tab .tab-ico{
-  font-size: 18px;              /* menor */
-  line-height: 1;
-}
-
-.admin-tabs .tab .tab-txt{
-  font-size: 13px;              /* menor */
-  margin-top: 4px;
-  opacity: .95;
-}
-
-/* ativo com dourado */
-.admin-tabs .tab.active{
-  outline: 2px solid rgba(212, 175, 55, .45);
-  box-shadow: 0 0 0 6px rgba(212, 175, 55, .10);
-}
-
-/* =========================
-   REMOVER "OBS" VISUALMENTE
-   (coluna 3 da tabela de clientes)
-   ========================= */
-#pane-clientes table th:nth-child(3),
-#pane-clientes table td:nth-child(3){
-  display:none !important;
-}
-
-/* =========================
-   Botões WhatsApp dourado / Excluir vermelho
-   (caso seu CSS tenha sumido/colidido)
-   ========================= */
-.btn-wa{
-  background: linear-gradient(135deg, rgba(212,175,55,.95), rgba(255,237,170,.85));
-  color: #1a1a1a !important;
-  border: 1px solid rgba(255,255,255,.22);
-  font-weight: 700;
-}
-
-.btn-del{
-  background: linear-gradient(135deg, rgba(220,60,60,.95), rgba(255,120,120,.80));
-  color: #fff !important;
-  border: 1px solid rgba(255,255,255,.12);
-  font-weight: 700;
-}
-
-/* Se seu layout ainda estiver jogando as abas pro rodapé em telas pequenas,
-   isso força a ficar em cima */
-@media (max-width: 720px){
-  .admin-tabs{
-    position: sticky !important;
-    bottom: auto !important;
-    left: auto !important;
-    right: auto !important;
-  }
-}
-/* =========================================================
-   OVERRIDE FINAL — ADMIN MOBILE/TABS/AÇÕES/OBS
-   (Cole no FINAL do style.css)
-========================================================= */
-
-/* 1) Tabs sempre no topo (mata qualquer regra antiga de bottom) */
-.admin-tabs{
-  position: sticky !important;
-  top: 72px !important;         /* mais pra baixo (ajuste 60~90 se quiser) */
-  bottom: auto !important;
-  left: auto !important;
-  right: auto !important;
-  z-index: 80 !important;
-
-  width: calc(100% - 20px) !important;
-  margin: 10px auto 14px !important;
-  padding: 10px 10px !important;
-
-  background: rgba(10,10,12,.42) !important;
-  border: 1px solid rgba(255,255,255,.10) !important;
-  border-radius: 18px !important;
-
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
-
-  display: flex !important;
-  gap: 10px !important;
-  justify-content: space-between !important;
-}
-
-/* 2) Botões das abas menores */
-.admin-tabs .tab{
-  flex: 1 1 0 !important;
-  min-height: 52px !important;
-  padding: 10px 10px !important;
-  border-radius: 16px !important;
-
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 6px !important;
-}
-
-.admin-tabs .tab .tab-ico{
-  font-size: 18px !important;
-  line-height: 1 !important;
-}
-.admin-tabs .tab .tab-txt{
-  font-size: 12px !important;
-  line-height: 1.1 !important;
-  opacity: .95 !important;
-}
-
-/* 3) Estado ativo com dourado premium */
-.admin-tabs .tab.active{
-  outline: 2px solid rgba(201,164,108,.55) !important;
-  background: rgba(201,164,108,.10) !important;
-}
-
-/* 4) Conteúdo não ficar “colado” embaixo das tabs */
-.admin-shell{
-  padding-top: 10px !important;
-}
-
-/* 5) REMOVER "OBS" (coluna 3 da tabela de clientes) */
-#pane-clientes table thead th:nth-child(3),
-#pane-clientes table tbody td:nth-child(3){
-  display: none !important;
-}
-
-/* 6) AÇÕES: garantir que apareçam sempre */
-.actions{
-  display: flex !important;
-  gap: 10px !important;
-  flex-wrap: wrap !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-}
-
-/* 7) WhatsApp dourado + Excluir vermelho (forçando estilo) */
-.actions .btn{
-  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
-  border: 1px solid rgba(255,255,255,.18) !important;
-  color: #2a211b !important;
-  font-weight: 900 !important;
-  box-shadow: 0 12px 28px rgba(201,164,108,0.20) !important;
-}
-
-.actions .btn2{
-  background: linear-gradient(135deg, rgba(220,60,60,.95), rgba(160,15,15,.95)) !important;
-  border: 1px solid rgba(255,255,255,.14) !important;
-  color: #fff !important;
-  font-weight: 900 !important;
-  box-shadow: 0 12px 28px rgba(220,60,60,0.18) !important;
-}
-
-/* 8) Mobile: botões em coluna pra nunca sumir/cortar */
-@media (max-width: 420px){
-  .actions{
-    justify-content: flex-start !important;
-  }
   .actions .btn,
   .actions .btn2,
   .actions .btn-glass{
     width: 100% !important;
+    text-align:center !important;
   }
 }
