@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
 const QRCode = require("qrcode");
+const path = require("path");
 const db = require("./db");
 
 const app = express();
@@ -10,17 +11,40 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-app.get("/", (req, res) => res.send("API rodando ✅"));
+/* ===================== ROTAS PÚBLICAS (SÓ BOOKING + ADMIN) ===================== */
+
+// ✅ HOME = BOOKING
+app.get("/", (req, res) => {
+  return res.sendFile(path.join(__dirname, "public", "booking.html"));
+});
+
+// ✅ /booking = BOOKING
+app.get("/booking", (req, res) => {
+  return res.sendFile(path.join(__dirname, "public", "booking.html"));
+});
+
+// ✅ /admin = ADMIN
+app.get("/admin", (req, res) => {
+  return res.sendFile(path.join(__dirname, "public", "admin.html"));
+});
+
+// ❌ Bloquear páginas antigas (se existirem)
+app.get(["/index.html", "/agenda.html", "/lembretes.html"], (req, res) => {
+  return res.status(404).send("Página removida ✅");
+});
+
+// ✅ endpoint de teste da API (se quiser)
+app.get("/health", (req, res) => res.send("API rodando ✅"));
 
 /* ===================== CONFIG SINAL (COBRANÇA) ===================== */
 const REQUIRE_SINAL_NO_PUBLICO = true; // ✅ se true, bloqueia /public-agendar
-const SINAL_VALOR = 40.0;              // R$ 40 para reservar
-const RESERVA_MINUTOS = 15;            // segura o horário por X minutos
+const SINAL_VALOR = 40.0; // R$ 40 para reservar
+const RESERVA_MINUTOS = 15; // segura o horário por X minutos
 
 /* ===================== CONFIG PIX (QR CODE) ===================== */
 const PIX_CHAVE = "vmell.sj@gmail.com"; // chave pix
-const PIX_NOME = "VITORIA MELL";        // máx 25
-const PIX_CIDADE = "SAO PAULO";         // máx 15
+const PIX_NOME = "VITORIA MELL"; // máx 25
+const PIX_CIDADE = "SAO PAULO"; // máx 15
 const PIX_DESCRICAO = "SINAL AGENDAMENTO";
 
 /* ===================== SQLITE PROMISE HELPERS ===================== */
@@ -60,7 +84,6 @@ function validarTelefoneBR(telefone) {
 
 /* ===================== RESERVAS: EXPIRAR ===================== */
 async function expirarReservas() {
-  // padroniza tudo pra minúsculo na lógica
   await dbRun(
     `
     UPDATE reservas
@@ -102,9 +125,6 @@ function crc16(payload) {
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
 
-/**
- * PIX FIXO (estático) - TXID "***"
- */
 function gerarPixCopiaEColaFixo({ chave, nome, cidade, valor, descricao }) {
   if (!chave || String(chave).includes("COLOQUE_SUA_CHAVE_PIX_AQUI")) {
     throw new Error("PIX_CHAVE não configurada no server.js");
@@ -125,7 +145,7 @@ function gerarPixCopiaEColaFixo({ chave, nome, cidade, valor, descricao }) {
 
   const payloadSemCRC =
     tlv("00", "01") +
-    tlv("01", "12") + // estático
+    tlv("01", "12") +
     mai +
     tlv("52", "0000") +
     tlv("53", "986") +
@@ -174,10 +194,6 @@ app.get("/pix-sinal", async (req, res) => {
 });
 
 /* ===================== SSE: NOTIFICAR CLIENTE AO CONFIRMAR ===================== */
-/**
- * A cliente abre /reservas/:token/stream e fica escutando.
- * Quando você confirmar o pagamento, o servidor "avisa" e o front troca pra tela de confirmado.
- */
 const sseClientsByToken = new Map(); // token -> Set(res)
 
 function sseSend(res, eventName, dataObj) {
@@ -192,10 +208,7 @@ function notifyToken(token, eventName, dataObj) {
   for (const res of set) {
     try {
       sseSend(res, eventName, dataObj);
-      // para "pago", pode finalizar a conexão
-      if (eventName === "paid" || eventName === "expired") {
-        res.end();
-      }
+      if (eventName === "paid" || eventName === "expired") res.end();
     } catch (_) {}
   }
 
@@ -204,25 +217,18 @@ function notifyToken(token, eventName, dataObj) {
   }
 }
 
-/**
- * STREAM: /reservas/:token/stream
- */
 app.get("/reservas/:token/stream", async (req, res) => {
   const { token } = req.params;
 
-  // SSE headers
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
 
-  // manda um hello
   sseSend(res, "hello", { ok: true, token });
 
-  // registra cliente
   if (!sseClientsByToken.has(token)) sseClientsByToken.set(token, new Set());
   sseClientsByToken.get(token).add(res);
 
-  // se já estiver pago/expirado, avisa na hora
   try {
     await expirarReservas();
     const rsv = await dbGet(`SELECT id, status, expira_em FROM reservas WHERE token=?`, [token]);
@@ -234,7 +240,6 @@ app.get("/reservas/:token/stream", async (req, res) => {
 
     const st = String(rsv.status || "").toLowerCase();
     if (st === "pago") {
-      // tenta achar agendamento
       const ag = await dbGet(`SELECT id FROM agendamentos WHERE reserva_id=?`, [rsv.id]);
       sseSend(res, "paid", { ok: true, agendamento_id: ag?.id || null });
       return res.end();
@@ -245,7 +250,6 @@ app.get("/reservas/:token/stream", async (req, res) => {
       return res.end();
     }
 
-    // keep-alive ping
     const ping = setInterval(() => {
       try {
         res.write(": ping\n\n");
@@ -266,10 +270,6 @@ app.get("/reservas/:token/stream", async (req, res) => {
   }
 });
 
-/**
- * STATUS (fallback):
- * GET /reservas/:token/status
- */
 app.get("/reservas/:token/status", async (req, res) => {
   try {
     const { token } = req.params;
@@ -450,11 +450,9 @@ app.post("/public-reservar", async (req, res) => {
 
     await expirarReservas();
 
-    // 1) já existe agendamento?
     const ag = await dbGet(`SELECT id FROM agendamentos WHERE data=? AND horario=?`, [data, horario]);
     if (ag) return res.status(409).json({ erro: "Horário já reservado." });
 
-    // 2) já existe reserva pendente não expirada?
     const rsvExist = await dbGet(
       `
       SELECT id FROM reservas
@@ -486,17 +484,14 @@ app.post("/public-reservar", async (req, res) => {
 
     const rowExp = await dbGet(`SELECT expira_em FROM reservas WHERE id=?`, [r.lastID]);
 
-    let payloadPix = null;
-    let qrDataUrl = null;
-
-    payloadPix = gerarPixCopiaEColaFixo({
+    const payloadPix = gerarPixCopiaEColaFixo({
       chave: PIX_CHAVE,
       nome: PIX_NOME,
       cidade: PIX_CIDADE,
       valor: SINAL_VALOR,
       descricao: PIX_DESCRICAO,
     });
-    qrDataUrl = await gerarQRCodeDataURL(payloadPix);
+    const qrDataUrl = await gerarQRCodeDataURL(payloadPix);
 
     return res.status(201).json({
       ok: true,
@@ -590,7 +585,6 @@ app.post("/reservas/:token/confirmar-pagamento", async (req, res) => {
 
     await dbRun("COMMIT");
 
-    // ✅ AVISA a cliente em tempo real (stream)
     notifyToken(token, "paid", { ok: true, agendamento_id: rAg.lastID });
 
     return res.json({ ok: true, agendamento_id: rAg.lastID });
@@ -717,5 +711,6 @@ app.post("/lembretes/:id/enviado", async (req, res) => {
   }
 });
 
-/* ===================== START ===================== */
-app.listen(3000, () => console.log("Servidor rodando em http://localhost:3000"));
+/* ===================== START (RENDER + LOCAL) ===================== */
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT} ✅`));
