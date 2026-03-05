@@ -1,9 +1,26 @@
 // db.js
 const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database("./database.db");
+const path = require("path");
+
+// ✅ Define caminho do banco
+// Local = database.db na raiz do projeto
+// Render = /tmp/database.db (pasta gravável)
+const dbPath = process.env.RENDER
+  ? "/tmp/database.db"
+  : path.join(__dirname, "..", "database.db");
+
+// ✅ cria/abre banco
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error("❌ Erro abrindo banco SQLite:", err.message);
+  } else {
+    console.log("✅ Banco SQLite conectado em:", dbPath);
+  }
+});
 
 db.serialize(() => {
-  // ✅ habilita foreign key (IMPORTANTE)
+
+  // habilita foreign key
   db.run(`PRAGMA foreign_keys = ON`);
 
   // ================= CLIENTES =================
@@ -17,8 +34,6 @@ db.serialize(() => {
   `);
 
   // ================= RESERVAS (SINAL) =================
-  // ✅ Pré-reserva até pagar R$40
-  // ✅ cria ANTES de agendamentos porque agendamentos referencia reservas
   db.run(`
     CREATE TABLE IF NOT EXISTS reservas (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,10 +46,8 @@ db.serialize(() => {
 
       valor_sinal REAL NOT NULL DEFAULT 40.0,
 
-      -- ✅ PADRÃO: tudo em minúsculo (pendente | pago | cancelado | expirada)
       status TEXT NOT NULL DEFAULT 'pendente',
 
-      -- ✅ token único pra validar/confirmar
       token TEXT NOT NULL,
 
       criado_em TEXT DEFAULT (datetime('now')),
@@ -57,7 +70,6 @@ db.serialize(() => {
       lembrete_enviado_em TEXT,
       confirmado INTEGER DEFAULT 0,
 
-      -- ✅ ligação opcional com reserva paga
       reserva_id INTEGER,
 
       FOREIGN KEY (cliente_id) REFERENCES clientes(id),
@@ -65,77 +77,45 @@ db.serialize(() => {
     )
   `);
 
-  // ================= ÍNDICES / UNIQUE =================
+  // ================= ÍNDICES =================
 
-  // ✅ impede horário duplicado em AGENDAMENTOS
+  // impede horário duplicado
   db.run(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_agendamento_unico
     ON agendamentos(data, horario)
   `);
 
-  // ✅ impede telefone duplicado em CLIENTES
-  db.run(
-    `
+  // impede telefone duplicado
+  db.run(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_clientes_telefone_unico
     ON clientes(telefone)
-    `,
-    (err) => {
-      if (err) {
-        if (err.code === "SQLITE_CONSTRAINT") {
-          console.warn(
-            "⚠️ Existem telefones duplicados em clientes. Limpe duplicados para ativar UNIQUE."
-          );
-        } else {
-          console.error("Erro criando idx_clientes_telefone_unico:", err.message);
-        }
-      }
-    }
-  );
+  `);
 
-  // ✅ token único por segurança
-  db.run(
-    `
+  // token único
+  db.run(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_reserva_token_unico
     ON reservas(token)
-    `,
-    (err) => {
-      if (err && err.code !== "SQLITE_CONSTRAINT") {
-        console.error("Erro criando idx_reserva_token_unico:", err.message);
-      }
-    }
-  );
+  `);
 
-  // ✅ reserva única SOMENTE enquanto estiver pendente
-  // (isso permite que reservas antigas "pago/expirada/cancelado" não bloqueiem pra sempre)
-  db.run(
-    `
+  // reserva única pendente
+  db.run(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_reserva_unica_pendente
     ON reservas(data, horario)
     WHERE status = 'pendente'
-    `,
-    (err) => {
-      if (err && err.code !== "SQLITE_CONSTRAINT") {
-        console.error("Erro criando idx_reserva_unica_pendente:", err.message);
-      }
-    }
-  );
+  `);
 
-  // ✅ ajuda na expiração automática e listagens
+  // index de expiração
   db.run(`
     CREATE INDEX IF NOT EXISTS idx_reservas_status_expira
     ON reservas(status, expira_em)
   `);
 
-  // ✅ (opcional) consultas por data e status
-  db.run(
-    `
+  // index consultas
+  db.run(`
     CREATE INDEX IF NOT EXISTS idx_reservas_data_status
     ON reservas(data, status)
-    `,
-    (err) => {
-      if (err) console.error("Erro criando idx_reservas_data_status:", err.message);
-    }
-  );
+  `);
+
 });
 
 module.exports = db;
