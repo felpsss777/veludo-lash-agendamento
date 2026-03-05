@@ -1582,3 +1582,87 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
     width: 100%;
   }
 }
+/* =========================
+   FIX NAV: menor + mais pra baixo
+   ========================= */
+.admin-tabs{
+  position: sticky;             /* fica no topo ao rolar */
+  top: 64px;                    /* desce um pouco (ajuste fino) */
+  z-index: 50;
+  margin: 10px 0 14px;
+  padding: 10px 12px;
+  border-radius: 18px;
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  background: rgba(10,10,12,.38);
+  border: 1px solid rgba(255,255,255,.10);
+
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+/* botões menores */
+.admin-tabs .tab{
+  flex: 1;
+  min-height: 54px;             /* menor */
+  padding: 10px 10px;
+  border-radius: 16px;
+}
+
+.admin-tabs .tab .tab-ico{
+  font-size: 18px;              /* menor */
+  line-height: 1;
+}
+
+.admin-tabs .tab .tab-txt{
+  font-size: 13px;              /* menor */
+  margin-top: 4px;
+  opacity: .95;
+}
+
+/* ativo com dourado */
+.admin-tabs .tab.active{
+  outline: 2px solid rgba(212, 175, 55, .45);
+  box-shadow: 0 0 0 6px rgba(212, 175, 55, .10);
+}
+
+/* =========================
+   REMOVER "OBS" VISUALMENTE
+   (coluna 3 da tabela de clientes)
+   ========================= */
+#pane-clientes table th:nth-child(3),
+#pane-clientes table td:nth-child(3){
+  display:none !important;
+}
+
+/* =========================
+   Botões WhatsApp dourado / Excluir vermelho
+   (caso seu CSS tenha sumido/colidido)
+   ========================= */
+.btn-wa{
+  background: linear-gradient(135deg, rgba(212,175,55,.95), rgba(255,237,170,.85));
+  color: #1a1a1a !important;
+  border: 1px solid rgba(255,255,255,.22);
+  font-weight: 700;
+}
+
+.btn-del{
+  background: linear-gradient(135deg, rgba(220,60,60,.95), rgba(255,120,120,.80));
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,.12);
+  font-weight: 700;
+}
+
+/* Se seu layout ainda estiver jogando as abas pro rodapé em telas pequenas,
+   isso força a ficar em cima */
+@media (max-width: 720px){
+  .admin-tabs{
+    position: sticky !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+  }
+}
