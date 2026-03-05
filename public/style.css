@@ -1370,3 +1370,108 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
 #msg{
   margin-bottom: 12px;
 }
+/* =========================
+   FIX: TABS SEMPRE NO TOPO
+   (override do mobile que jogava pro rodapé)
+========================= */
+
+/* garante que o header (topbar + tabs) fique acima de tudo */
+.admin-header,
+.admin-topbar,
+.admin-tabs{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* o header inteiro em cima (topbar + tabs) */
+.admin-header{
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* topbar fica em cima e as tabs logo abaixo */
+.admin-topbar{
+  z-index: 60;
+}
+
+/* tabs sempre no topo: remove qualquer "bottom: 0" antigo */
+.admin-tabs{
+  position: sticky !important;
+  top: var(--topbar-h, 64px) !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: 100% !important;
+
+  /* visual: mais "booking" */
+  background: rgba(10, 10, 12, 0.45);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-left: none;
+  border-right: none;
+}
+
+/* se seu CSS antigo tiver "nav embaixo no mobile", isso mata */
+@media (max-width: 768px){
+  .admin-tabs{
+    position: sticky !important;
+    top: var(--topbar-h, 64px) !important;
+    bottom: auto !important;
+  }
+}
+
+/* espaço no conteúdo para não ficar escondido atrás do header */
+.admin-shell{
+  padding-top: calc(var(--topbar-h, 64px) + var(--tabs-h, 56px) + 10px) !important;
+}
+
+/* define alturas padrão (ajuste se quiser) */
+:root{
+  --topbar-h: 64px;
+  --tabs-h: 56px;
+}
+
+/* =========================
+   CLIENTES: linha DDD + Número bonita
+========================= */
+.row-tel{
+  display: grid !important;
+  grid-template-columns: 90px 1fr auto !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+/* em telas bem pequenas o botão quebra pra baixo */
+@media (max-width: 420px){
+  .row-tel{
+    grid-template-columns: 90px 1fr !important;
+  }
+  .row-tel #btnCriarCliente{
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+}
+
+/* =========================
+   REMOVE OBS VISUAL (caso ainda exista)
+   Se você já removeu no HTML/JS, isso só garante.
+========================= */
+#pane-clientes th:nth-child(3),
+#pane-clientes td:nth-child(3){
+  display: none !important;
+}
+
+/* como removemos a 3ª coluna, a coluna de ações vira a 3ª */
+#pane-clientes th:nth-child(4),
+#pane-clientes td:nth-child(4){
+  display: table-cell !important;
+}
+
+/* =========================
+   (Opcional) Se ainda existir barra inferior em algum CSS antigo
+========================= */
+.admin-tabs--bottom,
+.bottom-nav,
+.mobile-tabs{
+  display: none !important;
+}

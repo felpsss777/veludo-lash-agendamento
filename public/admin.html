@@ -14,29 +14,32 @@
     <div class="ig-bg__overlay"></div>
   </div>
 
-  <!-- TOPBAR PREMIUM -->
-  <header class="admin-topbar">
-    <div class="brand-mini">
-      <img class="brand-logo" src="img/veludo-lash-logo.png" alt="Veludo Lash">
+  <!-- HEADER (topbar + tabs SEMPRE EM CIMA) -->
+  <header class="admin-header">
+    <!-- TOPBAR PREMIUM -->
+    <div class="admin-topbar">
+      <div class="brand-mini">
+        <img class="brand-logo" src="img/veludo-lash-logo.png" alt="Veludo Lash">
+      </div>
+
+      <div class="topbar-actions">
+        <button class="chip" type="button" id="btnRefresh">Atualizar</button>
+      </div>
     </div>
 
-    <div class="topbar-actions">
-      <button class="chip" type="button" id="btnRefresh">Atualizar</button>
-    </div>
+    <!-- NAV (AGORA SEMPRE NO TOPO) -->
+    <nav class="admin-tabs admin-tabs--top" aria-label="Navegação do Admin">
+      <button class="tab active" type="button" data-tab="agenda">
+        <span class="tab-ico">📅</span><span class="tab-txt">Agenda</span>
+      </button>
+      <button class="tab" type="button" data-tab="lembretes">
+        <span class="tab-ico">⏰</span><span class="tab-txt">Lembretes</span>
+      </button>
+      <button class="tab" type="button" data-tab="clientes">
+        <span class="tab-ico">👤</span><span class="tab-txt">Clientes</span>
+      </button>
+    </nav>
   </header>
-
-  <!-- NAV (DESKTOP) / (MOBILE VIRA BARRA EMBAIXO VIA CSS) -->
-  <nav class="admin-tabs" aria-label="Navegação do Admin">
-    <button class="tab active" type="button" data-tab="agenda">
-      <span class="tab-ico">📅</span><span class="tab-txt">Agenda</span>
-    </button>
-    <button class="tab" type="button" data-tab="lembretes">
-      <span class="tab-ico">⏰</span><span class="tab-txt">Lembretes</span>
-    </button>
-    <button class="tab" type="button" data-tab="clientes">
-      <span class="tab-ico">👤</span><span class="tab-txt">Clientes</span>
-    </button>
-  </nav>
 
   <!-- CONTEÚDO -->
   <main class="admin-shell">
@@ -96,41 +99,35 @@
 
       <!-- ================== CLIENTES ================== -->
       <section id="pane-clientes" class="pane" data-page="clientes">
-  <h2>Clientes</h2>
+        <h2>Clientes</h2>
 
-  <div class="row">
-    <input id="cliNome" placeholder="Nome do cliente" />
-  </div>
+        <div class="row">
+          <input id="cliNome" placeholder="Nome do cliente" />
+        </div>
 
-  <!-- DDD + Número -->
-  <div class="row row-tel">
-    <input id="cliDDD" placeholder="DDD" inputmode="numeric" maxlength="2" />
-    <input id="cliTel" placeholder="Número (9 dígitos)" inputmode="numeric" maxlength="9" />
-  </div>
+        <!-- DDD + Número + Botão (tudo alinhado e sem “quebrar”) -->
+        <div class="row row-tel">
+          <input id="cliDDD" placeholder="DDD" inputmode="numeric" maxlength="2" />
+          <input id="cliTel" placeholder="Número (9 dígitos)" inputmode="numeric" maxlength="9" />
+          <button class="btn-glass gold" type="button" id="btnCriarCliente">Adicionar</button>
+        </div>
 
-  <!-- Botão separado (EMBAIXO) -->
-  <div class="row">
-    <button class="btn-glass gold" type="button" id="btnCriarCliente">
-      Adicionar
-    </button>
-  </div>
+        <p class="small mut">Ex: DDD 11 + Número 950235221</p>
 
-  <p class="small mut">Ex: DDD 11 + Número 950235221</p>
-
-  <div class="table-wrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>WhatsApp</th>
-          <th>Obs</th>
-          <th style="text-align:right;">Ações</th>
-        </tr>
-      </thead>
-      <tbody id="clientesBody"></tbody>
-    </table>
-  </div>
-</section>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>WhatsApp</th>
+                <!-- OBS REMOVIDO -->
+                <th style="text-align:right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="clientesBody"></tbody>
+          </table>
+        </div>
+      </section>
 
     </div>
   </main>
@@ -152,7 +149,7 @@
     })();
   </script>
 
-  <!-- troca de abas (caso seu admin.js ainda não faça) -->
+  <!-- troca de abas -->
   <script>
     (function(){
       const tabs = document.querySelectorAll(".admin-tabs .tab");
@@ -164,7 +161,6 @@
       }
 
       tabs.forEach(t => t.addEventListener("click", () => setActive(t.dataset.tab)));
-
       document.getElementById("btnRefresh")?.addEventListener("click", () => location.reload());
     })();
   </script>
