@@ -1475,3 +1475,110 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
 .mobile-tabs{
   display: none !important;
 }
+/* ===============================
+   ADMIN - ajustes mobile (tabs + ações)
+   Cole no FINAL do style.css
+================================ */
+
+/* 1) Barra de abas menor e um pouco mais para baixo (cobrindo a foto) */
+.admin-tabs{
+  position: sticky;
+  top: 58px;                 /* desce a barra (ajuste: 50~80) */
+  z-index: 50;
+  padding: 10px 10px 12px;
+  margin: 6px 0 10px;
+  border-radius: 18px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.admin-tabs .tab{
+  padding: 10px 10px;        /* menor */
+  min-height: 52px;          /* menor */
+  gap: 6px;
+}
+
+.admin-tabs .tab-ico{
+  font-size: 18px;           /* ícone menor */
+  line-height: 1;
+}
+
+.admin-tabs .tab-txt{
+  font-size: 14px;           /* texto menor */
+  line-height: 1.1;
+}
+
+/* 2) Garantir que a barra NÃO fique embaixo no mobile */
+@media (max-width: 720px){
+  .admin-tabs{
+    position: sticky !important;
+    bottom: auto !important;   /* mata qualquer regra de bottom */
+    top: 58px !important;      /* fica no topo */
+  }
+}
+
+/* 3) CLIENTES: remover coluna OBS visualmente (sem mexer no HTML) */
+@media (max-width: 720px){
+  /* some o cabeçalho "Obs" (3ª coluna) e o conteúdo da 3ª coluna */
+  #pane-clientes table thead th:nth-child(3),
+  #pane-clientes table tbody td:nth-child(3){
+    display: none !important;
+  }
+
+  /* Ajusta larguras para sobrar espaço para ações */
+  #pane-clientes table thead th:nth-child(1){ width: 40%; }
+  #pane-clientes table thead th:nth-child(2){ width: 40%; }
+  #pane-clientes table thead th:nth-child(4){ width: 20%; }
+}
+
+/* 4) Garantir que botões de ação apareçam (WhatsApp + Excluir) */
+.actions{
+  display: flex !important;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* Se algum CSS estiver escondendo .btn2/.btn, isso força aparecer */
+.actions .btn,
+.actions .btn2,
+.actions .btn-glass{
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* 5) WhatsApp dourado (força cor e efeito) */
+.actions .btn{
+  background: linear-gradient(180deg, rgba(222,188,120,.95), rgba(186,140,70,.95)) !important;
+  color: #1a1209 !important;
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+}
+
+/* 6) Excluir vermelho (força cor e destaque) */
+.actions .btn2{
+  background: linear-gradient(180deg, rgba(255,90,90,.95), rgba(200,30,30,.95)) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+}
+
+/* 7) Em telas pequenas, coloca as ações em “coluna” p/ nunca sumir */
+@media (max-width: 420px){
+  .actions{
+    justify-content: flex-start;
+  }
+  .actions .btn,
+  .actions .btn2,
+  .actions .btn-glass{
+    width: 100%;
+  }
+}
