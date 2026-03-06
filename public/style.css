@@ -1196,3 +1196,163 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
   width: 100% !important;
   justify-content: center !important;
 }
+/* =========================================
+   PATCH ADMIN – do jeito "booking premium"
+   (cole NO FINAL do style.css)
+========================================= */
+
+body.admin-page{
+  overflow-x: hidden;
+}
+
+/* deixa o admin central e com respiro */
+.admin-page .admin-shell{
+  max-width: 420px !important;
+  margin: 0 auto !important;
+  padding: 14px 12px 28px !important;
+}
+
+/* ====== TABS: menores + mais pra baixo (cobrindo a foto) ====== */
+.admin-page .admin-tabs{
+  position: fixed !important;
+  left: 12px !important;
+  right: 12px !important;
+  top: 160px !important;           /* <<< DESCE A BARRA (ajuste 140~220) */
+  bottom: auto !important;
+  z-index: 999 !important;
+
+  max-width: 420px !important;
+  margin: 0 auto !important;
+
+  padding: 10px !important;
+  gap: 10px !important;
+
+  border-radius: 22px !important;
+  background: rgba(10,10,12,0.42) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35) !important;
+}
+
+/* tabs menores */
+.admin-page .admin-tabs .tab{
+  flex: 1 !important;
+  min-height: 54px !important;     /* menor */
+  padding: 10px 8px !important;
+  border-radius: 18px !important;
+
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  background: rgba(255,255,255,0.05) !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+
+  font-weight: 900 !important;
+}
+
+.admin-page .admin-tabs .tab .tab-ico{
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+
+.admin-page .admin-tabs .tab .tab-txt{
+  font-size: 12px !important;
+  line-height: 1.05 !important;
+}
+
+/* ativo mais elegante */
+.admin-page .admin-tabs .tab.active{
+  background: rgba(201,164,108,0.12) !important;
+  outline: 2px solid rgba(201,164,108,0.50) !important;
+}
+
+/* como a barra agora é FIXED, empurra o conteúdo pra baixo */
+.admin-page .admin-shell{
+  padding-top: 250px !important;   /* <<< acompanha o top das tabs */
+}
+
+/* ====== CARD: mais baixo, mais bonito ====== */
+.admin-page .admin-card{
+  max-width: 420px !important;
+  margin: 0 auto !important;
+  padding: 14px !important;
+  border-radius: 22px !important;
+  background: rgba(15,15,18,0.28) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* título um pouco menor (o seu tava gigante) */
+.admin-page .admin-card h2{
+  font-size: 34px !important;
+  margin: 6px 0 12px !important;
+}
+
+/* ====== FORM CLIENTES: alinhado e “premium” ====== */
+.admin-page #cliNome{
+  margin-bottom: 10px !important;
+}
+
+.admin-page .row.row-tel{
+  display: grid !important;
+  grid-template-columns: 86px 1fr !important;
+  gap: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+.admin-page #cliDDD{
+  text-align: center !important;
+  letter-spacing: .08em !important;
+}
+
+.admin-page #btnCriarCliente{
+  display: block !important;
+  width: 100% !important;         /* <<< botão full premium */
+  height: 46px !important;
+  border-radius: 16px !important;
+  font-weight: 900 !important;
+}
+
+/* evita botão "cortado" */
+.admin-page .admin-card,
+.admin-page .pane{
+  overflow: visible !important;
+}
+
+/* ====== LISTA: mais leve, sem “tijolo” ====== */
+.admin-page .table-wrap{
+  background: transparent !important;
+  border: none !important;
+}
+
+/* remove a coluna OBS (se existir) */
+.admin-page #pane-clientes table thead th:nth-child(3),
+.admin-page #pane-clientes table tbody td:nth-child(3){
+  display: none !important;
+}
+
+/* ====== MOBILE: ações sempre aparecem e bonitas ====== */
+.admin-page .actions{
+  display: flex !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.admin-page .actions .btn{
+  width: 100% !important;
+  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
+  color: #2a211b !important;
+  border: none !important;
+  font-weight: 900 !important;
+}
+
+.admin-page .actions .btn2{
+  width: 100% !important;
+  background: linear-gradient(135deg, #d93a3a, #8f1010) !important;
+  color: #fff !important;
+  border: none !important;
+  font-weight: 900 !important;
+}
