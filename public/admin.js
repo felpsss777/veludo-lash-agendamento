@@ -450,6 +450,4 @@ document.addEventListener("DOMContentLoaded", () => {
   setupDDDNum("cliDDD", "cliTel");
   setupTabs();
   setupButtons();
-
-  carregarClientes();
 });
