@@ -1,9 +1,3 @@
-// server.js (ATUALIZADO ✅)
-// - Mantém só /booking e /admin
-// - Busca de clientes por nome: GET /clientes?q=ana
-// - Foto do cliente: POST /clientes/:id/foto (multipart/form-data campo "foto")
-// - Suporte a SQLite em disco persistente (Render): use env DB_PATH="/var/data/veludo.sqlite"
-
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
@@ -11,146 +5,59 @@ const QRCode = require("qrcode");
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
-const sqlite3 = require("sqlite3").verbose();
+const { dbRun, dbGet, dbAll } = require("./db");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-/* ===================== DB (SQLite) ===================== */
-// ✅ Em produção (Render), coloque DB_PATH=/var/data/veludo.sqlite + Persistent Disk montado em /var/data
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, "db.sqlite");
-
-// garante pasta do db existir (quando for /var/data/...)
-try {
-  fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
-} catch (_) {}
-
-const db = new sqlite3.Database(DB_PATH);
-
-/* ===================== SQLITE PROMISE HELPERS ===================== */
-function dbRun(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) return reject(err);
-      resolve({ lastID: this.lastID, changes: this.changes });
-    });
-  });
-}
-function dbGet(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => (err ? reject(err) : resolve(row)));
-  });
-}
-function dbAll(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => (err ? reject(err) : resolve(rows)));
-  });
-}
-
-/* ===================== MIGRATIONS (cria/ajusta tabelas) ===================== */
-async function ensureSchema() {
-  // clientes
-  await dbRun(`
-    CREATE TABLE IF NOT EXISTS clientes (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      nome TEXT NOT NULL,
-      telefone TEXT NOT NULL UNIQUE,
-      observacao TEXT DEFAULT '',
-      foto_url TEXT DEFAULT ''
-    )
-  `);
-
-  // agendamentos
-  await dbRun(`
-    CREATE TABLE IF NOT EXISTS agendamentos (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      cliente_id INTEGER NOT NULL,
-      data TEXT NOT NULL,
-      horario TEXT NOT NULL,
-      servico TEXT NOT NULL,
-      observacao TEXT DEFAULT '',
-      confirmado INTEGER DEFAULT 0,
-      lembrete_enviado INTEGER DEFAULT 0,
-      lembrete_enviado_em TEXT,
-      reserva_id INTEGER,
-      UNIQUE(data, horario),
-      FOREIGN KEY(cliente_id) REFERENCES clientes(id)
-    )
-  `);
-
-  // reservas
-  await dbRun(`
-    CREATE TABLE IF NOT EXISTS reservas (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      cliente_id INTEGER,
-      nome TEXT,
-      telefone TEXT,
-      servico TEXT,
-      data TEXT,
-      horario TEXT,
-      valor_sinal REAL DEFAULT 0,
-      status TEXT DEFAULT 'pendente',
-      token TEXT UNIQUE,
-      criado_em TEXT,
-      expira_em TEXT
-    )
-  `);
-
-  // ⚠️ Se seu db antigo não tinha foto_url, tenta adicionar sem quebrar
-  try {
-    await dbRun(`ALTER TABLE clientes ADD COLUMN foto_url TEXT DEFAULT ''`);
-  } catch (_) {
-    // já existe
-  }
-}
-
-ensureSchema().catch((e) => console.error("Falha schema:", e.message));
-
 /* ===================== ROTAS PÚBLICAS (SÓ BOOKING + ADMIN) ===================== */
-
-// ✅ HOME = BOOKING
 app.get("/", (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "booking.html"));
 });
 
-// ✅ /booking = BOOKING
 app.get("/booking", (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "booking.html"));
 });
 
-// ✅ /admin = ADMIN
 app.get("/admin", (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
-// ❌ Bloquear páginas antigas (se existirem)
 app.get(["/index.html", "/agenda.html", "/lembretes.html"], (req, res) => {
   return res.status(404).send("Página removida ✅");
 });
 
-// ✅ endpoint de teste da API (se quiser)
-app.get("/health", (req, res) => res.send("API rodando ✅"));
+app.get("/health", async (req, res) => {
+  try {
+    await dbGet("SELECT 1 AS ok");
+    res.send("API rodando com Postgres ✅");
+  } catch (e) {
+    res.status(500).send(`Erro no banco: ${e.message}`);
+  }
+});
 
 /* ===================== CONFIG SINAL (COBRANÇA) ===================== */
-const REQUIRE_SINAL_NO_PUBLICO = true; // ✅ se true, bloqueia /public-agendar
-const SINAL_VALOR = 40.0; // R$ 40 para reservar
-const RESERVA_MINUTOS = 15; // segura o horário por X minutos
+const REQUIRE_SINAL_NO_PUBLICO = true;
+const SINAL_VALOR = 40.0;
+const RESERVA_MINUTOS = 15;
 
 /* ===================== CONFIG PIX (QR CODE) ===================== */
-const PIX_CHAVE = "vmell.sj@gmail.com"; // chave pix
-const PIX_NOME = "VITORIA MELL"; // máx 25
-const PIX_CIDADE = "SAO PAULO"; // máx 15
+const PIX_CHAVE = "vmell.sj@gmail.com";
+const PIX_NOME = "VITORIA MELL";
+const PIX_CIDADE = "SAO PAULO";
 const PIX_DESCRICAO = "SINAL AGENDAMENTO";
 
 /* ===================== HELPERS ===================== */
 function tokenSeguro() {
-  return crypto.randomBytes(18).toString("hex"); // 36 chars
+  return crypto.randomBytes(18).toString("hex");
 }
+
 function onlyDigits(v = "") {
   return String(v).replace(/\D/g, "");
 }
+
 function validarTelefoneBR(telefone) {
   const t = onlyDigits(telefone);
   if (!(t.length === 10 || t.length === 11)) return { ok: false, tel: t };
@@ -160,7 +67,6 @@ function validarTelefoneBR(telefone) {
 }
 
 /* ===================== UPLOAD FOTO CLIENTE ===================== */
-// salva em: public/uploads/clientes
 const uploadDir = path.join(__dirname, "public", "uploads", "clientes");
 fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -177,7 +83,7 @@ const storage = multer.diskStorage({
 
 const uploadFoto = multer({
   storage,
-  limits: { fileSize: 3 * 1024 * 1024 }, // 3MB
+  limits: { fileSize: 3 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const ok = /^image\/(jpeg|png|webp)$/i.test(file.mimetype);
     cb(ok ? null : new Error("Envie uma imagem JPG/PNG/WEBP."), ok);
@@ -189,13 +95,14 @@ async function expirarReservas() {
   await dbRun(
     `
     UPDATE reservas
-    SET status='expirada'
-    WHERE lower(status)='pendente'
-      AND expira_em IS NOT NULL
-      AND datetime(expira_em) <= datetime('now')
+       SET status = 'expirada'
+     WHERE lower(status) = 'pendente'
+       AND expira_em IS NOT NULL
+       AND expira_em <= NOW()
     `
   );
 }
+
 setInterval(() => expirarReservas().catch(() => {}), 60 * 1000);
 expirarReservas().catch(() => {});
 
@@ -210,11 +117,13 @@ function limparTextoPix(str, maxLen) {
     .toUpperCase();
   return s.slice(0, maxLen);
 }
+
 function tlv(id, value) {
   const v = String(value ?? "");
   const len = String(v.length).padStart(2, "0");
   return `${id}${len}${v}`;
 }
+
 function crc16(payload) {
   let crc = 0xffff;
   for (let i = 0; i < payload.length; i++) {
@@ -296,7 +205,7 @@ app.get("/pix-sinal", async (req, res) => {
 });
 
 /* ===================== SSE: NOTIFICAR CLIENTE AO CONFIRMAR ===================== */
-const sseClientsByToken = new Map(); // token -> Set(res)
+const sseClientsByToken = new Map();
 
 function sseSend(res, eventName, dataObj) {
   res.write(`event: ${eventName}\n`);
@@ -333,7 +242,11 @@ app.get("/reservas/:token/stream", async (req, res) => {
 
   try {
     await expirarReservas();
-    const rsv = await dbGet(`SELECT id, status, expira_em FROM reservas WHERE token=?`, [token]);
+
+    const rsv = await dbGet(
+      `SELECT id, status, expira_em FROM reservas WHERE token = $1`,
+      [token]
+    );
 
     if (!rsv) {
       sseSend(res, "error", { erro: "Reserva não encontrada" });
@@ -341,8 +254,9 @@ app.get("/reservas/:token/stream", async (req, res) => {
     }
 
     const st = String(rsv.status || "").toLowerCase();
+
     if (st === "pago") {
-      const ag = await dbGet(`SELECT id FROM agendamentos WHERE reserva_id=?`, [rsv.id]);
+      const ag = await dbGet(`SELECT id FROM agendamentos WHERE reserva_id = $1`, [rsv.id]);
       sseSend(res, "paid", { ok: true, agendamento_id: ag?.id || null });
       return res.end();
     }
@@ -378,16 +292,21 @@ app.get("/reservas/:token/status", async (req, res) => {
     await expirarReservas();
 
     const rsv = await dbGet(
-      `SELECT id, status, expira_em, valor_sinal, data, horario, servico FROM reservas WHERE token=?`,
+      `
+      SELECT id, status, expira_em, valor_sinal, data, horario, servico
+        FROM reservas
+       WHERE token = $1
+      `,
       [token]
     );
+
     if (!rsv) return res.status(404).json({ erro: "Reserva não encontrada" });
 
     const st = String(rsv.status || "").toLowerCase();
     let agendamento_id = null;
 
     if (st === "pago") {
-      const ag = await dbGet(`SELECT id FROM agendamentos WHERE reserva_id=?`, [rsv.id]);
+      const ag = await dbGet(`SELECT id FROM agendamentos WHERE reserva_id = $1`, [rsv.id]);
       agendamento_id = ag?.id || null;
     }
 
@@ -409,7 +328,6 @@ app.get("/reservas/:token/status", async (req, res) => {
 });
 
 /* ===================== CLIENTES ===================== */
-// ✅ Criar cliente
 app.post("/clientes", async (req, res) => {
   try {
     let { nome, telefone, observacao } = req.body;
@@ -423,21 +341,31 @@ app.post("/clientes", async (req, res) => {
 
     const val = validarTelefoneBR(telefone);
     if (!val.ok) {
-      return res
-        .status(400)
-        .json({ erro: "Telefone inválido. Use DDD + número (somente números)." });
+      return res.status(400).json({
+        erro: "Telefone inválido. Use DDD + número (somente números).",
+      });
     }
 
     const tel = val.tel;
 
     try {
-      const r = await dbRun(
-        `INSERT INTO clientes (nome, telefone, observacao, foto_url) VALUES (?, ?, ?, ?)`,
+      const r = await dbGet(
+        `
+        INSERT INTO clientes (nome, telefone, observacao, foto_url)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
+        `,
         [nome, tel, observacao || "", ""]
       );
-      return res.status(201).json({ id: r.lastID, nome, telefone: tel, foto_url: "" });
+
+      return res.status(201).json({
+        id: r.id,
+        nome,
+        telefone: tel,
+        foto_url: "",
+      });
     } catch (err) {
-      if (String(err.message || "").includes("UNIQUE")) {
+      if (String(err.message || "").toLowerCase().includes("unique")) {
         return res.status(409).json({ erro: "Já existe um cliente com esse WhatsApp." });
       }
       throw err;
@@ -447,8 +375,6 @@ app.post("/clientes", async (req, res) => {
   }
 });
 
-// ✅ Listar clientes (com busca por nome)
-// GET /clientes?q=ana
 app.get("/clientes", async (req, res) => {
   try {
     const q = String(req.query.q || "").trim().toLowerCase();
@@ -456,9 +382,12 @@ app.get("/clientes", async (req, res) => {
     let rows;
     if (q) {
       rows = await dbAll(
-        `SELECT * FROM clientes
-         WHERE lower(nome) LIKE ?
-         ORDER BY id DESC`,
+        `
+        SELECT *
+          FROM clientes
+         WHERE lower(nome) LIKE $1
+         ORDER BY id DESC
+        `,
         [`%${q}%`]
       );
     } else {
@@ -471,19 +400,16 @@ app.get("/clientes", async (req, res) => {
   }
 });
 
-// ✅ Upload/atualizar foto do cliente
-// multipart/form-data: campo "foto"
 app.post("/clientes/:id/foto", uploadFoto.single("foto"), async (req, res) => {
   try {
-    const id = String(req.params.id || "").replace(/\D/g, "");
+    const id = Number(String(req.params.id || "").replace(/\D/g, ""));
     if (!id) return res.status(400).json({ erro: "ID inválido" });
 
-    const cli = await dbGet(`SELECT id, foto_url FROM clientes WHERE id=?`, [id]);
+    const cli = await dbGet(`SELECT id, foto_url FROM clientes WHERE id = $1`, [id]);
     if (!cli) return res.status(404).json({ erro: "Cliente não encontrado" });
 
     if (!req.file) return res.status(400).json({ erro: "Envie o arquivo no campo 'foto'." });
 
-    // apaga foto anterior (se existir e for local)
     const old = String(cli.foto_url || "");
     if (old.startsWith("/uploads/clientes/")) {
       const oldPath = path.join(__dirname, "public", old);
@@ -491,7 +417,7 @@ app.post("/clientes/:id/foto", uploadFoto.single("foto"), async (req, res) => {
     }
 
     const fotoUrl = `/uploads/clientes/${req.file.filename}`;
-    await dbRun(`UPDATE clientes SET foto_url=? WHERE id=?`, [fotoUrl, id]);
+    await dbRun(`UPDATE clientes SET foto_url = $1 WHERE id = $2`, [fotoUrl, id]);
 
     res.json({ ok: true, foto_url: fotoUrl });
   } catch (e) {
@@ -499,26 +425,28 @@ app.post("/clientes/:id/foto", uploadFoto.single("foto"), async (req, res) => {
   }
 });
 
-// ✅ Excluir cliente
 app.delete("/clientes/:id", async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = Number(req.params.id);
 
-    const row = await dbGet(`SELECT COUNT(*) as total FROM agendamentos WHERE cliente_id = ?`, [id]);
+    const row = await dbGet(
+      `SELECT COUNT(*)::int AS total FROM agendamentos WHERE cliente_id = $1`,
+      [id]
+    );
+
     if (row?.total > 0) {
       return res.status(409).json({
-        erro: "Esse cliente tem agendamentos. Apague os agendamentos antes (ou implemente exclusão em cascata).",
+        erro: "Esse cliente tem agendamentos. Apague os agendamentos antes.",
       });
     }
 
-    // apaga foto
-    const cli = await dbGet(`SELECT foto_url FROM clientes WHERE id=?`, [id]);
+    const cli = await dbGet(`SELECT foto_url FROM clientes WHERE id = $1`, [id]);
     if (cli?.foto_url?.startsWith("/uploads/clientes/")) {
       const p = path.join(__dirname, "public", cli.foto_url);
       fs.unlink(p, () => {});
     }
 
-    const r = await dbRun(`DELETE FROM clientes WHERE id = ?`, [id]);
+    const r = await dbRun(`DELETE FROM clientes WHERE id = $1`, [id]);
     if (r.changes === 0) return res.status(404).json({ erro: "Cliente não encontrado" });
 
     res.json({ ok: true });
@@ -537,14 +465,21 @@ app.post("/agendamentos", async (req, res) => {
     }
 
     try {
-      const r = await dbRun(
-        `INSERT INTO agendamentos (cliente_id, data, horario, servico, observacao)
-         VALUES (?, ?, ?, ?, ?)`,
+      const r = await dbGet(
+        `
+        INSERT INTO agendamentos (cliente_id, data, horario, servico, observacao)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id
+        `,
         [cliente_id, data, horario, servico, observacao || ""]
       );
-      res.status(201).json({ id: r.lastID });
-    } catch (_) {
-      return res.status(409).json({ erro: "Horário já ocupado" });
+
+      res.status(201).json({ id: r.id });
+    } catch (e) {
+      if (String(e.message || "").toLowerCase().includes("unique")) {
+        return res.status(409).json({ erro: "Horário já ocupado" });
+      }
+      throw e;
     }
   } catch (e) {
     res.status(500).json({ erro: e.message });
@@ -554,11 +489,21 @@ app.post("/agendamentos", async (req, res) => {
 app.get("/agendamentos", async (req, res) => {
   try {
     const rows = await dbAll(
-      `SELECT a.id, a.data, a.horario, a.servico, a.confirmado, a.observacao,
-              c.nome cliente_nome, c.telefone cliente_telefone, c.foto_url cliente_foto_url
-       FROM agendamentos a
-       JOIN clientes c ON c.id = a.cliente_id
-       ORDER BY a.data DESC, a.horario DESC`
+      `
+      SELECT
+        a.id,
+        a.data,
+        a.horario,
+        a.servico,
+        a.confirmado,
+        a.observacao,
+        c.nome AS cliente_nome,
+        c.telefone AS cliente_telefone,
+        c.foto_url AS cliente_foto_url
+      FROM agendamentos a
+      JOIN clientes c ON c.id = a.cliente_id
+      ORDER BY a.data DESC, a.horario DESC
+      `
     );
     res.json(rows);
   } catch (e) {
@@ -568,7 +513,7 @@ app.get("/agendamentos", async (req, res) => {
 
 app.post("/agendamentos/:id/confirmar", async (req, res) => {
   try {
-    await dbRun(`UPDATE agendamentos SET confirmado = 1 WHERE id = ?`, [req.params.id]);
+    await dbRun(`UPDATE agendamentos SET confirmado = 1 WHERE id = $1`, [req.params.id]);
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ erro: e.message });
@@ -577,7 +522,7 @@ app.post("/agendamentos/:id/confirmar", async (req, res) => {
 
 app.delete("/agendamentos/:id", async (req, res) => {
   try {
-    const r = await dbRun(`DELETE FROM agendamentos WHERE id = ?`, [req.params.id]);
+    const r = await dbRun(`DELETE FROM agendamentos WHERE id = $1`, [req.params.id]);
     if (r.changes === 0) return res.status(404).json({ erro: "Agendamento não encontrado" });
     res.json({ ok: true });
   } catch (e) {
@@ -585,7 +530,7 @@ app.delete("/agendamentos/:id", async (req, res) => {
   }
 });
 
-/* ===================== PÚBLICO: RESERVAR COM SINAL (R$40) ===================== */
+/* ===================== PÚBLICO: RESERVAR COM SINAL ===================== */
 app.post("/public-reservar", async (req, res) => {
   try {
     let { nome, telefone, servico, data, horario } = req.body;
@@ -600,45 +545,54 @@ app.post("/public-reservar", async (req, res) => {
 
     const val = validarTelefoneBR(telefone);
     if (!val.ok) {
-      return res.status(400).json({ erro: "WhatsApp inválido. Use DDD + número (somente números)." });
+      return res.status(400).json({
+        erro: "WhatsApp inválido. Use DDD + número (somente números).",
+      });
     }
     const tel = val.tel;
 
     await expirarReservas();
 
-    const ag = await dbGet(`SELECT id FROM agendamentos WHERE data=? AND horario=?`, [data, horario]);
+    const ag = await dbGet(
+      `SELECT id FROM agendamentos WHERE data = $1 AND horario = $2`,
+      [data, horario]
+    );
     if (ag) return res.status(409).json({ erro: "Horário já reservado." });
 
     const rsvExist = await dbGet(
       `
-      SELECT id FROM reservas
-      WHERE data=? AND horario=?
-        AND lower(status)='pendente'
-        AND datetime(expira_em) > datetime('now')
+      SELECT id
+        FROM reservas
+       WHERE data = $1
+         AND horario = $2
+         AND lower(status) = 'pendente'
+         AND expira_em > NOW()
       `,
       [data, horario]
     );
+
     if (rsvExist) {
-      return res.status(409).json({ erro: "Horário em pré-reserva (aguardando pagamento). Tente outro horário." });
+      return res.status(409).json({
+        erro: "Horário em pré-reserva (aguardando pagamento). Tente outro horário.",
+      });
     }
 
     const token = tokenSeguro();
 
-    const r = await dbRun(
+    const r = await dbGet(
       `
       INSERT INTO reservas (
         cliente_id, nome, telefone, servico, data, horario,
         valor_sinal, status, token, criado_em, expira_em
       )
       VALUES (
-        NULL, ?, ?, ?, ?, ?,
-        ?, 'pendente', ?, datetime('now'), datetime('now', ?)
+        NULL, $1, $2, $3, $4, $5,
+        $6, 'pendente', $7, NOW(), NOW() + ($8 * INTERVAL '1 minute')
       )
+      RETURNING id, expira_em
       `,
-      [nome, tel, servico, data, horario, SINAL_VALOR, token, `+${RESERVA_MINUTOS} minutes`]
+      [nome, tel, servico, data, horario, SINAL_VALOR, token, RESERVA_MINUTOS]
     );
-
-    const rowExp = await dbGet(`SELECT expira_em FROM reservas WHERE id=?`, [r.lastID]);
 
     const payloadPix = gerarPixCopiaEColaFixo({
       chave: PIX_CHAVE,
@@ -647,33 +601,34 @@ app.post("/public-reservar", async (req, res) => {
       valor: SINAL_VALOR,
       descricao: PIX_DESCRICAO,
     });
+
     const qrDataUrl = await gerarQRCodeDataURL(payloadPix);
 
     return res.status(201).json({
       ok: true,
-      reserva_id: r.lastID,
+      reserva_id: r.id,
       token,
       valor_sinal: SINAL_VALOR,
-      expira_em: rowExp?.expira_em,
+      expira_em: r.expira_em,
       pix_copia_e_cola: payloadPix,
       qr_code_data_url: qrDataUrl,
       msg: `Reserva criada. Pague o sinal de R$ ${SINAL_VALOR.toFixed(2).replace(".", ",")} em até ${RESERVA_MINUTOS} min para confirmar.`,
     });
   } catch (e) {
-    if (String(e.message || "").includes("SQLITE_CONSTRAINT")) {
+    if (String(e.message || "").toLowerCase().includes("unique")) {
       return res.status(409).json({ erro: "Horário em pré-reserva. Tente outro." });
     }
     res.status(500).json({ erro: e.message || "Falha ao criar reserva" });
   }
 });
 
-/* ===================== CONSULTAR RESERVA (opcional) ===================== */
+/* ===================== CONSULTAR RESERVA ===================== */
 app.get("/reservas/:token", async (req, res) => {
   try {
     const { token } = req.params;
     await expirarReservas();
 
-    const rsv = await dbGet(`SELECT * FROM reservas WHERE token=?`, [token]);
+    const rsv = await dbGet(`SELECT * FROM reservas WHERE token = $1`, [token]);
     if (!rsv) return res.status(404).json({ erro: "Reserva não encontrada" });
 
     res.json(rsv);
@@ -689,7 +644,7 @@ app.post("/reservas/:token/confirmar-pagamento", async (req, res) => {
   try {
     await expirarReservas();
 
-    const rsv = await dbGet(`SELECT * FROM reservas WHERE token=?`, [token]);
+    const rsv = await dbGet(`SELECT * FROM reservas WHERE token = $1`, [token]);
     if (!rsv) return res.status(404).json({ erro: "Reserva não encontrada" });
 
     const status = String(rsv.status || "").toLowerCase();
@@ -698,58 +653,72 @@ app.post("/reservas/:token/confirmar-pagamento", async (req, res) => {
     }
 
     const okRow = await dbGet(
-      `SELECT 1 as ok FROM reservas WHERE token=? AND datetime(expira_em) > datetime('now')`,
+      `
+      SELECT 1 AS ok
+        FROM reservas
+       WHERE token = $1
+         AND expira_em > NOW()
+      `,
       [token]
     );
+
     if (!okRow) return res.status(409).json({ erro: "Reserva expirada" });
 
-    await dbRun("BEGIN TRANSACTION");
+    await dbRun("BEGIN");
 
-    await dbRun(`UPDATE reservas SET status='pago' WHERE token=?`, [token]);
+    try {
+      await dbRun(`UPDATE reservas SET status = 'pago' WHERE token = $1`, [token]);
 
-    const nome = rsv.nome;
-    const tel = rsv.telefone;
+      const nome = rsv.nome;
+      const tel = rsv.telefone;
 
-    let cliente = await dbGet(`SELECT id FROM clientes WHERE telefone=?`, [tel]);
+      let cliente = await dbGet(`SELECT id FROM clientes WHERE telefone = $1`, [tel]);
 
-    if (!cliente) {
-      try {
-        const rCli = await dbRun(
-          `INSERT INTO clientes (nome, telefone, observacao, foto_url) VALUES (?, ?, ?, ?)`,
-          [nome, tel, "Criado via sinal (link público)", ""]
-        );
-        cliente = { id: rCli.lastID };
-      } catch (e) {
-        if (String(e.message || "").includes("UNIQUE")) {
-          cliente = await dbGet(`SELECT id FROM clientes WHERE telefone=?`, [tel]);
-        } else {
-          throw e;
+      if (!cliente) {
+        try {
+          cliente = await dbGet(
+            `
+            INSERT INTO clientes (nome, telefone, observacao, foto_url)
+            VALUES ($1, $2, $3, $4)
+            RETURNING id
+            `,
+            [nome, tel, "Criado via sinal (link público)", ""]
+          );
+        } catch (e) {
+          if (String(e.message || "").toLowerCase().includes("unique")) {
+            cliente = await dbGet(`SELECT id FROM clientes WHERE telefone = $1`, [tel]);
+          } else {
+            throw e;
+          }
         }
       }
-    }
 
-    const obs = `SINAL PAGO (R$${Number(rsv.valor_sinal || SINAL_VALOR)
-      .toFixed(2)
-      .replace(".", ",")}) - via link público`;
+      const obs = `SINAL PAGO (R$${Number(rsv.valor_sinal || SINAL_VALOR)
+        .toFixed(2)
+        .replace(".", ",")}) - via link público`;
 
-    const rAg = await dbRun(
-      `INSERT INTO agendamentos (
-         cliente_id, data, horario, servico, observacao, confirmado, reserva_id
-       ) VALUES (?, ?, ?, ?, ?, 1, ?)`,
-      [cliente.id, rsv.data, rsv.horario, rsv.servico, obs, rsv.id]
-    );
+      const rAg = await dbGet(
+        `
+        INSERT INTO agendamentos (
+          cliente_id, data, horario, servico, observacao, confirmado, reserva_id
+        )
+        VALUES ($1, $2, $3, $4, $5, 1, $6)
+        RETURNING id
+        `,
+        [cliente.id, rsv.data, rsv.horario, rsv.servico, obs, rsv.id]
+      );
 
-    await dbRun("COMMIT");
+      await dbRun("COMMIT");
 
-    notifyToken(token, "paid", { ok: true, agendamento_id: rAg.lastID });
+      notifyToken(token, "paid", { ok: true, agendamento_id: rAg.id });
 
-    return res.json({ ok: true, agendamento_id: rAg.lastID });
-  } catch (e) {
-    try {
+      return res.json({ ok: true, agendamento_id: rAg.id });
+    } catch (e) {
       await dbRun("ROLLBACK");
-    } catch (_) {}
-
-    if (String(e.message || "").includes("SQLITE_CONSTRAINT")) {
+      throw e;
+    }
+  } catch (e) {
+    if (String(e.message || "").toLowerCase().includes("unique")) {
       return res.status(409).json({ erro: "Horário já ocupado" });
     }
     return res.status(500).json({ erro: e.message || "Falha ao confirmar pagamento" });
@@ -791,12 +760,13 @@ app.get("/horarios-disponiveis", async (req, res) => {
 
     const rows = await dbAll(
       `
-      SELECT horario FROM agendamentos WHERE data=?
+      SELECT horario FROM agendamentos WHERE data = $1
       UNION
-      SELECT horario FROM reservas
-      WHERE data=?
-        AND lower(status)='pendente'
-        AND datetime(expira_em) > datetime('now')
+      SELECT horario
+        FROM reservas
+       WHERE data = $2
+         AND lower(status) = 'pendente'
+         AND expira_em > NOW()
       `,
       [data, data]
     );
@@ -820,12 +790,13 @@ app.get("/horarios-do-dia", async (req, res) => {
 
     const rows = await dbAll(
       `
-      SELECT horario FROM agendamentos WHERE data=?
+      SELECT horario FROM agendamentos WHERE data = $1
       UNION
-      SELECT horario FROM reservas
-      WHERE data=?
-        AND lower(status)='pendente'
-        AND datetime(expira_em) > datetime('now')
+      SELECT horario
+        FROM reservas
+       WHERE data = $2
+         AND lower(status) = 'pendente'
+         AND expira_em > NOW()
       `,
       [data, data]
     );
@@ -841,11 +812,20 @@ app.get("/horarios-do-dia", async (req, res) => {
 app.get("/lembretes-pendentes", async (req, res) => {
   try {
     const rows = await dbAll(
-      `SELECT a.id,a.data,a.horario,a.servico,c.nome cliente_nome,c.telefone cliente_telefone
-       FROM agendamentos a
-       JOIN clientes c ON c.id=a.cliente_id
-       WHERE a.lembrete_enviado=0 AND a.confirmado=1
-       ORDER BY a.data,a.horario`
+      `
+      SELECT
+        a.id,
+        a.data,
+        a.horario,
+        a.servico,
+        c.nome AS cliente_nome,
+        c.telefone AS cliente_telefone
+      FROM agendamentos a
+      JOIN clientes c ON c.id = a.cliente_id
+      WHERE a.lembrete_enviado = 0
+        AND a.confirmado = 1
+      ORDER BY a.data, a.horario
+      `
     );
     res.json(rows);
   } catch (e) {
@@ -856,9 +836,12 @@ app.get("/lembretes-pendentes", async (req, res) => {
 app.post("/lembretes/:id/enviado", async (req, res) => {
   try {
     await dbRun(
-      `UPDATE agendamentos
-       SET lembrete_enviado=1, lembrete_enviado_em=datetime('now')
-       WHERE id=?`,
+      `
+      UPDATE agendamentos
+         SET lembrete_enviado = 1,
+             lembrete_enviado_em = NOW()
+       WHERE id = $1
+      `,
       [req.params.id]
     );
     res.json({ ok: true });
@@ -867,9 +850,9 @@ app.post("/lembretes/:id/enviado", async (req, res) => {
   }
 });
 
-/* ===================== START (RENDER + LOCAL) ===================== */
+/* ===================== START ===================== */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT} ✅`);
-  console.log(`DB em: ${DB_PATH}`);
+  console.log("Conectado ao Supabase/Postgres ✅");
 });
