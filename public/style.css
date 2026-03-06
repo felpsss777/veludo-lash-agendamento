@@ -1356,3 +1356,22 @@ body.admin-page{
   border: none !important;
   font-weight: 900 !important;
 }
+/* ===== CLIENTES EXTRAS ===== */
+.cli-nome-wrap{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cli-foto{
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.10);
+  flex: 0 0 42px;
+}
+
+.cli-foto--empty{
+  background: rgba(255,255,255,0.08);
+}
