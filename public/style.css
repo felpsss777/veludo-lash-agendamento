@@ -36,9 +36,7 @@ body{
   color: var(--text);
 }
 
-a{
-  color: inherit;
-}
+a{ color: inherit; }
 
 /* ================== FUNDO ================== */
 
@@ -95,9 +93,21 @@ a{
   z-index: 2;
 }
 
-.muted{ color: var(--muted); font-size: 13px; }
-.small{ font-size: 12px; color: var(--muted); }
-.wrapline{ white-space: normal; word-break: break-word; }
+.muted,
+.mut{
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.small{
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.wrapline{
+  white-space: normal;
+  word-break: break-word;
+}
 
 .badge{
   padding: 6px 10px;
@@ -197,9 +207,9 @@ select:focus{
 }
 
 .btn2{
-  background: linear-gradient(135deg, #b83232, #e05a5a);
+  background: linear-gradient(135deg, #111111, #2b2b2b);
   color: #fff;
-  box-shadow: 0 10px 24px rgba(184,50,50,0.20);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.30);
 }
 
 .btn-glass{
@@ -249,6 +259,24 @@ select:focus{
   margin:4px 0 0;
   color: var(--muted);
   font-size: 13px;
+}
+
+.brand-card,
+.logo-wrap,
+.logo{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.logo-img{
+  display: block;
+  margin: 0 auto 8px;
+  max-width: 220px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 .menu{
@@ -349,6 +377,30 @@ select:focus{
   box-shadow: 0 14px 34px rgba(201,164,108,0.14);
 }
 
+#nome{
+  text-align: left;
+}
+
+#ddd,
+#telefone{
+  margin-bottom: 0 !important;
+}
+
+#ddd{
+  flex: 0 0 84px !important;
+  max-width: 84px !important;
+  text-align: center !important;
+}
+
+#telefone{
+  flex: 1 1 auto !important;
+  text-align: left !important;
+}
+
+.card .small{
+  margin-top: 6px !important;
+}
+
 .slot-wrapper{
   position: relative;
   width: 160px;
@@ -423,20 +475,6 @@ select:focus{
   outline: 2px solid rgba(201,164,108,0.95);
 }
 
-.row input#ddd{
-  flex: 0 0 70px;
-  max-width: 70px;
-  text-align: center;
-}
-
-.row input#telefone{ flex: 1; }
-
-.logo-img{
-  height: 200px;
-  width: auto;
-  display: block;
-}
-
 /* ================== FLATPICKR ================== */
 
 .flatpickr-calendar{
@@ -462,7 +500,9 @@ select:focus{
 }
 
 .flatpickr-prev-month svg,
-.flatpickr-next-month svg{ fill: var(--fp-gold) !important; }
+.flatpickr-next-month svg{
+  fill: var(--fp-gold) !important;
+}
 
 .flatpickr-weekday{
   color: rgba(201,164,108,0.95) !important;
@@ -491,7 +531,9 @@ input.flatpickr-input{
   color: rgba(255,255,255,0.92) !important;
 }
 
-.pix-modal{ z-index: 9999 !important; }
+.pix-modal{
+  z-index: 9999 !important;
+}
 
 /* ================== ADMIN ================== */
 
@@ -510,21 +552,14 @@ body.admin-page{
 
 .admin-tabs{
   position: relative !important;
-  top: 0 !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
   z-index: 50 !important;
-
   max-width: 380px;
   margin: 14px auto 12px;
   padding: 8px;
-
   display: flex;
   gap: 8px;
   justify-content: space-between;
-
-  background: rgba(15,15,18,0.38);
+  background: rgba(10,10,12,0.50);
   border: 1px solid rgba(255,255,255,0.10);
   border-radius: 18px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.25);
@@ -540,13 +575,11 @@ body.admin-page{
   color: #fff;
   font-weight: 800;
   cursor:pointer;
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
-
   transition: .18s ease;
 }
 
@@ -580,7 +613,7 @@ body.admin-page{
   margin: 0 auto;
   padding: 14px;
   border-radius: 18px;
-  background: rgba(15,15,18,0.28);
+  background: rgba(15,15,18,0.34) !important;
   border: 1px solid rgba(255,255,255,0.10);
   box-shadow: 0 12px 30px rgba(0,0,0,0.28);
 }
@@ -615,16 +648,13 @@ body.admin-page{
   margin-bottom: 0;
 }
 
-.admin-page input[type="date"]{
-  min-width: 0;
-}
-
 #msg{
   margin: 0 0 10px;
 }
 
 #btnAtualizarAgenda,
-#btnAtualizarLembretes{
+#btnAtualizarLembretes,
+#btnAtualizarFinanceiro{
   width: auto;
   min-width: 110px;
   padding: 0 14px;
@@ -632,33 +662,7 @@ body.admin-page{
   border-radius: 14px;
 }
 
-.row.row-tel{
-  display: grid !important;
-  grid-template-columns: 74px 1fr;
-  gap: 8px;
-  width: 100%;
-}
-
-#cliDDD{
-  width: 74px;
-  max-width: 74px;
-  text-align: center;
-  letter-spacing: .08em;
-}
-
-#cliTel{
-  width: 100%;
-}
-
-#btnCriarCliente{
-  width: 100%;
-  margin-top: 2px;
-}
-
-#pane-clientes .small.mut{
-  font-size: 11px;
-  margin-top: 2px;
-}
+/* ================== TABELA BASE ================== */
 
 .table-wrap{
   overflow: visible;
@@ -696,24 +700,6 @@ body.admin-page{
   overflow: hidden;
 }
 
-/* labels auto */
-#pane-agenda .rowcard td:nth-child(1)::before{ content:"Data"; }
-#pane-agenda .rowcard td:nth-child(2)::before{ content:"Horário"; }
-#pane-agenda .rowcard td:nth-child(3)::before{ content:"Serviço"; }
-#pane-agenda .rowcard td:nth-child(4)::before{ content:"Cliente"; }
-#pane-agenda .rowcard td:nth-child(5)::before{ content:"Status"; }
-#pane-agenda .rowcard td:nth-child(6)::before{ content:"Ações"; }
-
-#pane-lembretes .rowcard td:nth-child(1)::before{ content:"Data"; }
-#pane-lembretes .rowcard td:nth-child(2)::before{ content:"Horário"; }
-#pane-lembretes .rowcard td:nth-child(3)::before{ content:"Serviço"; }
-#pane-lembretes .rowcard td:nth-child(4)::before{ content:"Cliente"; }
-#pane-lembretes .rowcard td:nth-child(5)::before{ content:"Ações"; }
-
-#pane-clientes .rowcard td:nth-child(1)::before{ content:"Nome"; }
-#pane-clientes .rowcard td:nth-child(2)::before{ content:"WhatsApp"; }
-#pane-clientes .rowcard td:nth-child(3)::before{ content:"Ações"; }
-
 .table tbody tr.rowcard td::before{
   font-size: 11px;
   font-weight: 900;
@@ -723,13 +709,8 @@ body.admin-page{
   flex: 0 0 auto;
 }
 
-/* clientes: só 3 colunas */
-#pane-clientes table th:nth-child(3),
-#pane-clientes table td:nth-child(3){
-  display: flex !important;
-}
+/* ================== ACTIONS LEGADO ================== */
 
-/* ações */
 .actions{
   display: flex !important;
   flex-wrap: wrap !important;
@@ -745,68 +726,373 @@ body.admin-page{
   width: 100% !important;
   text-align: center !important;
   justify-content: center !important;
+  min-height: 42px !important;
+  border-radius: 14px !important;
+  font-weight: 800 !important;
 }
 
-#pane-clientes .actions .btn{
-  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
-  color: #2a211b !important;
+/* ================== FINANCEIRO + AGENDA ================== */
+
+.financeiro-resumo{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0 16px;
+}
+
+.finance-card{
+  background: rgba(15,15,18,0.34);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(212,175,55,0.22);
+  border-radius: 18px;
+  padding: 14px 14px 13px;
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.finance-label{
+  display: block;
+  font-size: 12px;
+  color: rgba(212,175,55,0.92);
+  letter-spacing: .2px;
+  margin-bottom: 7px;
+}
+
+.finance-card strong{
+  display: block;
+  color: rgba(255,255,255,0.96);
+  font-size: 20px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.financeiro-lista,
+.agenda-lista{
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.financeiro-item{
+  width: 100%;
+  background: rgba(15,15,18,0.38);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212,175,55,0.22);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.financeiro-item:hover{
+  transform: translateY(-1px);
+  border-color: rgba(212,175,55,0.38);
+  box-shadow:
+    0 16px 34px rgba(0,0,0,0.22),
+    0 0 0 1px rgba(212,175,55,0.06) inset;
+}
+
+.financeiro-item-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.financeiro-nome{
+  color: rgba(255,255,255,0.96);
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.financeiro-status{
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(212,175,55,0.26);
+  background: rgba(212,175,55,0.08);
+  color: rgba(244,216,145,0.98);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+.status-pago{
+  background: rgba(212,175,55,0.14);
+  border-color: rgba(212,175,55,0.34);
+  color: #f3d98b;
+}
+
+.status-ok{
+  background: rgba(212,175,55,0.12);
+  border-color: rgba(212,175,55,0.30);
+  color: #f0d27a;
+}
+
+.status-pendente{
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.85);
+}
+
+.financeiro-info{
+  display: block;
+  margin-bottom: 12px;
+}
+
+.financeiro-info span{
+  display: block;
+  color: rgba(255,255,255,0.82);
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.financeiro-info strong{
+  color: rgba(255,255,255,0.96);
+  font-weight: 700;
+}
+
+.lembrete-linha-dupla{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.lembrete-linha-dupla span{
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.90);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.lembrete-linha-dupla strong{
+  color: #fff;
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+.financeiro-acoes{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 0;
+}
+
+.btn-dourado,
+.btn-preto{
+  appearance: none;
+  width: 100%;
+  border-radius: 14px;
+  min-height: 44px;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform .16s ease, opacity .16s ease, box-shadow .16s ease, border-color .16s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-dourado{
+  border: 1px solid rgba(212,175,55,0.44);
+  color: #181511;
+  background: linear-gradient(180deg, #f5e3b9 0%, #d4af37 100%);
+  box-shadow: 0 10px 24px rgba(212,175,55,0.18);
+}
+
+.btn-dourado:hover{
+  transform: translateY(-1px);
+  opacity: .98;
+}
+
+.btn-preto{
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.94);
+  background: rgba(0,0,0,0.56);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+}
+
+.btn-preto:hover{
+  transform: translateY(-1px);
+  border-color: rgba(212,175,55,0.26);
+}
+
+.agenda-topbar{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 6px;
+}
+
+.agenda-topbar input{
+  flex: 1 1 auto;
+}
+
+/* ================== LEMBRETES - CORREÇÃO FINAL ================== */
+
+#pane-lembretes .table,
+#pane-lembretes .table tbody,
+#pane-lembretes .table tr,
+#pane-lembretes .table td{
+  width: 100%;
+}
+
+#pane-lembretes .table{
+  border-spacing: 0 12px !important;
+}
+
+#pane-lembretes .table tbody tr.rowcard{
+  display: table-row !important;
+  margin-bottom: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
   border: none !important;
-  font-weight: 900 !important;
+  padding: 0 !important;
 }
 
-#pane-clientes .actions .btn2{
-  background: linear-gradient(135deg, #d93a3a, #8f1010) !important;
-  color: #fff !important;
+#pane-lembretes .table tbody tr.rowcard td{
+  display: table-cell !important;
+  width: 100% !important;
+  padding: 0 !important;
+  background: transparent !important;
   border: none !important;
-  font-weight: 900 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
 }
 
-#pane-clientes .actions .btn-glass{
-  background: linear-gradient(135deg, rgba(201,164,108,0.55), rgba(241,217,170,0.45)) !important;
-  color: #2a211b !important;
-  border: 1px solid rgba(201,164,108,0.35) !important;
-}
-
-#pane-agenda .actions .btn,
-#pane-lembretes .actions .btn{
-  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
-  color: #2a211b !important;
-  border: none !important;
-}
-
-#pane-agenda .actions .btn2{
-  background: linear-gradient(135deg, #d93a3a, #8f1010) !important;
-  color: #fff !important;
-}
-
-#pane-lembretes .actions .btn-glass,
-#pane-agenda .actions .btn-glass{
-  background: linear-gradient(135deg, rgba(201,164,108,0.55), rgba(241,217,170,0.45)) !important;
-  color: #2a211b !important;
-  border: 1px solid rgba(201,164,108,0.35) !important;
-}
-
-/* remove restos de foto */
-.cli-foto,
-.cli-foto--empty,
-.cliente-foto-mini,
-.cliente-foto-placeholder,
-.cliente-nome-box,
-.cli-nome-wrap{
+#pane-lembretes .table tbody tr.rowcard td::before{
   display: none !important;
+  content: none !important;
 }
 
-/* esconde input de foto se ainda existir no html/js */
-#cliFoto{
-  display: none !important;
+#pane-lembretes .financeiro-item{
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+#pane-lembretes .financeiro-item-top{
+  display: block !important;
+  margin-bottom: 10px !important;
+}
+
+#pane-lembretes .financeiro-nome{
+  display: block !important;
+}
+
+#pane-lembretes .financeiro-info{
+  display: block !important;
+  margin-bottom: 12px !important;
+}
+
+#pane-lembretes .financeiro-info span{
+  display: block !important;
+}
+
+#pane-lembretes .lembrete-linha-dupla{
+  margin-top: 0 !important;
+  margin-bottom: 14px !important;
+}
+
+#pane-lembretes .financeiro-acoes{
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
 }
 
 /* ================== RESPONSIVO ================== */
 
 @media (max-width: 860px){
-  .grid{ grid-template-columns: 1fr; }
-  .header{ flex-direction: column; }
-  .slot-wrapper{ width: 100%; margin-left:0; }
+  .grid{
+    grid-template-columns: 1fr;
+  }
+
+  .header{
+    flex-direction: column;
+  }
+
+  .slot-wrapper{
+    width: 100%;
+    margin-left:0;
+  }
+}
+
+@media (max-width: 760px){
+  .financeiro-resumo{
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .finance-card{
+    padding: 13px 12px;
+  }
+
+  .finance-card strong{
+    font-size: 18px;
+  }
+
+  .financeiro-item{
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .financeiro-item-top{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .financeiro-status{
+    align-self: flex-start;
+  }
+
+  .agenda-topbar{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .agenda-topbar .btn2{
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px){
+  .lembrete-linha-dupla{
+    grid-template-columns: 1fr;
+  }
+
+  #pane-lembretes .lembrete-linha-dupla{
+    grid-template-columns: 1fr !important;
+  }
+
+  .financeiro-item{
+    padding: 16px;
+  }
+
+  .financeiro-nome{
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 520px){
@@ -851,6 +1137,7 @@ body.admin-page{
   .service-price{ font-size: 12px; }
 
   .slot-wrapper{ width: 140px; }
+
   .slot-toggle{
     padding: 9px 10px;
     border-radius: 12px;
@@ -875,451 +1162,8 @@ body.admin-page{
     border-radius: 16px !important;
   }
 
-  .flatpickr-day{ border-radius: 12px !important; }
-}
-/* =========================================
-   AJUSTES FINAIS — BOOKING + ADMIN
-========================================= */
-
-/* ===== BOOKING ===== */
-
-/* centraliza melhor a logo */
-.brand-card,
-.logo-wrap,
-.logo{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-
-.logo-img{
-  display: block;
-  margin: 0 auto 8px;
-  max-width: 220px;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-
-/* nome + telefone mais alinhados */
-#nome{
-  text-align: left;
-}
-
-#ddd,
-#telefone{
-  margin-bottom: 0 !important;
-}
-
-#ddd{
-  flex: 0 0 84px !important;
-  max-width: 84px !important;
-  text-align: center !important;
-}
-
-#telefone{
-  flex: 1 1 auto !important;
-  text-align: left !important;
-}
-
-.card .row:has(#ddd){
-  align-items: center !important;
-}
-
-.card .small{
-  margin-top: 6px !important;
-}
-
-/* ===== ADMIN ===== */
-
-/* logo/fundo mais centralizado no admin */
-.admin-page .admin-tabs{
-  background: rgba(10,10,12,0.50) !important;
-}
-
-.admin-page .admin-card{
-  background: rgba(15,15,18,0.34) !important;
-}
-
-/* separa cada agendamento em cards delicados */
-@media (max-width: 520px){
-  #pane-agenda .table tbody tr.rowcard{
-    display: block !important;
-    margin-bottom: 14px !important;
-    padding: 10px !important;
-    border-radius: 18px !important;
-    background: rgba(12,12,16,0.34) !important;
-    border: 1px solid rgba(201,164,108,0.22) !important;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.22) !important;
-    backdrop-filter: blur(8px) !important;
-  }
-
-  #pane-agenda .table tbody tr.rowcard td{
-    background: rgba(255,255,255,0.03) !important;
-    border: 1px solid rgba(255,255,255,0.06) !important;
-    border-radius: 14px !important;
-    margin-bottom: 8px !important;
-  }
-
-  #pane-agenda .table tbody tr.rowcard td:last-child{
-    margin-bottom: 0 !important;
-  }
-
-  /* lembretes no mesmo estilo */
-  #pane-lembretes .table tbody tr.rowcard{
-    display: block !important;
-    margin-bottom: 14px !important;
-    padding: 10px !important;
-    border-radius: 18px !important;
-    background: rgba(12,12,16,0.34) !important;
-    border: 1px solid rgba(201,164,108,0.22) !important;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.22) !important;
-    backdrop-filter: blur(8px) !important;
-  }
-
-  #pane-lembretes .table tbody tr.rowcard td{
-    background: rgba(255,255,255,0.03) !important;
-    border: 1px solid rgba(255,255,255,0.06) !important;
-    border-radius: 14px !important;
-    margin-bottom: 8px !important;
-  }
-
-  #pane-lembretes .table tbody tr.rowcard td:last-child{
-    margin-bottom: 0 !important;
-  }
-}
-
-/* desktop/tablet também deixa mais organizado */
-#pane-agenda .table tbody tr.rowcard,
-#pane-lembretes .table tbody tr.rowcard{
-  box-shadow: inset 0 0 0 1px rgba(201,164,108,0.08);
-}
-
-/* botões pretos no admin */
-#pane-agenda .actions .btn2,
-#pane-lembretes .actions .btn2,
-#pane-clientes .actions .btn2,
-.actions .btn2,
-.btn-del{
-  background: linear-gradient(135deg, #111111, #2b2b2b) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255,255,255,0.08) !important;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.30) !important;
-}
-
-/* botão whatsapp continua dourado e mais delicado */
-#pane-agenda .actions .btn,
-#pane-lembretes .actions .btn,
-#pane-clientes .actions .btn,
-.btn-wa{
-  background: linear-gradient(135deg, #c9a46c, #f1d9aa) !important;
-  color: #2a211b !important;
-  border: none !important;
-  box-shadow: 0 10px 24px rgba(201,164,108,0.20) !important;
-}
-
-/* ações mais limpas */
-.actions{
-  gap: 8px !important;
-}
-
-.actions .btn,
-.actions .btn2,
-.actions .btn-glass{
-  min-height: 42px !important;
-  border-radius: 14px !important;
-  font-weight: 800 !important;
-}
-
-/* cliente no admin melhor alinhado */
-#pane-agenda td div,
-#pane-lembretes td div,
-#pane-clientes td div{
-  line-height: 1.35;
-}
-
-/* nome e número mais organizados */
-#pane-agenda .wrapline,
-#pane-lembretes .wrapline,
-#pane-clientes .wrapline{
-  word-break: break-word;
-}
-/* =========================
-   FINANCEIRO + AGENDA ADMIN
-========================= */
-
-.financeiro-resumo{
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin: 14px 0 16px;
-}
-
-.finance-card{
-  background: rgba(15,15,18,0.34);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(212,175,55,0.22);
-  border-radius: 18px;
-  padding: 14px 14px 13px;
-  box-shadow:
-    0 10px 30px rgba(0,0,0,0.20),
-    inset 0 1px 0 rgba(255,255,255,0.04);
-}
-
-.finance-label{
-  display: block;
-  font-size: 12px;
-  color: rgba(212,175,55,0.92);
-  letter-spacing: .2px;
-  margin-bottom: 7px;
-}
-
-.finance-card strong{
-  display: block;
-  color: rgba(255,255,255,0.96);
-  font-size: 20px;
-  line-height: 1.1;
-  font-weight: 800;
-}
-
-/* listas de cards */
-.financeiro-lista,
-.agenda-lista{
-  display: grid;
-  gap: 12px;
-  margin-top: 14px;
-}
-
-.financeiro-item{
-  background: rgba(15,15,18,0.38);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(212,175,55,0.22);
-  border-radius: 18px;
-  padding: 14px;
-  box-shadow:
-    0 12px 28px rgba(0,0,0,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.03);
-  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
-}
-
-.financeiro-item:hover{
-  transform: translateY(-1px);
-  border-color: rgba(212,175,55,0.38);
-  box-shadow:
-    0 16px 34px rgba(0,0,0,0.22),
-    0 0 0 1px rgba(212,175,55,0.06) inset;
-}
-
-.financeiro-item-top{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.financeiro-nome{
-  color: rgba(255,255,255,0.96);
-  font-weight: 700;
-  font-size: 15px;
-  line-height: 1.35;
-}
-
-.financeiro-status{
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 28px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(212,175,55,0.26);
-  background: rgba(212,175,55,0.08);
-  color: rgba(244,216,145,0.98);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .2px;
-}
-
-.financeiro-info{
-  display: grid;
-  gap: 7px;
-  margin-bottom: 12px;
-}
-
-.financeiro-info span{
-  color: rgba(255,255,255,0.82);
-  font-size: 14px;
-  line-height: 1.45;
-  word-break: break-word;
-}
-
-.financeiro-info strong{
-  color: rgba(255,255,255,0.96);
-  font-weight: 700;
-}
-
-.financeiro-acoes{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.btn-dourado,
-.btn-preto{
-  appearance: none;
-  border-radius: 12px;
-  min-height: 42px;
-  padding: 10px 14px;
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  transition: transform .16s ease, opacity .16s ease, box-shadow .16s ease, border-color .16s ease;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-dourado{
-  border: 1px solid rgba(212,175,55,0.44);
-  color: #181511;
-  background: linear-gradient(180deg, #f5e3b9 0%, #d4af37 100%);
-  box-shadow: 0 10px 24px rgba(212,175,55,0.18);
-}
-
-.btn-dourado:hover{
-  transform: translateY(-1px);
-  opacity: .98;
-}
-
-.btn-preto{
-  border: 1px solid rgba(255,255,255,0.10);
-  color: rgba(255,255,255,0.94);
-  background: rgba(0,0,0,0.56);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
-}
-
-.btn-preto:hover{
-  transform: translateY(-1px);
-  border-color: rgba(212,175,55,0.26);
-}
-
-/* topo da agenda */
-.agenda-topbar{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 12px 0 6px;
-}
-
-.agenda-topbar input{
-  flex: 1 1 auto;
-}
-
-/* flatpickr no mesmo clima do booking */
-.flatpickr-calendar{
-  background: rgba(17,17,20,0.96) !important;
-  border: 1px solid rgba(212,175,55,0.18) !important;
-  box-shadow: 0 22px 44px rgba(0,0,0,0.35) !important;
-  border-radius: 18px !important;
-  overflow: hidden;
-}
-
-.flatpickr-months{
-  background: rgba(255,255,255,0.02);
-}
-
-.flatpickr-current-month .flatpickr-monthDropdown-months,
-.flatpickr-current-month input.cur-year{
-  color: rgba(255,255,255,0.96) !important;
-  fill: rgba(255,255,255,0.96) !important;
-}
-
-.flatpickr-weekdays{
-  background: transparent !important;
-}
-
-span.flatpickr-weekday{
-  color: rgba(212,175,55,0.88) !important;
-  font-weight: 700;
-}
-
-.flatpickr-day{
-  color: rgba(255,255,255,0.90) !important;
-  border-radius: 10px !important;
-}
-
-.flatpickr-day:hover{
-  background: rgba(212,175,55,0.12) !important;
-  border-color: rgba(212,175,55,0.22) !important;
-}
-
-.flatpickr-day.selected,
-.flatpickr-day.startRange,
-.flatpickr-day.endRange{
-  background: linear-gradient(180deg, #f5e3b9 0%, #d4af37 100%) !important;
-  border-color: rgba(212,175,55,0.48) !important;
-  color: #1a1712 !important;
-}
-
-.flatpickr-day.today{
-  border-color: rgba(212,175,55,0.44) !important;
-}
-
-.flatpickr-prev-month svg,
-.flatpickr-next-month svg{
-  fill: rgba(255,255,255,0.92) !important;
-}
-
-/* responsivo */
-@media (max-width: 760px){
-  .financeiro-resumo{
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .finance-card{
-    padding: 13px 12px;
-  }
-
-  .finance-card strong{
-    font-size: 18px;
-  }
-
-  .financeiro-item{
-    padding: 13px;
-    border-radius: 16px;
-  }
-
-  .financeiro-item-top{
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .financeiro-status{
-    align-self: flex-start;
-  }
-
-  .financeiro-acoes{
-    flex-direction: column;
-  }
-
-  .btn-dourado,
-  .btn-preto{
-    width: 100%;
-  }
-
-  .agenda-topbar{
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .agenda-topbar .btn2{
-    width: 100%;
+  .flatpickr-day{
+    border-radius: 12px !important;
   }
 }
 
@@ -1341,93 +1185,6 @@ span.flatpickr-weekday{
   }
 
   .financeiro-nome{
-    font-size: 14px;
+    font-size: 15px;
   }
-}.status-pago{
-  background: rgba(212,175,55,0.14);
-  border-color: rgba(212,175,55,0.34);
-  color: #f3d98b;
-}
-
-.status-ok{
-  background: rgba(212,175,55,0.12);
-  border-color: rgba(212,175,55,0.30);
-  color: #f0d27a;
-}
-
-.status-pendente{
-  background: rgba(255,255,255,0.06);
-  border-color: rgba(255,255,255,0.10);
-  color: rgba(255,255,255,0.85);
-}
-/* =========================
-   AJUSTE DE PROPORÇÃO CARDS
-========================= */
-
-.lembrete-linha-dupla{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:10px;
-  margin-top:8px;
-}
-
-.lembrete-linha-dupla span{
-  display:block;
-  padding:6px 8px;
-  border-radius:10px;
-  background:rgba(255,255,255,0.05);
-  font-size:14px;
-}
-
-.lembrete-linha-dupla strong{
-  color:#fff;
-  font-weight:600;
-}
-
-/* card principal */
-
-.financeiro-item{
-  padding:18px;
-  border-radius:18px;
-}
-
-/* título cliente */
-
-.financeiro-nome{
-  font-size:17px;
-  font-weight:700;
-  margin-bottom:6px;
-}
-
-/* linha da data */
-
-.financeiro-info{
-  margin-bottom:6px;
-}
-
-/* botões */
-
-.financeiro-acoes{
-  display:flex;
-  gap:10px;
-  margin-top:14px;
-}
-
-.financeiro-acoes a,
-.financeiro-acoes button{
-  flex:1;
-}
-
-/* mobile */
-
-@media (max-width:600px){
-
-  .lembrete-linha-dupla{
-    grid-template-columns:1fr;
-  }
-
-  .financeiro-acoes{
-    flex-direction:column;
-  }
-
 }
