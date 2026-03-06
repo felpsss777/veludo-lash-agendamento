@@ -99,18 +99,11 @@ function getTel11FromInputs() {
 }
 
 /* =====================
-   EXTRAS DA ABA CLIENTES
+   BUSCA DE CLIENTES
 ===================== */
-function ensureClienteExtras() {
+function ensureClienteBusca() {
   const pane = $("pane-clientes");
   if (!pane) return;
-
-  const title = pane.querySelector("h2");
-  const nomeRow = pane.querySelector(".row");
-  const telRow = pane.querySelector(".row.row-tel");
-  const ajuda = pane.querySelector(".small.mut");
-
-  if (!title || !nomeRow || !telRow) return;
 
   if (!$("cliBusca")) {
     const buscaWrap = document.createElement("div");
@@ -118,33 +111,12 @@ function ensureClienteExtras() {
     buscaWrap.innerHTML = `
       <input id="cliBusca" placeholder="Buscar cliente pelo nome" autocomplete="off" />
     `;
-    title.insertAdjacentElement("afterend", buscaWrap);
-  }
 
-  if (!$("cliFoto")) {
-    const fotoWrap = document.createElement("div");
-    fotoWrap.className = "row";
-    fotoWrap.innerHTML = `
-      <input id="cliFoto" type="file" accept="image/*" style="display:none" />
-      <button type="button" class="btn2" id="btnFotoCliente">Selecionar foto</button>
-      <span id="cliFotoNome" class="small mut">Nenhuma foto selecionada</span>
-    `;
-
-    if (ajuda) {
-      ajuda.insertAdjacentElement("beforebegin", fotoWrap);
-    } else {
-      telRow.insertAdjacentElement("afterend", fotoWrap);
+    const h2 = pane.querySelector("h2");
+    if (h2) {
+      h2.insertAdjacentElement("afterend", buscaWrap);
     }
   }
-
-  $("btnFotoCliente")?.addEventListener("click", () => {
-    $("cliFoto")?.click();
-  });
-
-  $("cliFoto")?.addEventListener("change", () => {
-    const nome = $("cliFoto")?.files?.[0]?.name || "Nenhuma foto selecionada";
-    if ($("cliFotoNome")) $("cliFotoNome").textContent = nome;
-  });
 }
 
 /* =====================
@@ -157,8 +129,15 @@ function setupTabs() {
   if (!tabs.length || !panes.length) return;
 
   function setActive(name) {
-    tabs.forEach((t) => t.classList.toggle("active", t.dataset.tab === name));
-    panes.forEach((p) => p.classList.toggle("active", p.dataset.page === name));
+    tabs.forEach((t) => {
+      const active = t.dataset.tab === name;
+      t.classList.toggle("active", active);
+      t.setAttribute("aria-selected", active ? "true" : "false");
+    });
+
+    panes.forEach((p) => {
+      p.classList.toggle("active", p.dataset.page === name);
+    });
 
     if (name === "clientes") carregarClientes();
     if (name === "agenda") carregarAgenda();
@@ -168,8 +147,6 @@ function setupTabs() {
   tabs.forEach((t) => {
     t.addEventListener("click", () => setActive(t.dataset.tab));
   });
-
-  $("btnRefresh")?.addEventListener("click", () => location.reload());
 
   const active = document.querySelector(".admin-tabs .tab.active")?.dataset.tab || "clientes";
   setActive(active);
@@ -363,19 +340,10 @@ async function carregarClientes() {
     }
 
     rows.forEach((c) => {
-      const foto = c.foto_url
-        ? `<img src="${c.foto_url}" alt="${c.nome}" class="cli-foto">`
-        : `<div class="cli-foto cli-foto--empty"></div>`;
-
       const tr = document.createElement("tr");
       tr.className = "rowcard";
       tr.innerHTML = `
-        <td>
-          <div class="cli-nome-wrap">
-            ${foto}
-            <div><b>${c.nome}</b></div>
-          </div>
-        </td>
+        <td><b>${c.nome}</b></td>
         <td class="wrapline">${fmtTel(c.telefone)}</td>
         <td>
           <div class="actions">
@@ -409,25 +377,6 @@ async function carregarClientes() {
   } catch (e) {
     setMsg("Erro ao carregar clientes.", false);
   }
-}
-
-/* =====================
-   UPLOAD FOTO CLIENTE
-===================== */
-async function enviarFotoCliente(id) {
-  const inputFoto = $("cliFoto");
-  const file = inputFoto?.files?.[0];
-  if (!file) return true;
-
-  const fd = new FormData();
-  fd.append("foto", file);
-
-  const res = await fetch(`/clientes/${id}/foto`, {
-    method: "POST",
-    body: fd
-  });
-
-  return res.ok;
 }
 
 /* =====================
@@ -465,29 +414,21 @@ function setupButtons() {
         return;
       }
 
-      const clienteId = payload.id;
-      const okFoto = await enviarFotoCliente(clienteId);
-
       $("cliNome").value = "";
       $("cliDDD").value = "";
       $("cliTel").value = "";
-      if ($("cliFoto")) $("cliFoto").value = "";
-      if ($("cliFotoNome")) $("cliFotoNome").textContent = "Nenhuma foto selecionada";
 
-      if (okFoto) {
-        setMsg("Cliente cadastrado!");
-      } else {
-        setMsg("Cliente cadastrado, mas a foto não foi enviada.", false);
-      }
-
+      setMsg("Cliente cadastrado!");
       carregarClientes();
     } catch (e) {
       setMsg("Erro ao cadastrar cliente.", false);
     }
   });
 
-  $("cliBusca")?.addEventListener("input", () => {
-    carregarClientes();
+  document.addEventListener("input", (e) => {
+    if (e.target && e.target.id === "cliBusca") {
+      carregarClientes();
+    }
   });
 }
 
@@ -495,7 +436,7 @@ function setupButtons() {
    INIT
 ===================== */
 document.addEventListener("DOMContentLoaded", () => {
-  ensureClienteExtras();
+  ensureClienteBusca();
 
   const filtro = $("filtroData");
   if (filtro) {

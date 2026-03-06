@@ -2,26 +2,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
 
 :root{
-  /* fundo */
   --bg: transparent;
-
-  /* paleta premium */
   --text: rgba(255,255,255,0.92);
   --muted: rgba(255,255,255,0.70);
 
-  /* dourado premium */
   --gold: #c9a46c;
   --gold2: #f1d9aa;
 
-  /* bordas / sombras */
   --line: rgba(255,255,255,0.14);
   --shadow: 0 18px 40px rgba(0,0,0,0.35);
 
-  /* glass */
   --glass: rgba(20, 20, 24, 0.35);
   --glass-2: rgba(20, 20, 24, 0.28);
 
-  /* flatpickr */
   --fp-bg: rgba(10, 10, 12, 0.96);
   --fp-panel: rgba(18, 18, 22, 0.96);
   --fp-border: rgba(255,255,255,0.10);
@@ -29,15 +22,13 @@
   --fp-muted: rgba(255,255,255,0.55);
   --fp-gold: var(--gold);
   --fp-gold2: var(--gold2);
-
-  /* ADMIN: alturas / offsets */
-  --admin-top-offset: 64px;     /* distância do topo até as tabs */
-  --admin-tabs-top: 64px;       /* tabs “mais para baixo” */
 }
 
 *{ box-sizing: border-box; }
+
 html, body{ height: 100%; }
 html{ background:#000; }
+
 body{
   margin:0;
   font-family: Inter, sans-serif;
@@ -45,7 +36,12 @@ body{
   color: var(--text);
 }
 
-/* ================== FUNDO IG (IMAGEM LONGA) ================== */
+a{
+  color: inherit;
+}
+
+/* ================== FUNDO ================== */
+
 .ig-bg{
   position: fixed;
   inset: 0;
@@ -53,6 +49,7 @@ body{
   overflow: hidden;
   pointer-events: none;
 }
+
 .ig-bg__img{
   position: absolute;
   inset: 0;
@@ -60,43 +57,173 @@ body{
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center 0px;
-  transform: translateZ(0);
   will-change: background-position;
-
   opacity: 0;
   transform: scale(1.06);
   filter: blur(8px);
 }
+
 @media (prefers-reduced-motion: no-preference){
   .ig-bg__img{
     animation: bgFadeIn 1.8s cubic-bezier(.16, 1, .3, 1) forwards;
   }
+
   @keyframes bgFadeIn{
     0%{ opacity:0; transform: scale(1.08); filter: blur(10px); }
     40%{ opacity:.6; }
     100%{ opacity:1; transform: scale(1); filter: blur(1px); }
   }
 }
+
 .ig-bg__overlay{
   position: absolute;
   inset: 0;
   background: transparent;
-  backdrop-filter: none;
 }
 
-/* garante que conteúdo fique acima do fundo */
-.container, .header, .grid, .card,
-.admin-topbar, .admin-tabs, .admin-shell{
+/* ================== BASE ================== */
+
+.container,
+.header,
+.grid,
+.card,
+.admin-header,
+.admin-tabs,
+.admin-shell,
+.admin-card{
   position: relative;
   z-index: 2;
 }
 
-/* ================== LAYOUT (BOOKING) ================== */
+.muted{ color: var(--muted); font-size: 13px; }
+.small{ font-size: 12px; color: var(--muted); }
+.wrapline{ white-space: normal; word-break: break-word; }
+
+.badge{
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(15,15,18,0.35);
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid rgba(255,255,255,0.14);
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color: rgba(255,255,255,0.92);
+}
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height: 30px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.92);
+}
+
+.pill.ok{
+  background: rgba(201,164,108,0.14);
+  border-color: rgba(201,164,108,0.30);
+  color: #f3dfb8;
+}
+
+.row{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  flex-wrap: wrap;
+}
+
+.row > *{
+  flex: 1;
+  min-width: 0;
+}
+
+input, select{
+  width:100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: var(--glass-2);
+  font-size: 14px;
+  outline:none;
+  color: rgba(255,255,255,0.92);
+}
+
+input::placeholder,
+select::placeholder{
+  color: rgba(255,255,255,0.65);
+}
+
+input:focus,
+select:focus{
+  border-color: rgba(201,164,108,0.85);
+  box-shadow: 0 0 0 4px rgba(201,164,108,0.14);
+}
+
+.btn,
+.btn2,
+.btn-glass{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: none;
+  cursor:pointer;
+  font-weight: 800;
+  font-size: 13px;
+  white-space: nowrap;
+  text-decoration:none;
+  transition:.18s ease;
+}
+
+.btn:hover,
+.btn2:hover,
+.btn-glass:hover{
+  transform: translateY(-1px);
+}
+
+.btn{
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: #2a211b;
+  box-shadow: 0 12px 28px rgba(201,164,108,0.22);
+}
+
+.btn2{
+  background: linear-gradient(135deg, #b83232, #e05a5a);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(184,50,50,0.20);
+}
+
+.btn-glass{
+  background: linear-gradient(135deg, rgba(201,164,108,0.55), rgba(241,217,170,0.45));
+  color: #2a211b;
+  border: 1px solid rgba(201,164,108,0.35);
+}
+
+.btn-glass.gold{
+  width: 100%;
+  min-height: 46px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: #2a211b;
+  font-weight: 900;
+}
+
+/* ================== BOOKING ================== */
+
 .container{
   max-width: 980px;
   margin: 0 auto;
   padding: 22px 16px 28px;
 }
+
 .header{
   display:flex;
   align-items:center;
@@ -104,7 +231,11 @@ body{
   gap: 14px;
   margin: 6px 0 18px;
 }
-.brand{ text-align: center; }
+
+.brand{
+  text-align:center;
+}
+
 .brand h1{
   margin:0;
   font-family: "Playfair Display", serif;
@@ -113,23 +244,23 @@ body{
   color: var(--text);
   text-shadow: 0 10px 26px rgba(0,0,0,0.55);
 }
+
 .brand p{
   margin:4px 0 0;
   color: var(--muted);
   font-size: 13px;
-  text-shadow: 0 10px 26px rgba(0,0,0,0.45);
 }
 
 .menu{
   display:flex;
   gap:10px;
   background: rgba(15,15,18,0.30);
-  backdrop-filter: blur(8px);
   border: 1px solid var(--line);
   padding: 8px;
   border-radius: 14px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.25);
 }
+
 .menu a{
   text-decoration:none;
   color: rgba(255,255,255,0.88);
@@ -137,9 +268,11 @@ body{
   border-radius: 12px;
   font-weight: 700;
   font-size: 13px;
-  transition: .15s;
 }
-.menu a:hover{ background: rgba(255,255,255,0.10); }
+
+.menu a:hover{
+  background: rgba(255,255,255,0.10);
+}
 
 .grid{
   display:grid;
@@ -148,26 +281,14 @@ body{
   align-items:start;
 }
 
-/* ================== CARD / FORM ================== */
 .card{
   background: rgba(18,18,22,0.55);
-  backdrop-filter: blur(6px);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 18px;
   padding: 18px;
   box-shadow: 0 12px 30px rgba(0,0,0,0.25);
 }
-@media (prefers-reduced-motion: no-preference){
-  .card{
-    animation: cardInElegant .85s cubic-bezier(.16, 1, .3, 1) both;
-  }
-  @keyframes cardInElegant{
-    from{ opacity:0; transform: translateY(18px) scale(.985); filter: blur(2px); }
-    to{ opacity:1; transform: translateY(0) scale(1); filter: blur(0); }
-  }
-}
 
-/* títulos booking */
 .card h2{
   font-family: 'Great Vibes', cursive;
   font-size: 40px;
@@ -180,6 +301,7 @@ body{
   position: relative;
   margin: 0 0 22px;
 }
+
 .card h2::after{
   content: "";
   display: block;
@@ -190,172 +312,50 @@ body{
   border-radius: 4px;
 }
 
-input, select{
-  width:100%;
-  padding: 12px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.16);
-  background: var(--glass-2);
-  backdrop-filter: blur(0.6px);
-  font-size: 14px;
-  margin-bottom: 10px;
-  outline:none;
-  color: rgba(255,255,255,0.92);
-}
-input::placeholder{ color: rgba(255,255,255,0.65); }
-input:focus, select:focus{
-  border-color: rgba(201,164,108,0.85);
-  box-shadow: 0 0 0 4px rgba(201,164,108,0.14);
-}
-
-.row{
-  display:flex;
-  gap: 10px;
-  align-items:center;
-  flex-wrap: wrap;
-}
-.row > *{ flex: 1; min-width: 0; }
-
-.muted{ color: var(--muted); font-size: 13px; }
-.small{ font-size: 12px; color: var(--muted); }
-
-.badge{
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(15,15,18,0.35);
-  font-size: 12px;
-  font-weight: 800;
-  border: 1px solid rgba(255,255,255,0.14);
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  backdrop-filter: blur(0.6px);
-  color: rgba(255,255,255,0.92);
-}
-
-/* botões (base) */
-.btn, .btn2, .btn-glass{
-  border-radius: 14px;
-  border: 1px solid transparent;
-  cursor:pointer;
-  font-weight: 800;
-  font-size: 13px;
-  padding: 11px 14px;
-  transition:.15s;
-  width:auto;
-  flex: 0 0 auto;
-  white-space: nowrap;
-  position: relative;
-  overflow: hidden;
-  transform: translateZ(0);
-}
-
-.btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  text-decoration:none;
-  background: linear-gradient(135deg, #0f0f12, #1b1b22);
-  border: 1px solid rgba(255,255,255,0.14);
-  color: rgba(255,255,255,0.92);
-}
-.btn:hover{ opacity:.92; }
-
-.btn2{
-  background: rgba(255,255,255,0.10);
-  color: rgba(255,255,255,0.90);
-  border: 1px solid rgba(255,255,255,0.14);
-  backdrop-filter: blur(0.6px);
-}
-.btn2:hover{ background: rgba(255,255,255,0.14); }
-
-.btn-glass{
-  background: linear-gradient(135deg, rgba(201,164,108,0.55), rgba(241,217,170,0.45));
-  border: 1px solid rgba(201,164,108,0.40);
-  color: #2a211b;
-}
-
-/* botão principal dourado (booking e admin onde usar .btn-glass.gold) */
-.card > button,
-.card button[onclick="agendar()"],
-.btn-glass.gold{
-  width:100%;
-  border-radius: 14px;
-  border: none;
-  cursor:pointer;
-  font-weight: 900;
-  padding: 12px;
-  background: linear-gradient(135deg, var(--gold), var(--gold2));
-  color: #2a211b;
-  transition:.15s;
-  box-shadow: 0 16px 35px rgba(201,164,108,0.16);
-}
-.card > button:hover,
-.card button[onclick="agendar()"]:hover,
-.btn-glass.gold:hover{
-  transform: translateY(-1px);
-  filter: brightness(1.02);
-}
-
-/* brilho no hover */
-.btn::after, .btn2::after, .btn-glass::after, .btn-glass.gold::after, .card > button::after{
-  content:"";
-  position:absolute;
-  inset:-40% -60%;
-  background: linear-gradient(120deg, transparent, rgba(255,255,255,.18), transparent);
-  transform: translateX(-60%) rotate(10deg);
-  transition: transform .8s ease;
-  pointer-events:none;
-}
-.btn:hover::after, .btn2:hover::after, .btn-glass:hover::after, .btn-glass.gold:hover::after, .card > button:hover::after{
-  transform: translateX(60%) rotate(10deg);
-}
-
-/* ================== LISTA ================== */
-.list{
+.services{
   display:grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  padding:0;
-  margin:0;
-  list-style:none;
+  margin: 10px 0 6px;
 }
-.item{
-  background: rgba(15,15,18,0.32);
-  backdrop-filter: blur(0.6px);
+
+.service-card{
   border: 1px solid rgba(255,255,255,0.14);
   border-radius: 18px;
-  padding: 14px;
-  color: rgba(255,255,255,0.90);
-}
-.top{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:flex-start;
-}
-.item .row{
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  gap: 10px;
-}
-.item .row .btn{ flex: 1 1 auto; }
-.item .row .btn-glass,
-.item .row .btn2{ flex: 0 0 auto; }
-
-hr.sep{
-  border: none;
-  height: 1px;
-  background: rgba(255,255,255,0.12);
-  margin: 14px 0;
+  overflow:hidden;
+  background: rgba(15,15,18,0.28);
+  cursor:pointer;
+  transition: transform .22s ease, box-shadow .22s ease;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.20);
 }
 
-/* ================== DROPDOWN HORÁRIOS ================== */
+.service-card:hover{
+  transform: translateY(-3px);
+}
+
+.service-card img{
+  width:100%;
+  height: 120px;
+  object-fit: cover;
+  display:block;
+}
+
+.service-body{ padding: 10px 10px 12px; }
+.service-name{ font-weight: 900; color: rgba(255,255,255,0.92); }
+.service-price{ margin-top: 4px; font-weight: 800; color: rgba(255,255,255,0.75); }
+
+.service-card.active{
+  outline: 2px solid rgba(201,164,108,0.95);
+  box-shadow: 0 14px 34px rgba(201,164,108,0.14);
+}
+
 .slot-wrapper{
   position: relative;
   width: 160px;
   margin-left:auto;
   z-index: 30;
 }
+
 .slot-toggle{
   width:100%;
   display:flex;
@@ -365,11 +365,11 @@ hr.sep{
   border-radius:16px;
   border:1px solid rgba(255,255,255,0.14);
   background: rgba(15,15,18,0.30);
-  backdrop-filter: blur(0.6px);
   cursor:pointer;
   font-weight:900;
   color: rgba(255,255,255,0.92);
 }
+
 #slot_chev{ transition: transform .2s ease; }
 #slot_chev.open{ transform: rotate(180deg); }
 
@@ -381,7 +381,6 @@ hr.sep{
   max-height:210px;
   padding:10px;
   background: rgba(15,15,18,0.35);
-  backdrop-filter: blur(0.6px);
   border-radius:18px;
   border: 1px solid rgba(255,255,255,0.10);
   box-shadow: 0 25px 45px rgba(0,0,0,.35);
@@ -389,17 +388,18 @@ hr.sep{
   grid-template-columns: repeat(2,1fr);
   gap:8px;
   overflow-y:auto;
-
   opacity:0;
   transform: translateY(-6px) scale(.98);
   transition: all .18s ease;
   pointer-events:none;
 }
+
 #horarios_grid:not(.hidden){
   opacity:1;
   transform: translateY(0) scale(1);
   pointer-events:auto;
 }
+
 #horarios_grid.hidden{ display:none; }
 
 #horarios_grid .slot{
@@ -408,81 +408,37 @@ hr.sep{
   border-radius:12px;
   border:1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.10);
-  backdrop-filter: blur(0.6px);
   font-weight:900;
   cursor:pointer;
-  transition:.15s;
   color: rgba(255,255,255,0.92);
 }
-#horarios_grid .slot:hover{ transform: translateY(-2px); }
+
 #horarios_grid .slot.ocupado{
   background: rgba(0,0,0,0.30);
   color: rgba(255,255,255,0.55);
-  border-color: rgba(255,255,255,0.10);
   cursor:not-allowed;
 }
+
 #horarios_grid .slot.ativo{
   outline: 2px solid rgba(201,164,108,0.95);
-  box-shadow: 0 14px 28px rgba(201,164,108,0.12);
-}
-#horarios_grid::-webkit-scrollbar{ width:6px; }
-#horarios_grid::-webkit-scrollbar-thumb{
-  background: rgba(255,255,255,0.22);
-  border-radius:10px;
 }
 
-/* ================== CATÁLOGO (SERVIÇOS) ================== */
-.services{
-  display:grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin: 10px 0 6px;
-}
-.service-card{
-  border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 18px;
-  overflow:hidden;
-  background: rgba(15,15,18,0.28);
-  backdrop-filter: blur(0.6px);
-  cursor:pointer;
-  transition: transform .22s ease, box-shadow .22s ease, outline-color .22s ease, filter .22s ease;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.20);
-}
-.service-card:hover{
-  transform: translateY(-3px);
-  filter: brightness(1.03);
-}
-.service-card img{
-  width:100%;
-  height: 120px;
-  object-fit: cover;
-  display:block;
-}
-.service-body{ padding: 10px 10px 12px; }
-.service-name{ font-weight: 900; color: rgba(255,255,255,0.92); }
-.service-price{ margin-top: 4px; font-weight: 800; color: rgba(255,255,255,0.75); }
-.service-card.active{
-  transform: translateY(-2px) scale(1.01);
-  outline: 2px solid rgba(201,164,108,0.95);
-  box-shadow: 0 14px 34px rgba(201,164,108,0.14);
+.row input#ddd{
+  flex: 0 0 70px;
+  max-width: 70px;
+  text-align: center;
 }
 
-/* ================== IDENTIDADE ================== */
+.row input#telefone{ flex: 1; }
+
 .logo-img{
   height: 200px;
   width: auto;
   display: block;
 }
 
-/* ================== DDD + WHATSAPP (BOOKING) ================== */
-.row input#ddd{
-  flex: 0 0 70px;
-  max-width: 70px;
-  text-align: center;
-}
-.row input#telefone{ flex: 1; }
-
 /* ================== FLATPICKR ================== */
+
 .flatpickr-calendar{
   background: var(--fp-bg) !important;
   border: 1px solid var(--fp-border) !important;
@@ -490,11 +446,13 @@ hr.sep{
   border-radius: 18px !important;
   overflow: hidden !important;
 }
+
 .flatpickr-months,
 .flatpickr-weekdays{
   background: var(--fp-panel) !important;
   border-bottom: 1px solid var(--fp-border) !important;
 }
+
 .flatpickr-current-month,
 .flatpickr-monthDropdown-months,
 .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month,
@@ -502,10 +460,9 @@ hr.sep{
 .numInputWrapper span.arrowDown{
   color: var(--fp-gold) !important;
 }
+
 .flatpickr-prev-month svg,
 .flatpickr-next-month svg{ fill: var(--fp-gold) !important; }
-.flatpickr-prev-month:hover svg,
-.flatpickr-next-month:hover svg{ fill: var(--fp-gold2) !important; }
 
 .flatpickr-weekday{
   color: rgba(201,164,108,0.95) !important;
@@ -514,59 +471,351 @@ hr.sep{
   text-transform: uppercase !important;
   font-size: 11px !important;
 }
+
 .flatpickr-day{
   color: rgba(201,164,108,0.92) !important;
   border-radius: 14px !important;
   font-weight: 800 !important;
 }
-.flatpickr-day.prevMonthDay,
-.flatpickr-day.nextMonthDay{ color: rgba(201,164,108,0.35) !important; }
-.flatpickr-day:hover{
-  background: rgba(201,164,108,0.14) !important;
-  border-color: rgba(201,164,108,0.25) !important;
-}
-.flatpickr-day.today{ border-color: rgba(201,164,108,0.55) !important; }
+
 .flatpickr-day.selected,
 .flatpickr-day.startRange,
 .flatpickr-day.endRange{
   background: linear-gradient(135deg, var(--fp-gold), var(--fp-gold2)) !important;
   color: #17171b !important;
-  border-color: rgba(0,0,0,0.15) !important;
 }
-.flatpickr-day.inRange{
-  background: rgba(201,164,108,0.16) !important;
-  color: rgba(201,164,108,0.95) !important;
-}
-.flatpickr-day.disabled,
-.flatpickr-day.disabled:hover{
-  color: rgba(255,255,255,0.18) !important;
-  background: transparent !important;
-  cursor: not-allowed !important;
-}
-.flatpickr-innerContainer,
-.flatpickr-rContainer{ border-top: 1px solid var(--fp-border) !important; }
+
 input.flatpickr-input{
   background: var(--glass-2) !important;
   border: 1px solid rgba(255,255,255,0.16) !important;
   color: rgba(255,255,255,0.92) !important;
 }
-input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
 
-/* ================== PIX MODAL ================== */
 .pix-modal{ z-index: 9999 !important; }
 
-/* ================== RESPONSIVO (BOOKING) ================== */
+/* ================== ADMIN ================== */
+
+body.admin-page{
+  overflow-x: hidden;
+}
+
+.admin-topbar{
+  display: none !important;
+}
+
+.admin-header{
+  position: relative;
+  z-index: 30;
+}
+
+.admin-tabs{
+  position: relative !important;
+  top: 0 !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 50 !important;
+
+  max-width: 380px;
+  margin: 14px auto 12px;
+  padding: 8px;
+
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+
+  background: rgba(15,15,18,0.38);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+.admin-tabs .tab{
+  flex: 1;
+  min-height: 58px;
+  padding: 8px 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  font-weight: 800;
+  cursor:pointer;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  transition: .18s ease;
+}
+
+.admin-tabs .tab:hover{
+  background: rgba(255,255,255,0.08);
+}
+
+.admin-tabs .tab.active{
+  background: rgba(201,164,108,0.10);
+  outline: 2px solid rgba(201,164,108,0.55);
+}
+
+.admin-tabs .tab .tab-ico{
+  font-size: 18px;
+  line-height: 1;
+}
+
+.admin-tabs .tab .tab-txt{
+  font-size: 11px;
+  line-height: 1.1;
+}
+
+.admin-shell{
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 8px 10px 24px;
+}
+
+.admin-card{
+  max-width: 340px;
+  margin: 0 auto;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(15,15,18,0.28);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.28);
+}
+
+.admin-card h2{
+  font-family: 'Great Vibes', cursive;
+  font-size: 34px;
+  line-height: 1;
+  margin: 4px 0 10px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.pane{ display:none; }
+.pane.active{ display:block; }
+
+.admin-page .row{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.admin-page input,
+.admin-page select{
+  height: 44px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-size: 13px;
+  margin-bottom: 0;
+}
+
+.admin-page input[type="date"]{
+  min-width: 0;
+}
+
+#msg{
+  margin: 0 0 10px;
+}
+
+#btnAtualizarAgenda,
+#btnAtualizarLembretes{
+  width: auto;
+  min-width: 110px;
+  padding: 0 14px;
+  height: 44px;
+  border-radius: 14px;
+}
+
+.row.row-tel{
+  display: grid !important;
+  grid-template-columns: 74px 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+#cliDDD{
+  width: 74px;
+  max-width: 74px;
+  text-align: center;
+  letter-spacing: .08em;
+}
+
+#cliTel{
+  width: 100%;
+}
+
+#btnCriarCliente{
+  width: 100%;
+  margin-top: 2px;
+}
+
+#pane-clientes .small.mut{
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.table-wrap{
+  overflow: visible;
+  border: none;
+  background: transparent;
+}
+
+.table{
+  width: 100%;
+  min-width: 0;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.table thead{
+  display: none;
+}
+
+.table tbody tr.rowcard{
+  display: block;
+  margin-bottom: 10px;
+}
+
+.table tbody tr.rowcard td{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  background: rgba(15,15,18,0.32);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  white-space: normal;
+  overflow: hidden;
+}
+
+/* labels auto */
+#pane-agenda .rowcard td:nth-child(1)::before{ content:"Data"; }
+#pane-agenda .rowcard td:nth-child(2)::before{ content:"Horário"; }
+#pane-agenda .rowcard td:nth-child(3)::before{ content:"Serviço"; }
+#pane-agenda .rowcard td:nth-child(4)::before{ content:"Cliente"; }
+#pane-agenda .rowcard td:nth-child(5)::before{ content:"Status"; }
+#pane-agenda .rowcard td:nth-child(6)::before{ content:"Ações"; }
+
+#pane-lembretes .rowcard td:nth-child(1)::before{ content:"Data"; }
+#pane-lembretes .rowcard td:nth-child(2)::before{ content:"Horário"; }
+#pane-lembretes .rowcard td:nth-child(3)::before{ content:"Serviço"; }
+#pane-lembretes .rowcard td:nth-child(4)::before{ content:"Cliente"; }
+#pane-lembretes .rowcard td:nth-child(5)::before{ content:"Ações"; }
+
+#pane-clientes .rowcard td:nth-child(1)::before{ content:"Nome"; }
+#pane-clientes .rowcard td:nth-child(2)::before{ content:"WhatsApp"; }
+#pane-clientes .rowcard td:nth-child(3)::before{ content:"Ações"; }
+
+.table tbody tr.rowcard td::before{
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.65);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  flex: 0 0 auto;
+}
+
+/* clientes: só 3 colunas */
+#pane-clientes table th:nth-child(3),
+#pane-clientes table td:nth-child(3){
+  display: flex !important;
+}
+
+/* ações */
+.actions{
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+  width: 100%;
+}
+
+.actions .btn,
+.actions .btn2,
+.actions .btn-glass{
+  width: 100% !important;
+  text-align: center !important;
+  justify-content: center !important;
+}
+
+#pane-clientes .actions .btn{
+  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
+  color: #2a211b !important;
+  border: none !important;
+  font-weight: 900 !important;
+}
+
+#pane-clientes .actions .btn2{
+  background: linear-gradient(135deg, #d93a3a, #8f1010) !important;
+  color: #fff !important;
+  border: none !important;
+  font-weight: 900 !important;
+}
+
+#pane-clientes .actions .btn-glass{
+  background: linear-gradient(135deg, rgba(201,164,108,0.55), rgba(241,217,170,0.45)) !important;
+  color: #2a211b !important;
+  border: 1px solid rgba(201,164,108,0.35) !important;
+}
+
+#pane-agenda .actions .btn,
+#pane-lembretes .actions .btn{
+  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
+  color: #2a211b !important;
+  border: none !important;
+}
+
+#pane-agenda .actions .btn2{
+  background: linear-gradient(135deg, #d93a3a, #8f1010) !important;
+  color: #fff !important;
+}
+
+#pane-lembretes .actions .btn-glass,
+#pane-agenda .actions .btn-glass{
+  background: linear-gradient(135deg, rgba(201,164,108,0.55), rgba(241,217,170,0.45)) !important;
+  color: #2a211b !important;
+  border: 1px solid rgba(201,164,108,0.35) !important;
+}
+
+/* remove restos de foto */
+.cli-foto,
+.cli-foto--empty,
+.cliente-foto-mini,
+.cliente-foto-placeholder,
+.cliente-nome-box,
+.cli-nome-wrap{
+  display: none !important;
+}
+
+/* esconde input de foto se ainda existir no html/js */
+#cliFoto{
+  display: none !important;
+}
+
+/* ================== RESPONSIVO ================== */
+
 @media (max-width: 860px){
   .grid{ grid-template-columns: 1fr; }
   .header{ flex-direction: column; }
   .slot-wrapper{ width: 100%; margin-left:0; }
 }
+
 @media (max-width: 520px){
   .container{
     max-width: 380px;
     margin: 0 auto;
     padding: 10px 10px 22px;
   }
+
   .brand h1{ font-size: 20px; }
   .brand p{ font-size: 12px; }
 
@@ -576,22 +825,14 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
     padding: 12px;
     border-radius: 14px;
   }
+
   .card h2{
     font-size: 36px;
     margin: 6px 0 18px;
   }
+
   input, select{
     padding: 10px 10px;
-    border-radius: 12px;
-    font-size: 13px;
-    margin-bottom: 8px;
-  }
-  .row{ gap: 8px; }
-  .small{ font-size: 11px; }
-
-  .card > button,
-  .card button[onclick="agendar()"]{
-    padding: 10px;
     border-radius: 12px;
     font-size: 13px;
   }
@@ -601,8 +842,10 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
     gap: 10px;
     margin: 8px 0 4px;
   }
+
   .service-card{ border-radius: 14px; }
   .service-card img{ height: 78px; }
+
   .service-body{ padding: 8px 8px 10px; }
   .service-name{ font-size: 13px; }
   .service-price{ font-size: 12px; }
@@ -613,878 +856,24 @@ input.flatpickr-input::placeholder{ color: rgba(255,255,255,0.65) !important; }
     border-radius: 12px;
     font-size: 13px;
   }
+
   #horarios_grid{
     width: 150px;
     top: 44px;
     padding: 8px;
     border-radius: 14px;
   }
+
   #horarios_grid .slot{
     padding: 7px 0;
     border-radius: 10px;
     font-size: 12px;
   }
 
-  .item .row{ flex-wrap: wrap; }
-  .item .row .btn{ flex: 1 1 100%; }
-
   .flatpickr-calendar{
     width: 320px !important;
     border-radius: 16px !important;
   }
+
   .flatpickr-day{ border-radius: 12px !important; }
-}
-
-/* =========================================================
-   ADMIN (admin.html)
-========================================================= */
-
-/* layout geral admin */
-.admin-shell{
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 18px 16px 40px;
-}
-.admin-card{
-  background: rgba(15,15,18,0.26);
-  backdrop-filter: blur(0.6px);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 18px;
-  padding: 16px;
-}
-
-/* msg */
-#msg{ margin: 0 0 12px; }
-
-/* título admin */
-.admin-card h2{
-  font-family: 'Great Vibes', cursive;
-  font-size: 44px;
-  font-weight: 500;
-  letter-spacing: 1px;
-  background: linear-gradient(135deg, var(--gold), var(--gold2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  margin: 6px 0 10px;
-}
-
-/* panes */
-.pane{ display:none; }
-.pane.active{ display:block; }
-
-/* TABS (sempre no topo, menores e mais “para baixo”) */
-.admin-tabs{
-  position: sticky !important;
-  top: var(--admin-tabs-top) !important;
-  bottom: auto !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 80 !important;
-
-  display:flex;
-  gap: 10px;
-  justify-content: space-between;
-
-  margin: 10px auto 12px;
-  max-width: 980px;
-  padding: 10px 12px;
-
-  background: rgba(10,10,12,.38);
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 18px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-
-.admin-tabs .tab{
-  flex: 1;
-  min-height: 54px;     /* menor */
-  padding: 10px 10px;   /* menor */
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.20);
-  color: rgba(255,255,255,0.90);
-  font-weight: 900;
-  cursor:pointer;
-  transition: .2s ease;
-  display:flex;
-  flex-direction: column;
-  align-items:center;
-  justify-content:center;
-  gap: 6px;
-}
-
-.admin-tabs .tab .tab-ico{ font-size: 18px; line-height: 1; }
-.admin-tabs .tab .tab-txt{ font-size: 13px; line-height: 1.1; }
-
-.admin-tabs .tab:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.08); }
-.admin-tabs .tab.active{
-  outline: 2px solid rgba(212, 175, 55, .45);
-  background: rgba(201,164,108,0.10);
-  box-shadow: 0 0 0 6px rgba(212, 175, 55, .10);
-}
-
-/* garante que o conteúdo não “grude” na barra */
-.admin-shell{
-  padding-top: 10px;
-}
-
-/* ===== CLIENTES: DDD + Número ===== */
-.row.row-tel{
-  display:flex;
-  gap: 10px;
-  flex-wrap: nowrap;
-}
-#cliDDD{
-  flex: 0 0 74px;
-  max-width: 74px;
-  text-align: center;
-  letter-spacing: .08em;
-}
-#cliTel{
-  flex: 1 1 auto;
-}
-#btnCriarCliente{ width: 100%; }
-
-/* ================== TABELAS ADMIN ================== */
-.table-wrap{
-  width:100%;
-  overflow:auto;
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.18);
-}
-
-.table{
-  width:100%;
-  border-collapse: collapse;
-  min-width: 860px;
-}
-
-.table th{
-  text-align:left;
-  font-size: 12px;
-  color: rgba(255,255,255,0.70);
-  font-weight: 900;
-  padding: 12px 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.20);
-  position: sticky;
-  top: 0;
-  z-index: 2;
-}
-.table td{
-  padding: 12px 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.88);
-}
-.table tr:hover td{ background: rgba(255,255,255,0.04); }
-
-/* ===== REMOVE OBS (Clientes) ===== */
-#pane-clientes table th:nth-child(3),
-#pane-clientes table td:nth-child(3){
-  display:none !important;
-}
-
-/* ================== AÇÕES (WhatsApp + Excluir) ================== */
-.actions{
-  display:flex !important;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-/* WhatsApp = dourado */
-.admin-page .actions .btn,
-.actions .btn{
-  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
-  border: none !important;
-  color: #2a211b !important;
-  font-weight: 900 !important;
-  box-shadow: 0 12px 28px rgba(201,164,108,0.22);
-}
-
-/* Excluir = vermelho premium */
-.admin-page .actions .btn2,
-.actions .btn2{
-  background: linear-gradient(135deg, rgba(220,60,60,.95), rgba(255,120,120,.80)) !important;
-  border: none !important;
-  color: #fff !important;
-  font-weight: 900 !important;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
-}
-
-/* Confirmar (se aparecer) = glass douradinho suave */
-.actions .btn-glass{
-  background: linear-gradient(135deg, rgba(201,164,108,0.55), rgba(241,217,170,0.45)) !important;
-  border: 1px solid rgba(201,164,108,0.40) !important;
-  color: #2a211b !important;
-  font-weight: 900 !important;
-}
-
-/* ================== MOBILE ADMIN ================== */
-@media (max-width: 720px){
-  :root{
-    --admin-tabs-top: 58px; /* no mobile fica um tiquinho mais baixo */
-  }
-
-  .admin-shell{
-    max-width: 380px;
-    margin: 0 auto;
-    padding: 10px 10px 22px;
-  }
-
-  .admin-card{
-    max-width: 340px;
-    margin: 0 auto;
-    padding: 12px;
-    border-radius: 14px;
-  }
-
-  .admin-card h2{
-    font-size: 30px;
-    margin: 6px 0 8px;
-  }
-
-  /* inputs mais compactos */
-  .admin-page input,
-  .admin-page select{
-    padding: 10px 10px;
-    border-radius: 12px;
-    font-size: 13px;
-    margin-bottom: 8px;
-  }
-
-  /* DDD + número */
-  .row.row-tel{ gap: 8px; }
-  #cliDDD{ flex: 0 0 66px; max-width: 66px; }
-
-  /* MOBILE: tabela vira cards (sem scroll lateral) */
-  .table-wrap{ overflow: visible !important; border: none; background: transparent; }
-  .table{ min-width: 0 !important; width: 100% !important; }
-  .table thead{ display:none !important; }
-
-  .table tbody tr.rowcard{
-    display:block !important;
-    margin-bottom: 10px;
-  }
-
-  .table tbody tr.rowcard td{
-    display:flex !important;
-    justify-content: space-between;
-    align-items:flex-start;
-    gap: 10px;
-
-    background: rgba(15,15,18,0.32) !important;
-    border: 1px solid rgba(255,255,255,0.14) !important;
-    border-radius: 16px !important;
-    padding: 10px 12px !important;
-
-    white-space: normal !important;
-    overflow: hidden !important;
-  }
-
-  /* Labels automáticos (Agenda) */
-  #pane-agenda .rowcard td:nth-child(1)::before{ content:"Data"; }
-  #pane-agenda .rowcard td:nth-child(2)::before{ content:"Horário"; }
-  #pane-agenda .rowcard td:nth-child(3)::before{ content:"Serviço"; }
-  #pane-agenda .rowcard td:nth-child(4)::before{ content:"Cliente"; }
-  #pane-agenda .rowcard td:nth-child(5)::before{ content:"Status"; }
-  #pane-agenda .rowcard td:nth-child(6)::before{ content:"Ações"; }
-
-  /* Labels automáticos (Lembretes) */
-  #pane-lembretes .rowcard td:nth-child(1)::before{ content:"Data"; }
-  #pane-lembretes .rowcard td:nth-child(2)::before{ content:"Horário"; }
-  #pane-lembretes .rowcard td:nth-child(3)::before{ content:"Serviço"; }
-  #pane-lembretes .rowcard td:nth-child(4)::before{ content:"Cliente"; }
-  #pane-lembretes .rowcard td:nth-child(5)::before{ content:"Ações"; }
-
-  /* Labels automáticos (Clientes) — Obs está escondido */
-  #pane-clientes .rowcard td:nth-child(1)::before{ content:"Nome"; }
-  #pane-clientes .rowcard td:nth-child(2)::before{ content:"WhatsApp"; }
-  /* td 3 (Obs) hidden */
-  #pane-clientes .rowcard td:nth-child(4)::before{ content:"Ações"; }
-
-  /* Estilo do label */
-  .table tbody tr.rowcard td::before{
-    flex: 0 0 auto;
-    font-size: 11px;
-    font-weight: 900;
-    color: rgba(255,255,255,0.65);
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    margin-top: 1px;
-  }
-
-  /* Botões em coluna para nunca sumirem */
-  .actions{
-    justify-content: flex-start !important;
-    gap: 8px !important;
-  }
-  .actions .btn,
-  .actions .btn2,
-  .actions .btn-glass{
-    width: 100% !important;
-    text-align:center !important;
-  }
-}
-/* =========================================
-   RESET VISUAL LIMPO DO ADMIN
-   cola no FINAL do style.css
-========================================= */
-
-/* some com a topbar velha que ficou flutuando */
-.admin-topbar{
-  display: none !important;
-}
-
-/* admin centralizado igual booking */
-.admin-shell{
-  max-width: 380px !important;
-  margin: 0 auto !important;
-  padding: 8px 10px 24px !important;
-}
-
-.admin-card{
-  max-width: 340px !important;
-  margin: 0 auto !important;
-  padding: 14px !important;
-  border-radius: 18px !important;
-  background: rgba(15,15,18,0.28) !important;
-  backdrop-filter: blur(8px) !important;
-  border: 1px solid rgba(255,255,255,0.10) !important;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.28) !important;
-}
-
-/* título menor e elegante */
-.admin-card h2{
-  font-family: 'Great Vibes', cursive !important;
-  font-size: 34px !important;
-  line-height: 1 !important;
-  margin: 4px 0 10px !important;
-  color: var(--gold) !important;
-  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  color: transparent !important;
-}
-
-/* menu do topo menor e bonito */
-.admin-tabs{
-  position: relative !important;
-  top: 0 !important;
-  bottom: auto !important;
-  left: auto !important;
-  right: auto !important;
-
-  max-width: 340px !important;
-  margin: 10px auto 12px !important;
-  padding: 8px !important;
-
-  display: flex !important;
-  gap: 8px !important;
-  justify-content: space-between !important;
-
-  background: rgba(15,15,18,0.38) !important;
-  border: 1px solid rgba(255,255,255,0.10) !important;
-  border-radius: 18px !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25) !important;
-}
-
-.admin-tabs .tab{
-  flex: 1 !important;
-  min-height: 58px !important;
-  padding: 8px 6px !important;
-  border-radius: 14px !important;
-  border: 1px solid rgba(255,255,255,0.08) !important;
-  background: rgba(255,255,255,0.04) !important;
-
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 4px !important;
-
-  color: #fff !important;
-  font-weight: 800 !important;
-}
-
-.admin-tabs .tab .tab-ico{
-  font-size: 18px !important;
-  line-height: 1 !important;
-}
-
-.admin-tabs .tab .tab-txt{
-  font-size: 11px !important;
-  line-height: 1.1 !important;
-}
-
-.admin-tabs .tab.active{
-  background: rgba(201,164,108,0.10) !important;
-  outline: 2px solid rgba(201,164,108,0.55) !important;
-  box-shadow: none !important;
-}
-
-/* linhas do admin mais organizadas */
-.admin-page .row{
-  display: flex !important;
-  gap: 8px !important;
-  flex-wrap: wrap !important;
-  margin-bottom: 10px !important;
-}
-
-/* inputs */
-.admin-page input,
-.admin-page select{
-  height: 44px !important;
-  padding: 10px 12px !important;
-  border-radius: 14px !important;
-  font-size: 13px !important;
-  margin-bottom: 0 !important;
-}
-
-/* agenda: botão atualizar menor */
-#btnAtualizarAgenda,
-#btnAtualizarLembretes{
-  width: auto !important;
-  min-width: 110px !important;
-  padding: 0 14px !important;
-  height: 44px !important;
-  border-radius: 14px !important;
-}
-
-/* clientes: DDD + número */
-.row.row-tel{
-  display: grid !important;
-  grid-template-columns: 74px 1fr !important;
-  gap: 8px !important;
-  width: 100% !important;
-}
-
-#cliDDD{
-  width: 74px !important;
-  max-width: 74px !important;
-  text-align: center !important;
-}
-
-#cliTel{
-  width: 100% !important;
-}
-
-/* botão adicionar embaixo, bonito */
-#btnCriarCliente{
-  width: 100% !important;
-  margin-top: 2px !important;
-}
-
-/* texto de exemplo menor */
-#pane-clientes .small.mut{
-  font-size: 11px !important;
-  margin-top: 2px !important;
-}
-
-/* mensagem do topo */
-#msg{
-  margin: 0 0 10px !important;
-}
-
-/* remove OBS da tabela */
-#pane-clientes table thead th:nth-child(3),
-#pane-clientes table tbody td:nth-child(3){
-  display: none !important;
-}
-
-/* tabela mobile vira cards */
-@media (max-width: 520px){
-  .table-wrap{
-    overflow: visible !important;
-    border: none !important;
-    background: transparent !important;
-  }
-
-  .table{
-    min-width: 0 !important;
-    width: 100% !important;
-  }
-
-  .table thead{
-    display: none !important;
-  }
-
-  .table tbody tr.rowcard{
-    display: block !important;
-    margin-bottom: 10px !important;
-  }
-
-  .table tbody tr.rowcard td{
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: flex-start !important;
-    gap: 10px !important;
-    width: 100% !important;
-
-    background: rgba(15,15,18,0.32) !important;
-    border: 1px solid rgba(255,255,255,0.12) !important;
-    border-radius: 14px !important;
-    padding: 10px 12px !important;
-    white-space: normal !important;
-  }
-
-  /* labels automáticos */
-  #pane-agenda .rowcard td:nth-child(1)::before{ content:"Data"; }
-  #pane-agenda .rowcard td:nth-child(2)::before{ content:"Horário"; }
-  #pane-agenda .rowcard td:nth-child(3)::before{ content:"Serviço"; }
-  #pane-agenda .rowcard td:nth-child(4)::before{ content:"Cliente"; }
-  #pane-agenda .rowcard td:nth-child(5)::before{ content:"Status"; }
-  #pane-agenda .rowcard td:nth-child(6)::before{ content:"Ações"; }
-
-  #pane-lembretes .rowcard td:nth-child(1)::before{ content:"Data"; }
-  #pane-lembretes .rowcard td:nth-child(2)::before{ content:"Horário"; }
-  #pane-lembretes .rowcard td:nth-child(3)::before{ content:"Serviço"; }
-  #pane-lembretes .rowcard td:nth-child(4)::before{ content:"Cliente"; }
-  #pane-lembretes .rowcard td:nth-child(5)::before{ content:"Ações"; }
-
-  #pane-clientes .rowcard td:nth-child(1)::before{ content:"Nome"; }
-  #pane-clientes .rowcard td:nth-child(2)::before{ content:"WhatsApp"; }
-  #pane-clientes .rowcard td:nth-child(4)::before{ content:"Ações"; }
-
-  .table tbody tr.rowcard td::before{
-    font-size: 11px !important;
-    font-weight: 900 !important;
-    color: rgba(255,255,255,0.65) !important;
-    text-transform: uppercase !important;
-    letter-spacing: .05em !important;
-    flex: 0 0 auto !important;
-  }
-}
-
-/* ações sempre visíveis */
-.actions{
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 8px !important;
-  justify-content: flex-start !important;
-}
-
-/* WhatsApp dourado */
-.actions .btn{
-  width: 100% !important;
-  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
-  color: #2a211b !important;
-  border: none !important;
-  font-weight: 900 !important;
-  text-align: center !important;
-  justify-content: center !important;
-}
-
-/* Excluir vermelho */
-.actions .btn2{
-  width: 100% !important;
-  background: linear-gradient(135deg, #d93a3a, #8f1010) !important;
-  color: #fff !important;
-  border: none !important;
-  font-weight: 900 !important;
-  text-align: center !important;
-}
-
-/* Confirmar */
-.actions .btn-glass{
-  width: 100% !important;
-  justify-content: center !important;
-}
-/* =========================================
-   PATCH ADMIN – do jeito "booking premium"
-   (cole NO FINAL do style.css)
-========================================= */
-
-body.admin-page{
-  overflow-x: hidden;
-}
-
-/* deixa o admin central e com respiro */
-.admin-page .admin-shell{
-  max-width: 420px !important;
-  margin: 0 auto !important;
-  padding: 14px 12px 28px !important;
-}
-
-/* ====== TABS: menores + mais pra baixo (cobrindo a foto) ====== */
-.admin-page .admin-tabs{
-  position: fixed !important;
-  left: 12px !important;
-  right: 12px !important;
-  top: 160px !important;           /* <<< DESCE A BARRA (ajuste 140~220) */
-  bottom: auto !important;
-  z-index: 999 !important;
-
-  max-width: 420px !important;
-  margin: 0 auto !important;
-
-  padding: 10px !important;
-  gap: 10px !important;
-
-  border-radius: 22px !important;
-  background: rgba(10,10,12,0.42) !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  box-shadow: 0 18px 40px rgba(0,0,0,0.35) !important;
-}
-
-/* tabs menores */
-.admin-page .admin-tabs .tab{
-  flex: 1 !important;
-  min-height: 54px !important;     /* menor */
-  padding: 10px 8px !important;
-  border-radius: 18px !important;
-
-  border: 1px solid rgba(255,255,255,0.10) !important;
-  background: rgba(255,255,255,0.05) !important;
-
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 5px !important;
-
-  font-weight: 900 !important;
-}
-
-.admin-page .admin-tabs .tab .tab-ico{
-  font-size: 18px !important;
-  line-height: 1 !important;
-}
-
-.admin-page .admin-tabs .tab .tab-txt{
-  font-size: 12px !important;
-  line-height: 1.05 !important;
-}
-
-/* ativo mais elegante */
-.admin-page .admin-tabs .tab.active{
-  background: rgba(201,164,108,0.12) !important;
-  outline: 2px solid rgba(201,164,108,0.50) !important;
-}
-
-/* como a barra agora é FIXED, empurra o conteúdo pra baixo */
-.admin-page .admin-shell{
-  padding-top: 250px !important;   /* <<< acompanha o top das tabs */
-}
-
-/* ====== CARD: mais baixo, mais bonito ====== */
-.admin-page .admin-card{
-  max-width: 420px !important;
-  margin: 0 auto !important;
-  padding: 14px !important;
-  border-radius: 22px !important;
-  background: rgba(15,15,18,0.28) !important;
-  border: 1px solid rgba(255,255,255,0.10) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-}
-
-/* título um pouco menor (o seu tava gigante) */
-.admin-page .admin-card h2{
-  font-size: 34px !important;
-  margin: 6px 0 12px !important;
-}
-
-/* ====== FORM CLIENTES: alinhado e “premium” ====== */
-.admin-page #cliNome{
-  margin-bottom: 10px !important;
-}
-
-.admin-page .row.row-tel{
-  display: grid !important;
-  grid-template-columns: 86px 1fr !important;
-  gap: 10px !important;
-  margin-bottom: 10px !important;
-}
-
-.admin-page #cliDDD{
-  text-align: center !important;
-  letter-spacing: .08em !important;
-}
-
-.admin-page #btnCriarCliente{
-  display: block !important;
-  width: 100% !important;         /* <<< botão full premium */
-  height: 46px !important;
-  border-radius: 16px !important;
-  font-weight: 900 !important;
-}
-
-/* evita botão "cortado" */
-.admin-page .admin-card,
-.admin-page .pane{
-  overflow: visible !important;
-}
-
-/* ====== LISTA: mais leve, sem “tijolo” ====== */
-.admin-page .table-wrap{
-  background: transparent !important;
-  border: none !important;
-}
-
-/* remove a coluna OBS (se existir) */
-.admin-page #pane-clientes table thead th:nth-child(3),
-.admin-page #pane-clientes table tbody td:nth-child(3){
-  display: none !important;
-}
-
-/* ====== MOBILE: ações sempre aparecem e bonitas ====== */
-.admin-page .actions{
-  display: flex !important;
-  gap: 8px !important;
-  flex-wrap: wrap !important;
-}
-
-.admin-page .actions .btn{
-  width: 100% !important;
-  background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
-  color: #2a211b !important;
-  border: none !important;
-  font-weight: 900 !important;
-}
-
-.admin-page .actions .btn2{
-  width: 100% !important;
-  background: linear-gradient(135deg, #d93a3a, #8f1010) !important;
-  color: #fff !important;
-  border: none !important;
-  font-weight: 900 !important;
-}
-/* ===== CLIENTES EXTRAS ===== */
-.cli-nome-wrap{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.cli-foto{
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  object-fit: cover;
-  border: 1px solid rgba(255,255,255,0.10);
-  flex: 0 0 42px;
-}
-
-.cli-foto--empty{
-  background: rgba(255,255,255,0.08);
-}
-.cliente-foto-mini{
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex: 0 0 42px;
-  border: 1px solid rgba(255,255,255,0.14);
-}
-
-.cliente-foto-placeholder{
-  background: rgba(255,255,255,0.08);
-}
-
-.cliente-nome-box{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.actions{
-  display: flex !important;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.actions .btn,
-.actions .btn2{
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  min-height: 42px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.btn-wa{
-  background: linear-gradient(135deg, #c9a46c, #f1d9aa) !important;
-  color: #2a211b !important;
-  border: none !important;
-  font-weight: 900 !important;
-  box-shadow: 0 12px 28px rgba(201,164,108,0.25);
-}
-
-.btn-del{
-  background: linear-gradient(135deg, #b22222, #ff6b6b) !important;
-  color: #fff !important;
-  border: none !important;
-  font-weight: 800 !important;
-}
-
-@media (max-width: 520px){
-  .actions .btn,
-  .actions .btn2{
-    width: 100% !important;
-  }
-}
-/* ===== CLIENTES: ações visíveis ===== */
-#pane-clientes .actions{
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 8px !important;
-  justify-content: flex-start !important;
-  align-items: center !important;
-}
-
-#pane-clientes .actions .btn,
-#pane-clientes .actions .btn2{
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 120px;
-  min-height: 42px;
-  padding: 10px 14px !important;
-  border-radius: 14px !important;
-  text-decoration: none !important;
-  font-weight: 800 !important;
-  white-space: nowrap !important;
-}
-
-/* WhatsApp dourado */
-#pane-clientes .actions .btn-wa,
-#pane-clientes .actions .btn{
-  background: linear-gradient(135deg, #c9a46c, #f1d9aa) !important;
-  color: #2a211b !important;
-  border: none !important;
-  box-shadow: 0 10px 24px rgba(201,164,108,0.22) !important;
-}
-
-/* Excluir vermelho */
-#pane-clientes .actions .btn-del,
-#pane-clientes .actions .btn2{
-  background: linear-gradient(135deg, #b83232, #e05a5a) !important;
-  color: #fff !important;
-  border: none !important;
-  box-shadow: 0 10px 24px rgba(184,50,50,0.22) !important;
-}
-
-/* mobile */
-@media (max-width: 520px){
-  #pane-clientes .actions{
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
-
-  #pane-clientes .actions .btn,
-  #pane-clientes .actions .btn2{
-    width: 100% !important;
-  }
 }
