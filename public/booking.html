@@ -6,12 +6,10 @@
   <title>Agendamento • Veludo Lash</title>
   <link rel="stylesheet" href="style.css">
 
-  <!-- ✅ Calendário moderno (Flatpickr) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_dark.css">
 
   <style>
-    /* ======== MODAL PIX (QR na frente) ======== */
     .pix-modal{
       position: fixed;
       inset: 0;
@@ -114,13 +112,18 @@
       align-items:center;
       justify-content: space-between;
     }
-    .pay-actions .btn2{ flex: 1 1 180px; }
+    .pay-actions .btn2,
+    .pay-actions .btn-glass{
+      flex: 1 1 180px;
+    }
+
     .timer{
       font-size: 12px;
       color: rgba(255,255,255,0.72);
       text-align:right;
       flex: 1 1 160px;
     }
+
     .tokenline{
       margin-top: 8px;
       font-size: 11px;
@@ -128,7 +131,6 @@
       word-break: break-all;
     }
 
-    /* ======== TELA CONFIRMADO ======== */
     .okbox{
       margin-top: 14px;
       padding: 14px;
@@ -146,6 +148,132 @@
       color: rgba(255,255,255,0.92);
     }
 
+    /* =========================
+       ANIMAÇÃO PAGAMENTO OK
+    ========================= */
+    .success-overlay{
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(10px);
+    }
+
+    .success-overlay.open{
+      display: flex;
+      animation: fadeInOverlay .35s ease;
+    }
+
+    .success-card{
+      width: min(420px, 100%);
+      padding: 28px 22px;
+      border-radius: 24px;
+      text-align: center;
+      background: rgba(15,15,18,0.80);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .success-card h3{
+      margin: 18px 0 8px;
+      font-family: "Playfair Display", serif;
+      font-size: 24px;
+      color: #fff;
+    }
+
+    .success-card p{
+      margin: 0;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .checkmark-wrap{
+      width: 120px;
+      height: 120px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .checkmark-wrap svg{
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .checkmark-wrap circle{
+      stroke: #d4af37;
+      stroke-width: 3;
+      stroke-dasharray: 160;
+      stroke-dashoffset: 160;
+      animation: drawCircle .8s ease forwards;
+    }
+
+    .checkmark-wrap path{
+      stroke: #d4af37;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: drawCheck .45s ease .75s forwards;
+    }
+
+    .success-glow{
+      position: absolute;
+      inset: auto;
+      width: 220px;
+      height: 220px;
+      left: 50%;
+      top: 20px;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(212,175,55,0.22), transparent 70%);
+      pointer-events: none;
+      filter: blur(10px);
+    }
+
+    .confetti{
+      position: absolute;
+      width: 8px;
+      height: 14px;
+      border-radius: 999px;
+      opacity: 0;
+      animation: confettiFall 1.4s ease forwards;
+    }
+
+    @keyframes drawCircle{
+      to{ stroke-dashoffset: 0; }
+    }
+
+    @keyframes drawCheck{
+      to{ stroke-dashoffset: 0; }
+    }
+
+    @keyframes fadeInOverlay{
+      from{ opacity: 0; }
+      to{ opacity: 1; }
+    }
+
+    @keyframes confettiFall{
+      0%{
+        transform: translateY(-30px) rotate(0deg);
+        opacity: 0;
+      }
+      15%{
+        opacity: 1;
+      }
+      100%{
+        transform: translateY(220px) rotate(260deg);
+        opacity: 0;
+      }
+    }
+
     @media (max-width: 520px){
       .paygrid{ grid-template-columns: 1fr; }
       .qr{ width: 220px; height:220px; margin: 0 auto; }
@@ -155,13 +283,11 @@
 </head>
 <body>
 
-  <!-- ✅ FUNDO INSTAGRAM -->
   <div class="ig-bg" aria-hidden="true">
     <div class="ig-bg__img" id="igBgImg"></div>
     <div class="ig-bg__overlay"></div>
   </div>
 
-  <!-- ✅ MODAL PIX (fica fora do card) -->
   <div id="pixModal" class="pix-modal" aria-hidden="true">
     <div class="pix-backdrop" onclick="fecharPixModal()"></div>
 
@@ -188,6 +314,7 @@
 
             <div class="pay-actions">
               <button class="btn2" type="button" onclick="copiarPix()">Copiar PIX (copia e cola)</button>
+              <button class="btn-glass gold" type="button" onclick="confirmarPagamentoManual()">Já paguei</button>
               <div class="timer" id="timerTxt">Expira em: --:--</div>
             </div>
 
@@ -198,6 +325,23 @@
     </div>
   </div>
 
+  <!-- ANIMAÇÃO DE SUCESSO -->
+  <div id="successOverlay" class="success-overlay" aria-hidden="true">
+    <div class="success-card" id="successCard">
+      <div class="success-glow"></div>
+
+      <div class="checkmark-wrap">
+        <svg viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="26" r="25"></circle>
+          <path d="M14 27 L22 35 L38 18"></path>
+        </svg>
+      </div>
+
+      <h3>Pagamento confirmado!</h3>
+      <p id="successText">Seu horário foi reservado com sucesso.</p>
+    </div>
+  </div>
+
   <div class="container">
     <div class="grid" style="grid-template-columns: 1fr;">
       <div class="card glass">
@@ -205,8 +349,8 @@
         <div class="brand brand-card">
           <div class="logo-wrap">
             <div class="logo">
-  <img src="img/veludo-lash-logo.png" alt="Veludo Lash" class="logo-img">
-</div>
+              <img src="img/veludo-lash-logo.png" alt="Veludo Lash" class="logo-img">
+            </div>
             <div class="byline"></div>
           </div>
         </div>
@@ -251,7 +395,6 @@
 
         <div id="msg" style="margin-top:15px;"></div>
 
-        <!-- ✅ confirmação automática -->
         <div id="okbox" class="okbox">
           <div class="oktitle">Agendamento confirmado ✅</div>
           <div class="small" id="oktext">
@@ -263,7 +406,6 @@
     </div>
   </div>
 
-  <!-- ✅ Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
 
@@ -280,9 +422,11 @@
     function brl(v){
       return "R$ " + Number(v).toFixed(2).replace(".", ",");
     }
+
     function onlyDigits(v=""){
       return String(v).replace(/\D/g, "");
     }
+
     function validarTelefoneFront(ddd, numero){
       const d = onlyDigits(ddd);
       const n = onlyDigits(numero);
@@ -364,9 +508,7 @@
           hidden.value = h;
           label.textContent = h;
 
-          // trocar horário => fecha modal e limpa status antigo
           resetFluxoPagamento();
-
           fecharDropdown();
         });
 
@@ -378,10 +520,12 @@
       document.getElementById("horarios_grid").classList.remove("hidden");
       document.getElementById("slot_chev").classList.add("open");
     }
+
     function fecharDropdown(){
       document.getElementById("horarios_grid").classList.add("hidden");
       document.getElementById("slot_chev").classList.remove("open");
     }
+
     function soNumero(el){
       if (!el) return;
       el.addEventListener("input", () => {
@@ -389,11 +533,10 @@
       });
     }
 
-    // ===================== MODAL PIX + STREAM =====================
     let timerInterval = null;
-    let eventSource = null;       // SSE
+    let eventSource = null;
     let tokenAtual = null;
-    let reservaAtual = null;      // {nome, telefoneFormatado, servico, data, horario, valor}
+    let reservaAtual = null;
 
     function abrirPixModal(){
       const modal = document.getElementById("pixModal");
@@ -407,7 +550,6 @@
       modal.classList.remove("open");
       modal.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
-      // não encerra SSE ao fechar, porque a confirmação pode acontecer depois
     }
 
     function limparModalPix(){
@@ -428,7 +570,6 @@
     }
 
     function resetFluxoPagamento(){
-      // fecha modal, limpa modal, para stream, esconde confirmado
       fecharPixModal();
       limparModalPix();
       pararStream();
@@ -454,8 +595,6 @@
           clearInterval(timerInterval);
           timerInterval = null;
           document.getElementById("timerTxt").textContent = "Reserva expirada. Escolha outro horário.";
-
-          // se expirar, encerra stream e mostra msg
           pararStream();
           document.getElementById("msg").innerHTML =
             `<span class="badge">⏳ Reserva expirada. Escolha outro horário.</span>`;
@@ -490,6 +629,64 @@
       btn.textContent = loading ? "Gerando cobrança..." : "Reservar com sinal (R$ 40)";
     }
 
+    function criarConfete(){
+      const card = document.getElementById("successCard");
+      if (!card) return;
+
+      card.querySelectorAll(".confetti").forEach(el => el.remove());
+
+      const cores = ["#d4af37", "#f1d9aa", "#ffffff", "#c9a46c"];
+      for (let i = 0; i < 22; i++) {
+        const piece = document.createElement("span");
+        piece.className = "confetti";
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.top = `${Math.random() * 10}px`;
+        piece.style.background = cores[Math.floor(Math.random() * cores.length)];
+        piece.style.animationDelay = `${Math.random() * 0.35}s`;
+        piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+        card.appendChild(piece);
+      }
+    }
+
+    function mostrarAnimacaoConfirmado(){
+      const overlay = document.getElementById("successOverlay");
+      const successText = document.getElementById("successText");
+
+      if (reservaAtual) {
+        successText.innerHTML =
+          `Seu horário de <b>${reservaAtual.servico}</b> foi confirmado para <b>${reservaAtual.data}</b> às <b>${reservaAtual.horario}</b>.`;
+      } else {
+        successText.textContent = "Seu horário foi reservado com sucesso.";
+      }
+
+      criarConfete();
+      overlay.classList.add("open");
+      overlay.setAttribute("aria-hidden", "false");
+
+      setTimeout(() => {
+        overlay.classList.remove("open");
+        overlay.setAttribute("aria-hidden", "true");
+      }, 3200);
+    }
+
+    async function concluirConfirmacaoPagamento(agendamentoId = null){
+      document.getElementById("okbox").classList.add("open");
+
+      if (reservaAtual){
+        document.getElementById("oktext").innerHTML =
+          `✅ <b>${reservaAtual.servico}</b> confirmado para <b>${reservaAtual.data}</b> às <b>${reservaAtual.horario}</b>.<br>` +
+          `Sinal: <b>${brl(reservaAtual.valor)}</b>.`;
+      }
+
+      document.getElementById("msg").innerHTML =
+        `<span class="badge">✅ Pagamento confirmado! Seu agendamento foi concluído.</span>`;
+
+      fecharPixModal();
+      mostrarAnimacaoConfirmado();
+      await carregarHorarios();
+      pararStream();
+    }
+
     function iniciarStreamReserva(token){
       pararStream();
       tokenAtual = token;
@@ -497,56 +694,52 @@
       try{
         eventSource = new EventSource(`/reservas/${encodeURIComponent(token)}/stream`);
 
-        eventSource.addEventListener("hello", () => {
-          // ok
-        });
-
         eventSource.addEventListener("paid", async (ev) => {
-          // pagamento confirmado no servidor
           let data = {};
           try { data = JSON.parse(ev.data || "{}"); } catch(_){}
-
-          // mostra confirmado na tela
-          document.getElementById("okbox").classList.add("open");
-
-          // mensagem bonita com resumo
-          if (reservaAtual){
-            document.getElementById("oktext").innerHTML =
-              `✅ <b>${reservaAtual.servico}</b> confirmado para <b>${reservaAtual.data}</b> às <b>${reservaAtual.horario}</b>.<br>` +
-              `Sinal: <b>${brl(reservaAtual.valor)}</b>.`;
-          }
-
-          document.getElementById("msg").innerHTML =
-            `<span class="badge">✅ Pagamento confirmado! Seu agendamento foi concluído.</span>`;
-
-          // fecha modal automaticamente
-          fecharPixModal();
-
-          // atualiza horários
-          await carregarHorarios();
-
-          // encerra stream (server já deve encerrar também)
-          pararStream();
+          await concluirConfirmacaoPagamento(data.agendamento_id || null);
         });
 
-        eventSource.addEventListener("expired", async (ev) => {
-          // reserva expirada/cancelada
+        eventSource.addEventListener("expired", async () => {
           document.getElementById("msg").innerHTML =
             `<span class="badge">⏳ Reserva expirada. Escolha outro horário.</span>`;
           fecharPixModal();
           await carregarHorarios();
           pararStream();
         });
+      }catch(e){}
+    }
 
-        eventSource.addEventListener("error", () => {
-          // se der erro, não trava nada — só mantém o fluxo
+    async function confirmarPagamentoManual(){
+      if (!tokenAtual) {
+        document.getElementById("msg").innerHTML =
+          `<span class="badge">❌ Reserva não encontrada para confirmação.</span>`;
+        return;
+      }
+
+      const oldText = document.getElementById("msg").innerHTML;
+      document.getElementById("msg").innerHTML =
+        `<span class="badge">⏳ Confirmando pagamento...</span>`;
+
+      try {
+        const res = await fetch(`/reservas/${encodeURIComponent(tokenAtual)}/confirmar-pagamento`, {
+          method: "POST"
         });
-      }catch(e){
-        // sem stream, segue normal
+
+        const payload = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          document.getElementById("msg").innerHTML =
+            `<span class="badge">❌ ${payload.erro || "Não foi possível confirmar o pagamento."}</span>`;
+          return;
+        }
+
+        await concluirConfirmacaoPagamento(payload.agendamento_id || null);
+      } catch (e) {
+        document.getElementById("msg").innerHTML = oldText || `<span class="badge">❌ Erro ao confirmar pagamento.</span>`;
       }
     }
 
-    // ===================== RESERVAR COM SINAL =====================
     async function reservarComSinal(){
       const nome = document.getElementById("nome").value.trim();
       const ddd = document.getElementById("ddd").value.trim();
@@ -560,7 +753,6 @@
       const msg = document.getElementById("msg");
       msg.innerHTML = "";
 
-      // reset geral
       resetFluxoPagamento();
 
       if(!nome || !ddd || !numero || !servico || !data || !horario){
@@ -599,13 +791,10 @@
 
         const valor = payload.valor_sinal ?? 40;
 
-        // guarda resumo pro confirmado
         reservaAtual = { nome, servico, data, horario, valor };
 
-        // abre modal NA FRENTE
         abrirPixModal();
 
-        // preenche modal
         if(payload.qr_code_data_url){
           document.getElementById("qrImg").src = payload.qr_code_data_url;
         }else{
@@ -626,39 +815,35 @@
             ✅ Reserva criada. Pague o sinal de ${brl(valor)} para confirmar.
           </div>
           <div class="small">
-            Após o pagamento, a confirmação vai aparecer automaticamente aqui.
+            Após pagar, clique em <b>Já paguei</b> para concluir automaticamente seu agendamento.
           </div>
         `;
 
-        // inicia stream (pra cair automático)
         if(payload.token){
           iniciarStreamReserva(payload.token);
         }
 
-        // atualiza horários (vai bloquear esse horário)
         await carregarHorarios();
-
         fecharDropdown();
       } finally {
         setLoadingReservar(false);
       }
     }
 
-    // ===================== INIT =====================
     document.addEventListener("DOMContentLoaded", () => {
       montarCatalogo();
       soNumero(document.getElementById("ddd"));
       soNumero(document.getElementById("telefone"));
+
       const dddInput = document.getElementById("ddd");
-  const telInput = document.getElementById("telefone");
+      const telInput = document.getElementById("telefone");
 
-  dddInput.addEventListener("input", () => {
-    dddInput.value = dddInput.value.replace(/\D/g, "").slice(0,2);
-
-    if (dddInput.value.length === 2) {
-      telInput.focus();
-    }
-  });
+      dddInput.addEventListener("input", () => {
+        dddInput.value = dddInput.value.replace(/\D/g, "").slice(0,2);
+        if (dddInput.value.length === 2) {
+          telInput.focus();
+        }
+      });
 
       flatpickr("#data", {
         locale: "pt",
@@ -689,7 +874,6 @@
     });
   </script>
 
-  <!-- ✅ PARALLAX -->
   <script>
     (function(){
       const el = document.getElementById("igBgImg");
