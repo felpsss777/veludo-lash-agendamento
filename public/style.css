@@ -1045,3 +1045,318 @@ body.admin-page{
 #pane-clientes .wrapline{
   word-break: break-word;
 }
+/* =========================
+   FINANCEIRO + AGENDA ADMIN
+========================= */
+
+.financeiro-resumo{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0 16px;
+}
+
+.finance-card{
+  background: rgba(15,15,18,0.34);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(212,175,55,0.22);
+  border-radius: 18px;
+  padding: 14px 14px 13px;
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.finance-label{
+  display: block;
+  font-size: 12px;
+  color: rgba(212,175,55,0.92);
+  letter-spacing: .2px;
+  margin-bottom: 7px;
+}
+
+.finance-card strong{
+  display: block;
+  color: rgba(255,255,255,0.96);
+  font-size: 20px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+/* listas de cards */
+.financeiro-lista,
+.agenda-lista{
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.financeiro-item{
+  background: rgba(15,15,18,0.38);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212,175,55,0.22);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.financeiro-item:hover{
+  transform: translateY(-1px);
+  border-color: rgba(212,175,55,0.38);
+  box-shadow:
+    0 16px 34px rgba(0,0,0,0.22),
+    0 0 0 1px rgba(212,175,55,0.06) inset;
+}
+
+.financeiro-item-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.financeiro-nome{
+  color: rgba(255,255,255,0.96);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.financeiro-status{
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(212,175,55,0.26);
+  background: rgba(212,175,55,0.08);
+  color: rgba(244,216,145,0.98);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+.financeiro-info{
+  display: grid;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.financeiro-info span{
+  color: rgba(255,255,255,0.82);
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.financeiro-info strong{
+  color: rgba(255,255,255,0.96);
+  font-weight: 700;
+}
+
+.financeiro-acoes{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-dourado,
+.btn-preto{
+  appearance: none;
+  border-radius: 12px;
+  min-height: 42px;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform .16s ease, opacity .16s ease, box-shadow .16s ease, border-color .16s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-dourado{
+  border: 1px solid rgba(212,175,55,0.44);
+  color: #181511;
+  background: linear-gradient(180deg, #f5e3b9 0%, #d4af37 100%);
+  box-shadow: 0 10px 24px rgba(212,175,55,0.18);
+}
+
+.btn-dourado:hover{
+  transform: translateY(-1px);
+  opacity: .98;
+}
+
+.btn-preto{
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.94);
+  background: rgba(0,0,0,0.56);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+}
+
+.btn-preto:hover{
+  transform: translateY(-1px);
+  border-color: rgba(212,175,55,0.26);
+}
+
+/* topo da agenda */
+.agenda-topbar{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 6px;
+}
+
+.agenda-topbar input{
+  flex: 1 1 auto;
+}
+
+/* flatpickr no mesmo clima do booking */
+.flatpickr-calendar{
+  background: rgba(17,17,20,0.96) !important;
+  border: 1px solid rgba(212,175,55,0.18) !important;
+  box-shadow: 0 22px 44px rgba(0,0,0,0.35) !important;
+  border-radius: 18px !important;
+  overflow: hidden;
+}
+
+.flatpickr-months{
+  background: rgba(255,255,255,0.02);
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year{
+  color: rgba(255,255,255,0.96) !important;
+  fill: rgba(255,255,255,0.96) !important;
+}
+
+.flatpickr-weekdays{
+  background: transparent !important;
+}
+
+span.flatpickr-weekday{
+  color: rgba(212,175,55,0.88) !important;
+  font-weight: 700;
+}
+
+.flatpickr-day{
+  color: rgba(255,255,255,0.90) !important;
+  border-radius: 10px !important;
+}
+
+.flatpickr-day:hover{
+  background: rgba(212,175,55,0.12) !important;
+  border-color: rgba(212,175,55,0.22) !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange{
+  background: linear-gradient(180deg, #f5e3b9 0%, #d4af37 100%) !important;
+  border-color: rgba(212,175,55,0.48) !important;
+  color: #1a1712 !important;
+}
+
+.flatpickr-day.today{
+  border-color: rgba(212,175,55,0.44) !important;
+}
+
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg{
+  fill: rgba(255,255,255,0.92) !important;
+}
+
+/* responsivo */
+@media (max-width: 760px){
+  .financeiro-resumo{
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .finance-card{
+    padding: 13px 12px;
+  }
+
+  .finance-card strong{
+    font-size: 18px;
+  }
+
+  .financeiro-item{
+    padding: 13px;
+    border-radius: 16px;
+  }
+
+  .financeiro-item-top{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .financeiro-status{
+    align-self: flex-start;
+  }
+
+  .financeiro-acoes{
+    flex-direction: column;
+  }
+
+  .btn-dourado,
+  .btn-preto{
+    width: 100%;
+  }
+
+  .agenda-topbar{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .agenda-topbar .btn2{
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px){
+  .financeiro-resumo{
+    grid-template-columns: 1fr;
+  }
+
+  .finance-label{
+    font-size: 11px;
+  }
+
+  .finance-card strong{
+    font-size: 17px;
+  }
+
+  .financeiro-info span{
+    font-size: 13px;
+  }
+
+  .financeiro-nome{
+    font-size: 14px;
+  }
+}.status-pago{
+  background: rgba(212,175,55,0.14);
+  border-color: rgba(212,175,55,0.34);
+  color: #f3d98b;
+}
+
+.status-ok{
+  background: rgba(212,175,55,0.12);
+  border-color: rgba(212,175,55,0.30);
+  color: #f0d27a;
+}
+
+.status-pendente{
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.85);
+}
