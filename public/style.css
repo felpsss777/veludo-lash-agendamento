@@ -1360,3 +1360,74 @@ span.flatpickr-weekday{
   border-color: rgba(255,255,255,0.10);
   color: rgba(255,255,255,0.85);
 }
+/* =========================
+   AJUSTES NOVO LAYOUT ADMIN
+========================= */
+
+.lembrete-linha-dupla{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:6px;
+}
+
+.lembrete-linha-dupla span{
+  flex:1;
+  min-width:120px;
+  color:rgba(255,255,255,0.82);
+  font-size:14px;
+  line-height:1.4;
+}
+
+.lembrete-linha-dupla strong{
+  color:rgba(255,255,255,0.96);
+  font-weight:700;
+}
+
+/* cards agenda / lembretes */
+
+.financeiro-item{
+  padding:16px;
+}
+
+.financeiro-item-top{
+  margin-bottom:10px;
+}
+
+.financeiro-nome{
+  font-size:16px;
+  font-weight:700;
+}
+
+.financeiro-info{
+  margin-bottom:6px;
+}
+
+/* botões melhor alinhados */
+
+.financeiro-acoes{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
+/* mobile */
+
+@media (max-width:600px){
+
+  .lembrete-linha-dupla{
+    flex-direction:column;
+    gap:4px;
+  }
+
+  .financeiro-acoes{
+    flex-direction:column;
+  }
+
+  .btn-dourado,
+  .btn-preto{
+    width:100%;
+  }
+
+}

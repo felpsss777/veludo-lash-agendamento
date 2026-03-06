@@ -31,6 +31,12 @@ function formatMoney(v = 0) {
   });
 }
 
+function formatDateBR(dateStr = "") {
+  if (!dateStr || !dateStr.includes("-")) return dateStr || "-";
+  const [ano, mes, dia] = dateStr.split("-");
+  return `${dia}/${mes}/${ano}`;
+}
+
 function todayISO() {
   const hoje = new Date();
   const yyyy = hoje.getFullYear();
@@ -142,12 +148,10 @@ function setupTabs() {
 
 /* =====================
    CALENDÁRIO DA AGENDA
-   mesmo padrão do booking
 ===================== */
 function renderAdminBookingCalendar() {
   const input = $("filtroData");
   if (!input || typeof flatpickr !== "function") return;
-
   if (input._flatpickr) return;
 
   flatpickr(input, {
@@ -228,9 +232,8 @@ async function carregarFinanceiro() {
 
     ordenados.forEach((r) => {
       const nome = escapeHtml(r.cliente_nome || "Cliente");
-      const telefone = escapeHtml(fmtTel(r.cliente_telefone || ""));
       const servico = escapeHtml(r.servico || "-");
-      const data = escapeHtml(r.data || "-");
+      const data = formatDateBR(r.data || "-");
       const horario = escapeHtml(r.horario || "-");
       const valor = formatMoney(getAgendamentoValor(r));
       const status = getPagamentoLabel(r);
@@ -245,10 +248,15 @@ async function carregarFinanceiro() {
         </div>
 
         <div class="financeiro-info">
-          <span><strong>Serviço:</strong> ${servico}</span>
           <span><strong>Data:</strong> ${data}</span>
-          <span><strong>Hora:</strong> ${horario}</span>
-          <span><strong>WhatsApp:</strong> ${telefone || "-"}</span>
+        </div>
+
+        <div class="lembrete-linha-dupla">
+          <span><strong>Serviço:</strong> ${servico}</span>
+          <span><strong>Horário:</strong> ${horario}</span>
+        </div>
+
+        <div class="financeiro-info" style="margin-top:10px;">
           <span><strong>Valor:</strong> ${valor}</span>
         </div>
 
@@ -338,9 +346,8 @@ async function carregarAgenda() {
     ordenados.forEach((r) => {
       const confirmado = isConfirmado(r);
       const nome = escapeHtml(r.cliente_nome || "Cliente");
-      const telefone = escapeHtml(fmtTel(r.cliente_telefone || ""));
       const servico = escapeHtml(r.servico || "-");
-      const data = escapeHtml(r.data || "-");
+      const data = formatDateBR(r.data || "-");
       const horario = escapeHtml(r.horario || "-");
       const status = confirmado ? "Confirmado" : "Pendente";
       const textoWa = `Olá ${r.cliente_nome || ""}! Só confirmando seu horário: ${r.data || "-"} às ${r.horario || "-"} (${r.servico || "-"}) ✨`;
@@ -349,17 +356,20 @@ async function carregarAgenda() {
       card.className = "financeiro-item";
       card.innerHTML = `
         <div class="financeiro-item-top">
-          <div class="financeiro-nome">${horario} • ${nome}</div>
+          <div class="financeiro-nome">${nome}</div>
           <div class="financeiro-status">${status}</div>
         </div>
 
         <div class="financeiro-info">
           <span><strong>Data:</strong> ${data}</span>
-          <span><strong>Serviço:</strong> ${servico}</span>
-          <span><strong>WhatsApp:</strong> ${telefone || "-"}</span>
         </div>
 
-        <div class="financeiro-acoes">
+        <div class="lembrete-linha-dupla">
+          <span><strong>Serviço:</strong> ${servico}</span>
+          <span><strong>Horário:</strong> ${horario}</span>
+        </div>
+
+        <div class="financeiro-acoes" style="margin-top:14px;">
           <a class="btn-dourado" target="_blank" rel="noopener noreferrer"
              href="${waLink(r.cliente_telefone, textoWa)}">
              WhatsApp
@@ -446,20 +456,33 @@ async function carregarLembretes() {
       const tr = document.createElement("tr");
       tr.className = "rowcard";
       tr.innerHTML = `
-        <td class="wrapline">${escapeHtml(r.data || "-")}</td>
-        <td class="wrapline"><span class="pill ok">${escapeHtml(r.horario || "-")}</span></td>
-        <td>${escapeHtml(r.servico || "-")}</td>
-        <td>
-          <div><b>${escapeHtml(r.cliente_nome || "Cliente")}</b></div>
-          <div class="mut">${escapeHtml(fmtTel(r.cliente_telefone || ""))}</div>
-        </td>
-        <td>
-          <div class="actions">
-            <a class="btn btn-wa" target="_blank" rel="noopener noreferrer"
-               href="${waLink(r.cliente_telefone, texto)}">
-               Enviar WhatsApp
-            </a>
-            <button class="btn-glass" data-enviado="${r.id}">Marcar como enviado</button>
+        <td colspan="5">
+          <div class="financeiro-item">
+
+            <div class="financeiro-item-top">
+              <div class="financeiro-nome">${escapeHtml(r.cliente_nome || "Cliente")}</div>
+            </div>
+
+            <div class="financeiro-info">
+              <span><strong>Data:</strong> ${formatDateBR(r.data || "-")}</span>
+            </div>
+
+            <div class="lembrete-linha-dupla">
+              <span><strong>Serviço:</strong> ${escapeHtml(r.servico || "-")}</span>
+              <span><strong>Horário:</strong> ${escapeHtml(r.horario || "-")}</span>
+            </div>
+
+            <div class="financeiro-acoes" style="margin-top:14px;">
+              <a class="btn-dourado" target="_blank" rel="noopener noreferrer"
+                 href="${waLink(r.cliente_telefone, texto)}">
+                 Enviar WhatsApp
+              </a>
+
+              <button class="btn-preto" data-enviado="${r.id}">
+                Marcar como enviado
+              </button>
+            </div>
+
           </div>
         </td>
       `;
