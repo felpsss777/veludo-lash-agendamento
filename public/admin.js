@@ -1,23 +1,23 @@
 const $ = (id) => document.getElementById(id);
 
-function setMsg(text, ok = true){
+function setMsg(text, ok = true) {
   const msg = $("msg");
   if (!msg) return;
   msg.innerHTML = text ? `<span class="badge">${ok ? "✅" : "❌"} ${text}</span>` : "";
 }
 
-function onlyDigits(v = ""){
+function onlyDigits(v = "") {
   return String(v).replace(/\D/g, "");
 }
 
-function fmtTel(t){
+function fmtTel(t) {
   const d = onlyDigits(t);
-  if (d.length === 11) return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
-  if (d.length === 10) return `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;
+  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
   return t || "";
 }
 
-function waLink(tel, text){
+function waLink(tel, text) {
   const phone = "55" + onlyDigits(tel);
   const msg = encodeURIComponent(text || "");
   return `https://wa.me/${phone}?text=${msg}`;
@@ -26,7 +26,7 @@ function waLink(tel, text){
 /* =====================
    BLOQUEIO DDD (2) + NUM (9)
 ===================== */
-function setupDDDNum(dddId, numId){
+function setupDDDNum(dddId, numId) {
   const ddd = $(dddId);
   const num = $(numId);
   if (!ddd || !num) return;
@@ -92,72 +92,80 @@ function setupDDDNum(dddId, numId){
   num.addEventListener("blur", validate);
 }
 
-function getTel11FromInputs(){
+function getTel11FromInputs() {
   const ddd = onlyDigits($("cliDDD")?.value || "");
   const num = onlyDigits($("cliTel")?.value || "");
   return ddd + num;
 }
 
 /* =====================
-   FOTO DO CLIENTE
+   EXTRAS DA ABA CLIENTES
 ===================== */
-function fileToBase64(file){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-function ensureClienteExtras(){
+function ensureClienteExtras() {
   const pane = $("pane-clientes");
   if (!pane) return;
 
-  // busca
+  const title = pane.querySelector("h2");
+  const nomeRow = pane.querySelector(".row");
+  const telRow = pane.querySelector(".row.row-tel");
+  const ajuda = pane.querySelector(".small.mut");
+
+  if (!title || !nomeRow || !telRow) return;
+
   if (!$("cliBusca")) {
     const buscaWrap = document.createElement("div");
     buscaWrap.className = "row";
     buscaWrap.innerHTML = `
       <input id="cliBusca" placeholder="Buscar cliente pelo nome" autocomplete="off" />
     `;
-    const h2 = pane.querySelector("h2");
-    if (h2) h2.insertAdjacentElement("afterend", buscaWrap);
+    title.insertAdjacentElement("afterend", buscaWrap);
   }
 
-  // foto
   if (!$("cliFoto")) {
-    const telRow = pane.querySelector(".row.row-tel");
-    if (telRow) {
-      const fotoWrap = document.createElement("div");
-      fotoWrap.className = "row";
-      fotoWrap.innerHTML = `
-        <input id="cliFoto" type="file" accept="image/*" />
-      `;
+    const fotoWrap = document.createElement("div");
+    fotoWrap.className = "row";
+    fotoWrap.innerHTML = `
+      <input id="cliFoto" type="file" accept="image/*" style="display:none" />
+      <button type="button" class="btn2" id="btnFotoCliente">Selecionar foto</button>
+      <span id="cliFotoNome" class="small mut">Nenhuma foto selecionada</span>
+    `;
+
+    if (ajuda) {
+      ajuda.insertAdjacentElement("beforebegin", fotoWrap);
+    } else {
       telRow.insertAdjacentElement("afterend", fotoWrap);
     }
   }
+
+  $("btnFotoCliente")?.addEventListener("click", () => {
+    $("cliFoto")?.click();
+  });
+
+  $("cliFoto")?.addEventListener("change", () => {
+    const nome = $("cliFoto")?.files?.[0]?.name || "Nenhuma foto selecionada";
+    if ($("cliFotoNome")) $("cliFotoNome").textContent = nome;
+  });
 }
 
 /* =====================
    TABS
 ===================== */
-function setupTabs(){
+function setupTabs() {
   const tabs = document.querySelectorAll(".admin-tabs .tab");
   const panes = document.querySelectorAll(".pane");
 
   if (!tabs.length || !panes.length) return;
 
-  function setActive(name){
-    tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === name));
-    panes.forEach(p => p.classList.toggle("active", p.dataset.page === name));
+  function setActive(name) {
+    tabs.forEach((t) => t.classList.toggle("active", t.dataset.tab === name));
+    panes.forEach((p) => p.classList.toggle("active", p.dataset.page === name));
 
+    if (name === "clientes") carregarClientes();
     if (name === "agenda") carregarAgenda();
     if (name === "lembretes") carregarLembretes();
-    if (name === "clientes") carregarClientes();
   }
 
-  tabs.forEach(t => {
+  tabs.forEach((t) => {
     t.addEventListener("click", () => setActive(t.dataset.tab));
   });
 
@@ -170,7 +178,7 @@ function setupTabs(){
 /* =====================
    AGENDA
 ===================== */
-async function carregarAgenda(){
+async function carregarAgenda() {
   setMsg("", true);
   const tbody = $("agendaBody");
   if (!tbody) return;
@@ -187,16 +195,14 @@ async function carregarAgenda(){
       return;
     }
 
-    const filtrados = dataFiltro
-      ? rows.filter(r => r.data === dataFiltro)
-      : rows;
+    const filtrados = dataFiltro ? rows.filter((r) => r.data === dataFiltro) : rows;
 
     if (!filtrados.length) {
       tbody.innerHTML = `<tr><td colspan="6" class="mut">Nenhum agendamento encontrado.</td></tr>`;
       return;
     }
 
-    filtrados.forEach(r => {
+    filtrados.forEach((r) => {
       const confirmado = Number(r.confirmado) === 1;
 
       const tr = document.createElement("tr");
@@ -216,19 +222,19 @@ async function carregarAgenda(){
         </td>
         <td>
           <div class="actions">
-            <a class="btn" target="_blank"
+            <a class="btn btn-wa" target="_blank" rel="noopener noreferrer"
                href="${waLink(r.cliente_telefone, `Olá ${r.cliente_nome}! Só confirmando seu horário: ${r.data} às ${r.horario} (${r.servico}).`)}">
                WhatsApp
             </a>
             ${confirmado ? "" : `<button class="btn-glass" data-confirmar="${r.id}">Confirmar</button>`}
-            <button class="btn2" data-excluir="${r.id}">Excluir</button>
+            <button class="btn2 btn-del" data-excluir="${r.id}">Excluir</button>
           </div>
         </td>
       `;
       tbody.appendChild(tr);
     });
 
-    tbody.querySelectorAll("[data-confirmar]").forEach(btn => {
+    tbody.querySelectorAll("[data-confirmar]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.getAttribute("data-confirmar");
         if (!confirm("Confirmar este agendamento?")) return;
@@ -243,7 +249,7 @@ async function carregarAgenda(){
       });
     });
 
-    tbody.querySelectorAll("[data-excluir]").forEach(btn => {
+    tbody.querySelectorAll("[data-excluir]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.getAttribute("data-excluir");
         if (!confirm("Excluir este agendamento?")) return;
@@ -265,7 +271,7 @@ async function carregarAgenda(){
 /* =====================
    LEMBRETES
 ===================== */
-async function carregarLembretes(){
+async function carregarLembretes() {
   setMsg("", true);
   const tbody = $("lembretesBody");
   if (!tbody) return;
@@ -285,7 +291,7 @@ async function carregarLembretes(){
       return;
     }
 
-    rows.forEach(r => {
+    rows.forEach((r) => {
       const texto = `Olá ${r.cliente_nome}! Passando para te lembrar do seu horário: ${r.data} às ${r.horario} (${r.servico}). ✨`;
 
       const tr = document.createElement("tr");
@@ -300,7 +306,10 @@ async function carregarLembretes(){
         </td>
         <td>
           <div class="actions">
-            <a class="btn" target="_blank" href="${waLink(r.cliente_telefone, texto)}">Enviar WhatsApp</a>
+            <a class="btn btn-wa" target="_blank" rel="noopener noreferrer"
+               href="${waLink(r.cliente_telefone, texto)}">
+               Enviar WhatsApp
+            </a>
             <button class="btn-glass" data-enviado="${r.id}">Marcar como enviado</button>
           </div>
         </td>
@@ -308,7 +317,7 @@ async function carregarLembretes(){
       tbody.appendChild(tr);
     });
 
-    tbody.querySelectorAll("[data-enviado]").forEach(btn => {
+    tbody.querySelectorAll("[data-enviado]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.getAttribute("data-enviado");
         if (!confirm("Marcar lembrete como enviado?")) return;
@@ -330,7 +339,7 @@ async function carregarLembretes(){
 /* =====================
    CLIENTES
 ===================== */
-async function carregarClientes(){
+async function carregarClientes() {
   setMsg("", true);
   const tbody = $("clientesBody");
   if (!tbody) return;
@@ -353,7 +362,7 @@ async function carregarClientes(){
       return;
     }
 
-    rows.forEach(c => {
+    rows.forEach((c) => {
       const foto = c.foto_url
         ? `<img src="${c.foto_url}" alt="${c.nome}" class="cli-foto">`
         : `<div class="cli-foto cli-foto--empty"></div>`;
@@ -364,23 +373,24 @@ async function carregarClientes(){
         <td>
           <div class="cli-nome-wrap">
             ${foto}
-            <div>
-              <b>${c.nome}</b>
-            </div>
+            <div><b>${c.nome}</b></div>
           </div>
         </td>
         <td class="wrapline">${fmtTel(c.telefone)}</td>
         <td>
           <div class="actions">
-            <a class="btn" target="_blank" href="${waLink(c.telefone, `Olá ${c.nome}! 😊`)}">WhatsApp</a>
-            <button class="btn2" data-delcli="${c.id}">Excluir</button>
+            <a class="btn btn-wa" target="_blank" rel="noopener noreferrer"
+               href="${waLink(c.telefone, `Olá ${c.nome}! 😊`)}">
+               WhatsApp
+            </a>
+            <button class="btn2 btn-del" data-delcli="${c.id}">Excluir</button>
           </div>
         </td>
       `;
       tbody.appendChild(tr);
     });
 
-    tbody.querySelectorAll("[data-delcli]").forEach(btn => {
+    tbody.querySelectorAll("[data-delcli]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.getAttribute("data-delcli");
         if (!confirm("Excluir este cliente? (se tiver agendamentos, vai bloquear)")) return;
@@ -404,7 +414,7 @@ async function carregarClientes(){
 /* =====================
    UPLOAD FOTO CLIENTE
 ===================== */
-async function enviarFotoCliente(id){
+async function enviarFotoCliente(id) {
   const inputFoto = $("cliFoto");
   const file = inputFoto?.files?.[0];
   if (!file) return true;
@@ -423,7 +433,7 @@ async function enviarFotoCliente(id){
 /* =====================
    BOTÕES
 ===================== */
-function setupButtons(){
+function setupButtons() {
   $("btnAtualizarAgenda")?.addEventListener("click", carregarAgenda);
   $("btnAtualizarLembretes")?.addEventListener("click", carregarLembretes);
 
@@ -441,34 +451,39 @@ function setupButtons(){
       return;
     }
 
-    const res = await fetch("/clientes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nome, telefone: tel11, observacao: "" })
-    });
+    try {
+      const res = await fetch("/clientes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, telefone: tel11, observacao: "" })
+      });
 
-    const payload = await res.json().catch(() => ({}));
+      const payload = await res.json().catch(() => ({}));
 
-    if (!res.ok) {
-      setMsg(payload.erro || "Não foi possível cadastrar.", false);
-      return;
+      if (!res.ok) {
+        setMsg(payload.erro || "Não foi possível cadastrar.", false);
+        return;
+      }
+
+      const clienteId = payload.id;
+      const okFoto = await enviarFotoCliente(clienteId);
+
+      $("cliNome").value = "";
+      $("cliDDD").value = "";
+      $("cliTel").value = "";
+      if ($("cliFoto")) $("cliFoto").value = "";
+      if ($("cliFotoNome")) $("cliFotoNome").textContent = "Nenhuma foto selecionada";
+
+      if (okFoto) {
+        setMsg("Cliente cadastrado!");
+      } else {
+        setMsg("Cliente cadastrado, mas a foto não foi enviada.", false);
+      }
+
+      carregarClientes();
+    } catch (e) {
+      setMsg("Erro ao cadastrar cliente.", false);
     }
-
-    const clienteId = payload.id;
-    const okFoto = await enviarFotoCliente(clienteId);
-
-    $("cliNome").value = "";
-    $("cliDDD").value = "";
-    $("cliTel").value = "";
-    if ($("cliFoto")) $("cliFoto").value = "";
-
-    if (okFoto) {
-      setMsg("Cliente cadastrado!");
-    } else {
-      setMsg("Cliente cadastrado, mas a foto não foi enviada.", false);
-    }
-
-    carregarClientes();
   });
 
   $("cliBusca")?.addEventListener("input", () => {

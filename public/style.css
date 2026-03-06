@@ -1375,3 +1375,63 @@ body.admin-page{
 .cli-foto--empty{
   background: rgba(255,255,255,0.08);
 }
+.cliente-foto-mini{
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: 0 0 42px;
+  border: 1px solid rgba(255,255,255,0.14);
+}
+
+.cliente-foto-placeholder{
+  background: rgba(255,255,255,0.08);
+}
+
+.cliente-nome-box{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.actions{
+  display: flex !important;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.actions .btn,
+.actions .btn2{
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-wa{
+  background: linear-gradient(135deg, #c9a46c, #f1d9aa) !important;
+  color: #2a211b !important;
+  border: none !important;
+  font-weight: 900 !important;
+  box-shadow: 0 12px 28px rgba(201,164,108,0.25);
+}
+
+.btn-del{
+  background: linear-gradient(135deg, #b22222, #ff6b6b) !important;
+  color: #fff !important;
+  border: none !important;
+  font-weight: 800 !important;
+}
+
+@media (max-width: 520px){
+  .actions .btn,
+  .actions .btn2{
+    width: 100% !important;
+  }
+}
