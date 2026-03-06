@@ -1361,55 +1361,61 @@ span.flatpickr-weekday{
   color: rgba(255,255,255,0.85);
 }
 /* =========================
-   AJUSTES NOVO LAYOUT ADMIN
+   AJUSTE DE PROPORÇÃO CARDS
 ========================= */
 
 .lembrete-linha-dupla{
-  display:flex;
-  gap:14px;
-  flex-wrap:wrap;
-  margin-top:6px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+  margin-top:8px;
 }
 
 .lembrete-linha-dupla span{
-  flex:1;
-  min-width:120px;
-  color:rgba(255,255,255,0.82);
+  display:block;
+  padding:6px 8px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.05);
   font-size:14px;
-  line-height:1.4;
 }
 
 .lembrete-linha-dupla strong{
-  color:rgba(255,255,255,0.96);
-  font-weight:700;
+  color:#fff;
+  font-weight:600;
 }
 
-/* cards agenda / lembretes */
+/* card principal */
 
 .financeiro-item{
-  padding:16px;
+  padding:18px;
+  border-radius:18px;
 }
 
-.financeiro-item-top{
-  margin-bottom:10px;
-}
+/* título cliente */
 
 .financeiro-nome{
-  font-size:16px;
+  font-size:17px;
   font-weight:700;
+  margin-bottom:6px;
 }
+
+/* linha da data */
 
 .financeiro-info{
   margin-bottom:6px;
 }
 
-/* botões melhor alinhados */
+/* botões */
 
 .financeiro-acoes{
   display:flex;
   gap:10px;
-  flex-wrap:wrap;
   margin-top:14px;
+}
+
+.financeiro-acoes a,
+.financeiro-acoes button{
+  flex:1;
 }
 
 /* mobile */
@@ -1417,17 +1423,11 @@ span.flatpickr-weekday{
 @media (max-width:600px){
 
   .lembrete-linha-dupla{
-    flex-direction:column;
-    gap:4px;
+    grid-template-columns:1fr;
   }
 
   .financeiro-acoes{
     flex-direction:column;
-  }
-
-  .btn-dourado,
-  .btn-preto{
-    width:100%;
   }
 
 }
