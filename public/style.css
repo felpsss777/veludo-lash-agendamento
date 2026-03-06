@@ -877,3 +877,171 @@ body.admin-page{
 
   .flatpickr-day{ border-radius: 12px !important; }
 }
+/* =========================================
+   AJUSTES FINAIS — BOOKING + ADMIN
+========================================= */
+
+/* ===== BOOKING ===== */
+
+/* centraliza melhor a logo */
+.brand-card,
+.logo-wrap,
+.logo{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.logo-img{
+  display: block;
+  margin: 0 auto 8px;
+  max-width: 220px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* nome + telefone mais alinhados */
+#nome{
+  text-align: left;
+}
+
+#ddd,
+#telefone{
+  margin-bottom: 0 !important;
+}
+
+#ddd{
+  flex: 0 0 84px !important;
+  max-width: 84px !important;
+  text-align: center !important;
+}
+
+#telefone{
+  flex: 1 1 auto !important;
+  text-align: left !important;
+}
+
+.card .row:has(#ddd){
+  align-items: center !important;
+}
+
+.card .small{
+  margin-top: 6px !important;
+}
+
+/* ===== ADMIN ===== */
+
+/* logo/fundo mais centralizado no admin */
+.admin-page .admin-tabs{
+  background: rgba(10,10,12,0.50) !important;
+}
+
+.admin-page .admin-card{
+  background: rgba(15,15,18,0.34) !important;
+}
+
+/* separa cada agendamento em cards delicados */
+@media (max-width: 520px){
+  #pane-agenda .table tbody tr.rowcard{
+    display: block !important;
+    margin-bottom: 14px !important;
+    padding: 10px !important;
+    border-radius: 18px !important;
+    background: rgba(12,12,16,0.34) !important;
+    border: 1px solid rgba(201,164,108,0.22) !important;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.22) !important;
+    backdrop-filter: blur(8px) !important;
+  }
+
+  #pane-agenda .table tbody tr.rowcard td{
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    border-radius: 14px !important;
+    margin-bottom: 8px !important;
+  }
+
+  #pane-agenda .table tbody tr.rowcard td:last-child{
+    margin-bottom: 0 !important;
+  }
+
+  /* lembretes no mesmo estilo */
+  #pane-lembretes .table tbody tr.rowcard{
+    display: block !important;
+    margin-bottom: 14px !important;
+    padding: 10px !important;
+    border-radius: 18px !important;
+    background: rgba(12,12,16,0.34) !important;
+    border: 1px solid rgba(201,164,108,0.22) !important;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.22) !important;
+    backdrop-filter: blur(8px) !important;
+  }
+
+  #pane-lembretes .table tbody tr.rowcard td{
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    border-radius: 14px !important;
+    margin-bottom: 8px !important;
+  }
+
+  #pane-lembretes .table tbody tr.rowcard td:last-child{
+    margin-bottom: 0 !important;
+  }
+}
+
+/* desktop/tablet também deixa mais organizado */
+#pane-agenda .table tbody tr.rowcard,
+#pane-lembretes .table tbody tr.rowcard{
+  box-shadow: inset 0 0 0 1px rgba(201,164,108,0.08);
+}
+
+/* botões pretos no admin */
+#pane-agenda .actions .btn2,
+#pane-lembretes .actions .btn2,
+#pane-clientes .actions .btn2,
+.actions .btn2,
+.btn-del{
+  background: linear-gradient(135deg, #111111, #2b2b2b) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.30) !important;
+}
+
+/* botão whatsapp continua dourado e mais delicado */
+#pane-agenda .actions .btn,
+#pane-lembretes .actions .btn,
+#pane-clientes .actions .btn,
+.btn-wa{
+  background: linear-gradient(135deg, #c9a46c, #f1d9aa) !important;
+  color: #2a211b !important;
+  border: none !important;
+  box-shadow: 0 10px 24px rgba(201,164,108,0.20) !important;
+}
+
+/* ações mais limpas */
+.actions{
+  gap: 8px !important;
+}
+
+.actions .btn,
+.actions .btn2,
+.actions .btn-glass{
+  min-height: 42px !important;
+  border-radius: 14px !important;
+  font-weight: 800 !important;
+}
+
+/* cliente no admin melhor alinhado */
+#pane-agenda td div,
+#pane-lembretes td div,
+#pane-clientes td div{
+  line-height: 1.35;
+}
+
+/* nome e número mais organizados */
+#pane-agenda .wrapline,
+#pane-lembretes .wrapline,
+#pane-clientes .wrapline{
+  word-break: break-word;
+}
