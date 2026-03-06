@@ -27,16 +27,43 @@
       </div>
     </div>
 
-    <!-- NAV (AGORA SEMPRE NO TOPO) -->
+    <!-- NAV (ORDEM: CLIENTES, AGENDA, LEMBRETES) -->
     <nav class="admin-tabs admin-tabs--top" aria-label="Navegação do Admin">
-      <button class="tab active" type="button" data-tab="agenda">
-        <span class="tab-ico">📅</span><span class="tab-txt">Agenda</span>
+      <!-- CLIENTES (1º) -->
+      <button class="tab active" type="button" data-tab="clientes" aria-controls="pane-clientes" aria-selected="true">
+        <span class="tab-ico" aria-hidden="true">
+          <!-- user icon -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M20 21a8 8 0 0 0-16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </span>
+        <span class="tab-txt">Clientes</span>
       </button>
-      <button class="tab" type="button" data-tab="lembretes">
-        <span class="tab-ico">⏰</span><span class="tab-txt">Lembretes</span>
+
+      <!-- AGENDA (2º) -->
+      <button class="tab" type="button" data-tab="agenda" aria-controls="pane-agenda" aria-selected="false">
+        <span class="tab-ico" aria-hidden="true">
+          <!-- calendar icon -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M8 2v3M16 2v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M3 9h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5 5h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </span>
+        <span class="tab-txt">Agenda</span>
       </button>
-      <button class="tab" type="button" data-tab="clientes">
-        <span class="tab-ico">👤</span><span class="tab-txt">Clientes</span>
+
+      <!-- LEMBRETES (3º) -->
+      <button class="tab" type="button" data-tab="lembretes" aria-controls="pane-lembretes" aria-selected="false">
+        <span class="tab-ico" aria-hidden="true">
+          <!-- bell icon -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M10 19a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="tab-txt">Lembretes</span>
       </button>
     </nav>
   </header>
@@ -47,8 +74,39 @@
 
       <div id="msg" class="small"></div>
 
-      <!-- ================== AGENDA ================== -->
-      <section id="pane-agenda" class="pane active" data-page="agenda">
+      <!-- ================== CLIENTES (1º) ================== -->
+      <section id="pane-clientes" class="pane active" data-page="clientes">
+        <h2>Clientes</h2>
+
+        <div class="row">
+          <input id="cliNome" placeholder="Nome do cliente" />
+        </div>
+
+        <!-- DDD + Número + Botão -->
+        <div class="row row-tel">
+          <input id="cliDDD" placeholder="DDD" inputmode="numeric" maxlength="2" />
+          <input id="cliTel" placeholder="Número (9 dígitos)" inputmode="numeric" maxlength="9" />
+          <button class="btn-glass gold" type="button" id="btnCriarCliente">Adicionar</button>
+        </div>
+
+        <p class="small mut">Ex: DDD 11 + Número 950235221</p>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>WhatsApp</th>
+                <th style="text-align:right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="clientesBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================== AGENDA (2º) ================== -->
+      <section id="pane-agenda" class="pane" data-page="agenda">
         <h2>Agenda</h2>
         <div class="row">
           <input id="filtroData" type="date" />
@@ -72,7 +130,7 @@
         </div>
       </section>
 
-      <!-- ================== LEMBRETES ================== -->
+      <!-- ================== LEMBRETES (3º) ================== -->
       <section id="pane-lembretes" class="pane" data-page="lembretes">
         <h2>Lembretes</h2>
         <p class="mut">Aqui aparecem agendamentos confirmados com lembrete ainda não enviado.</p>
@@ -93,38 +151,6 @@
               </tr>
             </thead>
             <tbody id="lembretesBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- ================== CLIENTES ================== -->
-      <section id="pane-clientes" class="pane" data-page="clientes">
-        <h2>Clientes</h2>
-
-        <div class="row">
-          <input id="cliNome" placeholder="Nome do cliente" />
-        </div>
-
-        <!-- DDD + Número + Botão (tudo alinhado e sem “quebrar”) -->
-        <div class="row row-tel">
-          <input id="cliDDD" placeholder="DDD" inputmode="numeric" maxlength="2" />
-          <input id="cliTel" placeholder="Número (9 dígitos)" inputmode="numeric" maxlength="9" />
-          <button class="btn-glass gold" type="button" id="btnCriarCliente">Adicionar</button>
-        </div>
-
-        <p class="small mut">Ex: DDD 11 + Número 950235221</p>
-
-        <div class="table-wrap">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>WhatsApp</th>
-                <!-- OBS REMOVIDO -->
-                <th style="text-align:right;">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="clientesBody"></tbody>
           </table>
         </div>
       </section>
@@ -156,11 +182,19 @@
       const panes = document.querySelectorAll(".pane");
 
       function setActive(name){
-        tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+        tabs.forEach(t => {
+          const on = t.dataset.tab === name;
+          t.classList.toggle("active", on);
+          t.setAttribute("aria-selected", on ? "true" : "false");
+        });
         panes.forEach(p => p.classList.toggle("active", p.dataset.page === name));
       }
 
       tabs.forEach(t => t.addEventListener("click", () => setActive(t.dataset.tab)));
+
+      // default: Clientes
+      setActive("clientes");
+
       document.getElementById("btnRefresh")?.addEventListener("click", () => location.reload());
     })();
   </script>

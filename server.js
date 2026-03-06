@@ -1,15 +1,112 @@
-// server.js
+// server.js (ATUALIZADO ✅)
+// - Mantém só /booking e /admin
+// - Busca de clientes por nome: GET /clientes?q=ana
+// - Foto do cliente: POST /clientes/:id/foto (multipart/form-data campo "foto")
+// - Suporte a SQLite em disco persistente (Render): use env DB_PATH="/var/data/veludo.sqlite"
+
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
 const QRCode = require("qrcode");
 const path = require("path");
-const db = require("./db");
+const fs = require("fs");
+const multer = require("multer");
+const sqlite3 = require("sqlite3").verbose();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
+
+/* ===================== DB (SQLite) ===================== */
+// ✅ Em produção (Render), coloque DB_PATH=/var/data/veludo.sqlite + Persistent Disk montado em /var/data
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, "db.sqlite");
+
+// garante pasta do db existir (quando for /var/data/...)
+try {
+  fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
+} catch (_) {}
+
+const db = new sqlite3.Database(DB_PATH);
+
+/* ===================== SQLITE PROMISE HELPERS ===================== */
+function dbRun(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params, function (err) {
+      if (err) return reject(err);
+      resolve({ lastID: this.lastID, changes: this.changes });
+    });
+  });
+}
+function dbGet(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => (err ? reject(err) : resolve(row)));
+  });
+}
+function dbAll(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => (err ? reject(err) : resolve(rows)));
+  });
+}
+
+/* ===================== MIGRATIONS (cria/ajusta tabelas) ===================== */
+async function ensureSchema() {
+  // clientes
+  await dbRun(`
+    CREATE TABLE IF NOT EXISTS clientes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nome TEXT NOT NULL,
+      telefone TEXT NOT NULL UNIQUE,
+      observacao TEXT DEFAULT '',
+      foto_url TEXT DEFAULT ''
+    )
+  `);
+
+  // agendamentos
+  await dbRun(`
+    CREATE TABLE IF NOT EXISTS agendamentos (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      cliente_id INTEGER NOT NULL,
+      data TEXT NOT NULL,
+      horario TEXT NOT NULL,
+      servico TEXT NOT NULL,
+      observacao TEXT DEFAULT '',
+      confirmado INTEGER DEFAULT 0,
+      lembrete_enviado INTEGER DEFAULT 0,
+      lembrete_enviado_em TEXT,
+      reserva_id INTEGER,
+      UNIQUE(data, horario),
+      FOREIGN KEY(cliente_id) REFERENCES clientes(id)
+    )
+  `);
+
+  // reservas
+  await dbRun(`
+    CREATE TABLE IF NOT EXISTS reservas (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      cliente_id INTEGER,
+      nome TEXT,
+      telefone TEXT,
+      servico TEXT,
+      data TEXT,
+      horario TEXT,
+      valor_sinal REAL DEFAULT 0,
+      status TEXT DEFAULT 'pendente',
+      token TEXT UNIQUE,
+      criado_em TEXT,
+      expira_em TEXT
+    )
+  `);
+
+  // ⚠️ Se seu db antigo não tinha foto_url, tenta adicionar sem quebrar
+  try {
+    await dbRun(`ALTER TABLE clientes ADD COLUMN foto_url TEXT DEFAULT ''`);
+  } catch (_) {
+    // já existe
+  }
+}
+
+ensureSchema().catch((e) => console.error("Falha schema:", e.message));
 
 /* ===================== ROTAS PÚBLICAS (SÓ BOOKING + ADMIN) ===================== */
 
@@ -47,26 +144,6 @@ const PIX_NOME = "VITORIA MELL"; // máx 25
 const PIX_CIDADE = "SAO PAULO"; // máx 15
 const PIX_DESCRICAO = "SINAL AGENDAMENTO";
 
-/* ===================== SQLITE PROMISE HELPERS ===================== */
-function dbRun(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) return reject(err);
-      resolve({ lastID: this.lastID, changes: this.changes });
-    });
-  });
-}
-function dbGet(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => (err ? reject(err) : resolve(row)));
-  });
-}
-function dbAll(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => (err ? reject(err) : resolve(rows)));
-  });
-}
-
 /* ===================== HELPERS ===================== */
 function tokenSeguro() {
   return crypto.randomBytes(18).toString("hex"); // 36 chars
@@ -81,6 +158,31 @@ function validarTelefoneBR(telefone) {
   if (ddd === "00") return { ok: false, tel: t };
   return { ok: true, tel: t };
 }
+
+/* ===================== UPLOAD FOTO CLIENTE ===================== */
+// salva em: public/uploads/clientes
+const uploadDir = path.join(__dirname, "public", "uploads", "clientes");
+fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const ext = (path.extname(file.originalname) || "").toLowerCase();
+    const safeExt = [".jpg", ".jpeg", ".png", ".webp"].includes(ext) ? ext : ".jpg";
+    const id = String(req.params.id || "0").replace(/\D/g, "");
+    const stamp = Date.now();
+    cb(null, `cli_${id}_${stamp}${safeExt}`);
+  },
+});
+
+const uploadFoto = multer({
+  storage,
+  limits: { fileSize: 3 * 1024 * 1024 }, // 3MB
+  fileFilter: (req, file, cb) => {
+    const ok = /^image\/(jpeg|png|webp)$/i.test(file.mimetype);
+    cb(ok ? null : new Error("Envie uma imagem JPG/PNG/WEBP."), ok);
+  },
+});
 
 /* ===================== RESERVAS: EXPIRAR ===================== */
 async function expirarReservas() {
@@ -307,6 +409,7 @@ app.get("/reservas/:token/status", async (req, res) => {
 });
 
 /* ===================== CLIENTES ===================== */
+// ✅ Criar cliente
 app.post("/clientes", async (req, res) => {
   try {
     let { nome, telefone, observacao } = req.body;
@@ -320,17 +423,19 @@ app.post("/clientes", async (req, res) => {
 
     const val = validarTelefoneBR(telefone);
     if (!val.ok) {
-      return res.status(400).json({ erro: "Telefone inválido. Use DDD + número (somente números)." });
+      return res
+        .status(400)
+        .json({ erro: "Telefone inválido. Use DDD + número (somente números)." });
     }
 
     const tel = val.tel;
 
     try {
       const r = await dbRun(
-        `INSERT INTO clientes (nome, telefone, observacao) VALUES (?, ?, ?)`,
-        [nome, tel, observacao || ""]
+        `INSERT INTO clientes (nome, telefone, observacao, foto_url) VALUES (?, ?, ?, ?)`,
+        [nome, tel, observacao || "", ""]
       );
-      return res.status(201).json({ id: r.lastID, nome, telefone: tel });
+      return res.status(201).json({ id: r.lastID, nome, telefone: tel, foto_url: "" });
     } catch (err) {
       if (String(err.message || "").includes("UNIQUE")) {
         return res.status(409).json({ erro: "Já existe um cliente com esse WhatsApp." });
@@ -342,15 +447,59 @@ app.post("/clientes", async (req, res) => {
   }
 });
 
+// ✅ Listar clientes (com busca por nome)
+// GET /clientes?q=ana
 app.get("/clientes", async (req, res) => {
   try {
-    const rows = await dbAll(`SELECT * FROM clientes ORDER BY id DESC`);
+    const q = String(req.query.q || "").trim().toLowerCase();
+
+    let rows;
+    if (q) {
+      rows = await dbAll(
+        `SELECT * FROM clientes
+         WHERE lower(nome) LIKE ?
+         ORDER BY id DESC`,
+        [`%${q}%`]
+      );
+    } else {
+      rows = await dbAll(`SELECT * FROM clientes ORDER BY id DESC`);
+    }
+
     res.json(rows);
   } catch (e) {
     res.status(500).json({ erro: e.message });
   }
 });
 
+// ✅ Upload/atualizar foto do cliente
+// multipart/form-data: campo "foto"
+app.post("/clientes/:id/foto", uploadFoto.single("foto"), async (req, res) => {
+  try {
+    const id = String(req.params.id || "").replace(/\D/g, "");
+    if (!id) return res.status(400).json({ erro: "ID inválido" });
+
+    const cli = await dbGet(`SELECT id, foto_url FROM clientes WHERE id=?`, [id]);
+    if (!cli) return res.status(404).json({ erro: "Cliente não encontrado" });
+
+    if (!req.file) return res.status(400).json({ erro: "Envie o arquivo no campo 'foto'." });
+
+    // apaga foto anterior (se existir e for local)
+    const old = String(cli.foto_url || "");
+    if (old.startsWith("/uploads/clientes/")) {
+      const oldPath = path.join(__dirname, "public", old);
+      fs.unlink(oldPath, () => {});
+    }
+
+    const fotoUrl = `/uploads/clientes/${req.file.filename}`;
+    await dbRun(`UPDATE clientes SET foto_url=? WHERE id=?`, [fotoUrl, id]);
+
+    res.json({ ok: true, foto_url: fotoUrl });
+  } catch (e) {
+    res.status(500).json({ erro: e.message || "Falha ao salvar foto" });
+  }
+});
+
+// ✅ Excluir cliente
 app.delete("/clientes/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -360,6 +509,13 @@ app.delete("/clientes/:id", async (req, res) => {
       return res.status(409).json({
         erro: "Esse cliente tem agendamentos. Apague os agendamentos antes (ou implemente exclusão em cascata).",
       });
+    }
+
+    // apaga foto
+    const cli = await dbGet(`SELECT foto_url FROM clientes WHERE id=?`, [id]);
+    if (cli?.foto_url?.startsWith("/uploads/clientes/")) {
+      const p = path.join(__dirname, "public", cli.foto_url);
+      fs.unlink(p, () => {});
     }
 
     const r = await dbRun(`DELETE FROM clientes WHERE id = ?`, [id]);
@@ -399,7 +555,7 @@ app.get("/agendamentos", async (req, res) => {
   try {
     const rows = await dbAll(
       `SELECT a.id, a.data, a.horario, a.servico, a.confirmado, a.observacao,
-              c.nome cliente_nome, c.telefone cliente_telefone
+              c.nome cliente_nome, c.telefone cliente_telefone, c.foto_url cliente_foto_url
        FROM agendamentos a
        JOIN clientes c ON c.id = a.cliente_id
        ORDER BY a.data DESC, a.horario DESC`
@@ -559,8 +715,8 @@ app.post("/reservas/:token/confirmar-pagamento", async (req, res) => {
     if (!cliente) {
       try {
         const rCli = await dbRun(
-          `INSERT INTO clientes (nome, telefone, observacao) VALUES (?, ?, ?)`,
-          [nome, tel, "Criado via sinal (link público)"]
+          `INSERT INTO clientes (nome, telefone, observacao, foto_url) VALUES (?, ?, ?, ?)`,
+          [nome, tel, "Criado via sinal (link público)", ""]
         );
         cliente = { id: rCli.lastID };
       } catch (e) {
@@ -713,4 +869,7 @@ app.post("/lembretes/:id/enviado", async (req, res) => {
 
 /* ===================== START (RENDER + LOCAL) ===================== */
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT} ✅`));
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT} ✅`);
+  console.log(`DB em: ${DB_PATH}`);
+});

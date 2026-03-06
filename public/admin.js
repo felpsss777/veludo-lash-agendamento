@@ -99,6 +99,47 @@ function getTel11FromInputs(){
 }
 
 /* =====================
+   FOTO DO CLIENTE
+===================== */
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function ensureClienteExtras(){
+  const pane = $("pane-clientes");
+  if (!pane) return;
+
+  // busca
+  if (!$("cliBusca")) {
+    const buscaWrap = document.createElement("div");
+    buscaWrap.className = "row";
+    buscaWrap.innerHTML = `
+      <input id="cliBusca" placeholder="Buscar cliente pelo nome" autocomplete="off" />
+    `;
+    const h2 = pane.querySelector("h2");
+    if (h2) h2.insertAdjacentElement("afterend", buscaWrap);
+  }
+
+  // foto
+  if (!$("cliFoto")) {
+    const telRow = pane.querySelector(".row.row-tel");
+    if (telRow) {
+      const fotoWrap = document.createElement("div");
+      fotoWrap.className = "row";
+      fotoWrap.innerHTML = `
+        <input id="cliFoto" type="file" accept="image/*" />
+      `;
+      telRow.insertAdjacentElement("afterend", fotoWrap);
+    }
+  }
+}
+
+/* =====================
    TABS
 ===================== */
 function setupTabs(){
@@ -122,7 +163,7 @@ function setupTabs(){
 
   $("btnRefresh")?.addEventListener("click", () => location.reload());
 
-  const active = document.querySelector(".admin-tabs .tab.active")?.dataset.tab || "agenda";
+  const active = document.querySelector(".admin-tabs .tab.active")?.dataset.tab || "clientes";
   setActive(active);
 }
 
@@ -240,7 +281,7 @@ async function carregarLembretes(){
     }
 
     if (!rows.length) {
-      tbody.innerHTML = `<tr><td colspan="5" class="mut">Nenhum lembrete pendente 🎉</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" class="mut">Nenhum lembrete pendente.</td></tr>`;
       return;
     }
 
@@ -288,7 +329,6 @@ async function carregarLembretes(){
 
 /* =====================
    CLIENTES
-   OBS REMOVIDO
 ===================== */
 async function carregarClientes(){
   setMsg("", true);
@@ -296,8 +336,11 @@ async function carregarClientes(){
   if (!tbody) return;
   tbody.innerHTML = "";
 
+  const termo = ($("cliBusca")?.value || "").trim();
+  const url = termo ? `/clientes?q=${encodeURIComponent(termo)}` : "/clientes";
+
   try {
-    const res = await fetch("/clientes");
+    const res = await fetch(url);
     const rows = await res.json().catch(() => []);
 
     if (!res.ok) {
@@ -311,10 +354,21 @@ async function carregarClientes(){
     }
 
     rows.forEach(c => {
+      const foto = c.foto_url
+        ? `<img src="${c.foto_url}" alt="${c.nome}" class="cli-foto">`
+        : `<div class="cli-foto cli-foto--empty"></div>`;
+
       const tr = document.createElement("tr");
       tr.className = "rowcard";
       tr.innerHTML = `
-        <td><b>${c.nome}</b></td>
+        <td>
+          <div class="cli-nome-wrap">
+            ${foto}
+            <div>
+              <b>${c.nome}</b>
+            </div>
+          </div>
+        </td>
         <td class="wrapline">${fmtTel(c.telefone)}</td>
         <td>
           <div class="actions">
@@ -345,6 +399,25 @@ async function carregarClientes(){
   } catch (e) {
     setMsg("Erro ao carregar clientes.", false);
   }
+}
+
+/* =====================
+   UPLOAD FOTO CLIENTE
+===================== */
+async function enviarFotoCliente(id){
+  const inputFoto = $("cliFoto");
+  const file = inputFoto?.files?.[0];
+  if (!file) return true;
+
+  const fd = new FormData();
+  fd.append("foto", file);
+
+  const res = await fetch(`/clientes/${id}/foto`, {
+    method: "POST",
+    body: fd
+  });
+
+  return res.ok;
 }
 
 /* =====================
@@ -381,10 +454,24 @@ function setupButtons(){
       return;
     }
 
+    const clienteId = payload.id;
+    const okFoto = await enviarFotoCliente(clienteId);
+
     $("cliNome").value = "";
     $("cliDDD").value = "";
     $("cliTel").value = "";
-    setMsg("Cliente cadastrado!");
+    if ($("cliFoto")) $("cliFoto").value = "";
+
+    if (okFoto) {
+      setMsg("Cliente cadastrado!");
+    } else {
+      setMsg("Cliente cadastrado, mas a foto não foi enviada.", false);
+    }
+
+    carregarClientes();
+  });
+
+  $("cliBusca")?.addEventListener("input", () => {
     carregarClientes();
   });
 }
@@ -393,6 +480,8 @@ function setupButtons(){
    INIT
 ===================== */
 document.addEventListener("DOMContentLoaded", () => {
+  ensureClienteExtras();
+
   const filtro = $("filtroData");
   if (filtro) {
     const hoje = new Date();
@@ -406,5 +495,5 @@ document.addEventListener("DOMContentLoaded", () => {
   setupTabs();
   setupButtons();
 
-  carregarAgenda();
+  carregarClientes();
 });
