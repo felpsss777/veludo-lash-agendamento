@@ -51,27 +51,42 @@ const PIX_CIDADE = "SAO PAULO";
 const PIX_DESCRICAO = "SINAL AGENDAMENTO";
 
 /* ===================== CONFIG EMAIL ===================== */
-const EMAIL_USER = process.env.EMAIL_USER || "";
-const EMAIL_PASS = process.env.EMAIL_PASS || "";
+const EMAIL_USER = String(process.env.EMAIL_USER || "").trim();
+const EMAIL_PASS = String(process.env.EMAIL_PASS || "").trim();
 
 const mailer =
   EMAIL_USER && EMAIL_PASS
     ? nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        requireTLS: true,
         auth: {
           user: EMAIL_USER,
           pass: EMAIL_PASS,
+        },
+        connectionTimeout: 30000,
+        greetingTimeout: 30000,
+        socketTimeout: 45000,
+        tls: {
+          rejectUnauthorized: true,
+          minVersion: "TLSv1.2",
         },
       })
     : null;
 
 if (mailer) {
-  mailer.verify()
+  mailer
+    .verify()
     .then(() => {
       console.log("SMTP pronto para enviar e-mails ✅");
     })
     .catch((err) => {
-      console.error("Erro no SMTP ❌", err?.message || err);
+      console.error("Erro no SMTP ❌");
+      console.error("Mensagem:", err?.message || err);
+      if (err?.code) console.error("Código:", err.code);
+      if (err?.command) console.error("Comando:", err.command);
+      if (err?.response) console.error("Resposta:", err.response);
     });
 } else {
   console.error("Mailer não configurado: EMAIL_USER/EMAIL_PASS ausentes ❌");
@@ -674,7 +689,7 @@ app.post("/agendamentos/:id/pago", async (req, res) => {
     return res.json({ ok: true });
   } catch (e) {
     return res.status(500).json({
-      erro: e.message || "Erro ao marcar pagamento"
+      erro: e.message || "Erro ao marcar pagamento",
     });
   }
 });
@@ -748,10 +763,7 @@ app.post("/admin-agendar", async (req, res) => {
       });
     }
 
-    let cliente = await dbGet(
-      `SELECT id FROM clientes WHERE telefone = $1`,
-      [tel]
-    );
+    let cliente = await dbGet(`SELECT id FROM clientes WHERE telefone = $1`, [tel]);
 
     if (!cliente) {
       cliente = await dbGet(
@@ -764,7 +776,7 @@ app.post("/admin-agendar", async (req, res) => {
           nome,
           tel,
           email ? `E-mail: ${email}` : "Criado manualmente pelo admin",
-          ""
+          "",
         ]
       );
     }
@@ -782,13 +794,13 @@ app.post("/admin-agendar", async (req, res) => {
         data,
         horario,
         servico,
-        email ? `Agendado pelo admin • E-mail: ${email}` : "Agendado pelo admin"
+        email ? `Agendado pelo admin • E-mail: ${email}` : "Agendado pelo admin",
       ]
     );
 
     return res.status(201).json({
       ok: true,
-      id: agendamento.id
+      id: agendamento.id,
     });
   } catch (e) {
     if (String(e.message || "").toLowerCase().includes("unique")) {
@@ -796,7 +808,7 @@ app.post("/admin-agendar", async (req, res) => {
     }
 
     return res.status(500).json({
-      erro: e.message || "Erro ao criar agendamento manual."
+      erro: e.message || "Erro ao criar agendamento manual.",
     });
   }
 });
@@ -914,8 +926,12 @@ app.post("/public-reservar", async (req, res) => {
         emailEnviado = true;
         console.log("✅ E-mail enviado com sucesso:", info?.messageId || "(sem messageId)");
       } catch (mailErr) {
-        emailErro = mailErr.message || "Falha ao enviar e-mail";
-        console.error("❌ Erro ao enviar e-mail da reserva:", emailErro);
+        emailErro = mailErr?.message || "Falha ao enviar e-mail";
+        console.error("❌ Erro ao enviar e-mail da reserva:");
+        console.error("Mensagem:", mailErr?.message || mailErr);
+        if (mailErr?.code) console.error("Código:", mailErr.code);
+        if (mailErr?.command) console.error("Comando:", mailErr.command);
+        if (mailErr?.response) console.error("Resposta:", mailErr.response);
       }
     } else {
       console.log("ℹ️ Reserva criada sem e-mail informado.");
