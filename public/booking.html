@@ -409,8 +409,6 @@
         </div>
         <p class="small" style="margin-top:-4px;">Ex: (11) 999999999</p>
 
-        <input id="email" type="email" placeholder="Seu e-mail">
-
         <h2>Serviço</h2>
         <div id="servicos" class="services"></div>
 
@@ -488,14 +486,6 @@
       if (d.length !== 2) return { ok:false, msg:"DDD inválido (2 dígitos)." };
       if (!(n.length === 8 || n.length === 9)) return { ok:false, msg:"Número inválido (8 ou 9 dígitos)." };
       return { ok:true, tel: d + n, formatado:`(${d}) ${n}` };
-    }
-
-    function validarEmailFront(email){
-      const e = String(email || "").trim();
-      if (!e) return { ok:false, msg:"Preencha o e-mail." };
-      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
-      if (!ok) return { ok:false, msg:"E-mail inválido." };
-      return { ok:true, email:e };
     }
 
     function montarCatalogo(){
@@ -807,10 +797,8 @@
       const nome = document.getElementById("nome").value.trim();
       const ddd = document.getElementById("ddd").value.trim();
       const numero = document.getElementById("telefone").value.trim();
-      const email = document.getElementById("email").value.trim();
 
       const vtel = validarTelefoneFront(ddd, numero);
-      const vemail = validarEmailFront(email);
 
       const servico = document.getElementById("servico").value.trim();
       const data = document.getElementById("data").value;
@@ -821,18 +809,13 @@
 
       resetFluxoPagamento();
 
-      if(!nome || !ddd || !numero || !email || !servico || !data || !horario){
+      if(!nome || !ddd || !numero || !servico || !data || !horario){
         msg.innerHTML = "<span class='badge'>Preencha todos os campos para reservar.</span>";
         return;
       }
 
       if(!vtel.ok){
         msg.innerHTML = `<span class="badge">❌ ${escapeHtml(vtel.msg)}</span>`;
-        return;
-      }
-
-      if(!vemail.ok){
-        msg.innerHTML = `<span class="badge">❌ ${escapeHtml(vemail.msg)}</span>`;
         return;
       }
 
@@ -847,7 +830,6 @@
           body: JSON.stringify({
             nome,
             telefone: telSoDigitos,
-            email,
             servico,
             data,
             horario
@@ -869,7 +851,7 @@
 
         const valor = payload.valor_sinal ?? 40;
 
-        reservaAtual = { nome, servico, data, horario, valor, email };
+        reservaAtual = { nome, servico, data, horario, valor };
 
         abrirPixModal();
 
@@ -888,18 +870,9 @@
           iniciarTimer(payload.expira_em);
         }
 
-        const emailInfoHtml = payload.email_enviado
-          ? `📩 Os dados da reserva foram enviados para <b>${escapeHtml(email)}</b>.`
-          : `⚠️ A reserva foi criada, mas o e-mail não foi enviado${
-              payload.email_erro ? `: <b>${escapeHtml(payload.email_erro)}</b>` : "."
-            }`;
-
         msg.innerHTML = `
           <div class="badge" style="margin-bottom:10px;">
             ✅ Reserva criada. Pague o sinal de ${brl(valor)} para confirmar.
-          </div>
-          <div class="small">
-            ${emailInfoHtml}
           </div>
         `;
 
