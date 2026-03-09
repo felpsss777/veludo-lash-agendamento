@@ -5,7 +5,7 @@ const QRCode = require("qrcode");
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const { dbRun, dbGet, dbAll } = require("./db");
 
 const app = express();
@@ -50,46 +50,19 @@ const PIX_NOME = "VITORIA MELL";
 const PIX_CIDADE = "SAO PAULO";
 const PIX_DESCRICAO = "SINAL AGENDAMENTO";
 
-/* ===================== CONFIG EMAIL ===================== */
-const EMAIL_USER = String(process.env.EMAIL_USER || "").trim();
-const EMAIL_PASS = String(process.env.EMAIL_PASS || "").trim();
+/* ===================== CONFIG EMAIL (RESEND) ===================== */
+const RESEND_API_KEY = String(process.env.RESEND_API_KEY || "").trim();
+const RESEND_FROM_EMAIL = String(
+  process.env.RESEND_FROM_EMAIL || "Veludo Lash <onboarding@resend.dev>"
+).trim();
 
-const mailer =
-  EMAIL_USER && EMAIL_PASS
-    ? nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        requireTLS: true,
-        auth: {
-          user: EMAIL_USER,
-          pass: EMAIL_PASS,
-        },
-        connectionTimeout: 30000,
-        greetingTimeout: 30000,
-        socketTimeout: 45000,
-        tls: {
-          rejectUnauthorized: true,
-          minVersion: "TLSv1.2",
-        },
-      })
-    : null;
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
-if (mailer) {
-  mailer
-    .verify()
-    .then(() => {
-      console.log("SMTP pronto para enviar e-mails ✅");
-    })
-    .catch((err) => {
-      console.error("Erro no SMTP ❌");
-      console.error("Mensagem:", err?.message || err);
-      if (err?.code) console.error("Código:", err.code);
-      if (err?.command) console.error("Comando:", err.command);
-      if (err?.response) console.error("Resposta:", err.response);
-    });
+if (resend) {
+  console.log("Resend configurado ✅");
+  console.log("RESEND_FROM_EMAIL:", RESEND_FROM_EMAIL);
 } else {
-  console.error("Mailer não configurado: EMAIL_USER/EMAIL_PASS ausentes ❌");
+  console.error("Resend não configurado: RESEND_API_KEY ausente ❌");
 }
 
 /* ===================== HELPERS ===================== */
@@ -145,61 +118,86 @@ async function enviarEmailReservaPix({
   pixCode,
   qrCodeDataUrl,
   expiraEm,
+  token,
 }) {
-  if (!mailer) {
-    throw new Error("EMAIL_USER/EMAIL_PASS não configurados");
+  if (!resend) {
+    throw new Error("RESEND_API_KEY não configurada");
   }
 
   const dataFmt = formatarDataBR(data);
   const bufferQr = dataUrlParaBuffer(qrCodeDataUrl);
 
-  const info = await mailer.sendMail({
-    from: `"Veludo Lash" <${EMAIL_USER}>`,
-    to: email,
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;background:#0f0f12;color:#f3f3f3;padding:24px;">
+      <div style="max-width:560px;margin:0 auto;background:#17171c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px;">
+        <h2 style="margin:0 0 12px;color:#d4af37;">Reserva criada 💛</h2>
+
+        <p style="margin:0 0 14px;">Olá, <strong>${escaparHtml(nome)}</strong>!</p>
+
+        <p style="margin:0 0 14px;">
+          Sua pré-reserva foi criada com sucesso. Para confirmar o horário, faça o pagamento do sinal.
+        </p>
+
+        <div style="margin:16px 0;padding:14px;border-radius:14px;background:#101014;border:1px solid rgba(255,255,255,.08);">
+          <p style="margin:0 0 8px;"><strong>Serviço:</strong> ${escaparHtml(servico)}</p>
+          <p style="margin:0 0 8px;"><strong>Data:</strong> ${escaparHtml(dataFmt)}</p>
+          <p style="margin:0 0 8px;"><strong>Horário:</strong> ${escaparHtml(horario)}</p>
+          <p style="margin:0 0 8px;"><strong>Sinal:</strong> R$ ${Number(valor).toFixed(2).replace(".", ",")}</p>
+          <p style="margin:0;"><strong>Código da reserva:</strong> ${escaparHtml(token || "-")}</p>
+        </div>
+
+        <div style="text-align:center;margin:22px 0;">
+          <img src="cid:qrcodepix" alt="QR Code PIX" style="width:240px;max-width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.08);" />
+        </div>
+
+        <p style="margin:0 0 8px;"><strong>PIX copia e cola:</strong></p>
+        <div style="word-break:break-all;background:#0d0d10;border:1px solid rgba(255,255,255,.08);padding:12px;border-radius:12px;font-size:12px;line-height:1.5;">
+          ${escaparHtml(pixCode)}
+        </div>
+
+        <p style="margin:16px 0 0;color:#cfcfcf;font-size:13px;">
+          Expiração da reserva: ${expiraEm ? new Date(expiraEm).toLocaleString("pt-BR") : "em breve"}.
+        </p>
+      </div>
+    </div>
+  `;
+
+  const text = [
+    `Olá, ${nome}!`,
+    ``,
+    `Sua pré-reserva foi criada com sucesso.`,
+    `Serviço: ${servico}`,
+    `Data: ${dataFmt}`,
+    `Horário: ${horario}`,
+    `Sinal: R$ ${Number(valor).toFixed(2).replace(".", ",")}`,
+    `Código da reserva: ${token || "-"}`,
+    ``,
+    `PIX copia e cola:`,
+    pixCode,
+    ``,
+    `Expiração da reserva: ${expiraEm ? new Date(expiraEm).toLocaleString("pt-BR") : "em breve"}`,
+  ].join("\n");
+
+  const { data: resendData, error } = await resend.emails.send({
+    from: RESEND_FROM_EMAIL,
+    to: [email],
     subject: "Seu PIX de reserva • Veludo Lash",
+    html,
+    text,
     attachments: [
       {
         filename: "qrcode-pix.png",
         content: bufferQr,
-        cid: "qrcodepix",
+        contentType: "image/png",
       },
     ],
-    html: `
-      <div style="font-family:Arial,Helvetica,sans-serif;background:#0f0f12;color:#f3f3f3;padding:24px;">
-        <div style="max-width:560px;margin:0 auto;background:#17171c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px;">
-          <h2 style="margin:0 0 12px;color:#d4af37;">Reserva criada 💛</h2>
-
-          <p style="margin:0 0 14px;">Olá, <strong>${escaparHtml(nome)}</strong>!</p>
-
-          <p style="margin:0 0 14px;">
-            Sua pré-reserva foi criada com sucesso. Para confirmar o horário, faça o pagamento do sinal.
-          </p>
-
-          <div style="margin:16px 0;padding:14px;border-radius:14px;background:#101014;border:1px solid rgba(255,255,255,.08);">
-            <p style="margin:0 0 8px;"><strong>Serviço:</strong> ${escaparHtml(servico)}</p>
-            <p style="margin:0 0 8px;"><strong>Data:</strong> ${escaparHtml(dataFmt)}</p>
-            <p style="margin:0 0 8px;"><strong>Horário:</strong> ${escaparHtml(horario)}</p>
-            <p style="margin:0;"><strong>Sinal:</strong> R$ ${Number(valor).toFixed(2).replace(".", ",")}</p>
-          </div>
-
-          <div style="text-align:center;margin:22px 0;">
-            <img src="cid:qrcodepix" alt="QR Code PIX" style="width:240px;max-width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.08);" />
-          </div>
-
-          <p style="margin:0 0 8px;"><strong>PIX copia e cola:</strong></p>
-          <div style="word-break:break-all;background:#0d0d10;border:1px solid rgba(255,255,255,.08);padding:12px;border-radius:12px;font-size:12px;line-height:1.5;">
-            ${escaparHtml(pixCode)}
-          </div>
-
-          <p style="margin:16px 0 0;color:#cfcfcf;font-size:13px;">
-            Expiração da reserva: ${expiraEm ? new Date(expiraEm).toLocaleString("pt-BR") : "em breve"}.
-          </p>
-        </div>
-      </div>
-    `,
   });
 
-  return info;
+  if (error) {
+    throw new Error(error.message || "Falha ao enviar e-mail com Resend");
+  }
+
+  return resendData;
 }
 
 /* ===================== UPLOAD FOTO CLIENTE ===================== */
@@ -909,7 +907,7 @@ app.post("/public-reservar", async (req, res) => {
 
     if (email) {
       try {
-        console.log("🚀 Tentando enviar e-mail da reserva para:", email);
+        console.log("🚀 Tentando enviar e-mail da reserva via Resend para:", email);
 
         const info = await enviarEmailReservaPix({
           email,
@@ -921,17 +919,15 @@ app.post("/public-reservar", async (req, res) => {
           pixCode: payloadPix,
           qrCodeDataUrl,
           expiraEm: r.expira_em,
+          token,
         });
 
         emailEnviado = true;
-        console.log("✅ E-mail enviado com sucesso:", info?.messageId || "(sem messageId)");
+        console.log("✅ E-mail enviado com sucesso via Resend:", info?.id || "(sem id)");
       } catch (mailErr) {
         emailErro = mailErr?.message || "Falha ao enviar e-mail";
         console.error("❌ Erro ao enviar e-mail da reserva:");
         console.error("Mensagem:", mailErr?.message || mailErr);
-        if (mailErr?.code) console.error("Código:", mailErr.code);
-        if (mailErr?.command) console.error("Comando:", mailErr.command);
-        if (mailErr?.response) console.error("Resposta:", mailErr.response);
       }
     } else {
       console.log("ℹ️ Reserva criada sem e-mail informado.");
@@ -1192,6 +1188,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT} ✅`);
   console.log("Conectado ao Supabase/Postgres ✅");
-  console.log("EMAIL_USER configurado:", EMAIL_USER ? "SIM ✅" : "NÃO ❌");
-  console.log("EMAIL_PASS configurado:", EMAIL_PASS ? "SIM ✅" : "NÃO ❌");
+  console.log("RESEND_API_KEY configurada:", RESEND_API_KEY ? "SIM ✅" : "NÃO ❌");
+  console.log("RESEND_FROM_EMAIL:", RESEND_FROM_EMAIL);
 });
