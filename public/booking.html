@@ -469,6 +469,15 @@
       return "R$ " + Number(v).toFixed(2).replace(".", ",");
     }
 
+    function escapeHtml(str = "") {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     function onlyDigits(v=""){
       return String(v).replace(/\D/g, "");
     }
@@ -708,7 +717,7 @@
 
       if (reservaAtual) {
         successText.innerHTML =
-          `Seu horário de <b>${reservaAtual.servico}</b> foi confirmado para <b>${reservaAtual.data}</b> às <b>${reservaAtual.horario}</b>.`;
+          `Seu horário de <b>${escapeHtml(reservaAtual.servico)}</b> foi confirmado para <b>${escapeHtml(reservaAtual.data)}</b> às <b>${escapeHtml(reservaAtual.horario)}</b>.`;
       } else {
         successText.textContent = "Seu horário foi reservado com sucesso.";
       }
@@ -728,7 +737,7 @@
 
       if (reservaAtual){
         document.getElementById("oktext").innerHTML =
-          `✅ <b>${reservaAtual.servico}</b> confirmado para <b>${reservaAtual.data}</b> às <b>${reservaAtual.horario}</b>.<br>` +
+          `✅ <b>${escapeHtml(reservaAtual.servico)}</b> confirmado para <b>${escapeHtml(reservaAtual.data)}</b> às <b>${escapeHtml(reservaAtual.horario)}</b>.<br>` +
           `Sinal: <b>${brl(reservaAtual.valor)}</b>.`;
       }
 
@@ -784,7 +793,7 @@
 
         if (!res.ok) {
           document.getElementById("msg").innerHTML =
-            `<span class="badge">❌ ${payload.erro || "Não foi possível confirmar o pagamento."}</span>`;
+            `<span class="badge">❌ ${escapeHtml(payload.erro || "Não foi possível confirmar o pagamento.")}</span>`;
           return;
         }
 
@@ -818,12 +827,12 @@
       }
 
       if(!vtel.ok){
-        msg.innerHTML = `<span class="badge">❌ ${vtel.msg}</span>`;
+        msg.innerHTML = `<span class="badge">❌ ${escapeHtml(vtel.msg)}</span>`;
         return;
       }
 
       if(!vemail.ok){
-        msg.innerHTML = `<span class="badge">❌ ${vemail.msg}</span>`;
+        msg.innerHTML = `<span class="badge">❌ ${escapeHtml(vemail.msg)}</span>`;
         return;
       }
 
@@ -848,13 +857,13 @@
         const payload = await res.json().catch(()=> ({}));
 
         if(res.status === 409){
-          msg.innerHTML = `<span class="badge">❌ ${payload.erro || "Horário indisponível."}</span>`;
+          msg.innerHTML = `<span class="badge">❌ ${escapeHtml(payload.erro || "Horário indisponível.")}</span>`;
           await carregarHorarios();
           return;
         }
 
         if(!res.ok){
-          msg.innerHTML = `<span class="badge">❌ ${payload.erro || "Não foi possível reservar."}</span>`;
+          msg.innerHTML = `<span class="badge">❌ ${escapeHtml(payload.erro || "Não foi possível reservar.")}</span>`;
           return;
         }
 
@@ -879,12 +888,18 @@
           iniciarTimer(payload.expira_em);
         }
 
+        const emailInfoHtml = payload.email_enviado
+          ? `📩 Os dados da reserva foram enviados para <b>${escapeHtml(email)}</b>.`
+          : `⚠️ A reserva foi criada, mas o e-mail não foi enviado${
+              payload.email_erro ? `: <b>${escapeHtml(payload.email_erro)}</b>` : "."
+            }`;
+
         msg.innerHTML = `
           <div class="badge" style="margin-bottom:10px;">
             ✅ Reserva criada. Pague o sinal de ${brl(valor)} para confirmar.
           </div>
           <div class="small">
-            O comprovante e os dados da reserva podem ser enviados para o e-mail informado assim que o backend estiver com envio de e-mail ativado.
+            ${emailInfoHtml}
           </div>
         `;
 
@@ -894,6 +909,8 @@
 
         await carregarHorarios();
         fecharDropdown();
+      } catch (e) {
+        msg.innerHTML = `<span class="badge">❌ Erro de conexão ao criar a reserva.</span>`;
       } finally {
         setLoadingReservar(false);
       }

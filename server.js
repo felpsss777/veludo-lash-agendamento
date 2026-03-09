@@ -65,6 +65,18 @@ const mailer =
       })
     : null;
 
+if (mailer) {
+  mailer.verify()
+    .then(() => {
+      console.log("SMTP pronto para enviar e-mails ✅");
+    })
+    .catch((err) => {
+      console.error("Erro no SMTP ❌", err?.message || err);
+    });
+} else {
+  console.error("Mailer não configurado: EMAIL_USER/EMAIL_PASS ausentes ❌");
+}
+
 /* ===================== HELPERS ===================== */
 function tokenSeguro() {
   return crypto.randomBytes(18).toString("hex");
@@ -99,6 +111,15 @@ function dataUrlParaBuffer(dataUrl = "") {
   return Buffer.from(base64, "base64");
 }
 
+function escaparHtml(str = "") {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 async function enviarEmailReservaPix({
   email,
   nome,
@@ -117,7 +138,7 @@ async function enviarEmailReservaPix({
   const dataFmt = formatarDataBR(data);
   const bufferQr = dataUrlParaBuffer(qrCodeDataUrl);
 
-  await mailer.sendMail({
+  const info = await mailer.sendMail({
     from: `"Veludo Lash" <${EMAIL_USER}>`,
     to: email,
     subject: "Seu PIX de reserva • Veludo Lash",
@@ -133,16 +154,16 @@ async function enviarEmailReservaPix({
         <div style="max-width:560px;margin:0 auto;background:#17171c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px;">
           <h2 style="margin:0 0 12px;color:#d4af37;">Reserva criada 💛</h2>
 
-          <p style="margin:0 0 14px;">Olá, <strong>${nome}</strong>!</p>
+          <p style="margin:0 0 14px;">Olá, <strong>${escaparHtml(nome)}</strong>!</p>
 
           <p style="margin:0 0 14px;">
             Sua pré-reserva foi criada com sucesso. Para confirmar o horário, faça o pagamento do sinal.
           </p>
 
           <div style="margin:16px 0;padding:14px;border-radius:14px;background:#101014;border:1px solid rgba(255,255,255,.08);">
-            <p style="margin:0 0 8px;"><strong>Serviço:</strong> ${servico}</p>
-            <p style="margin:0 0 8px;"><strong>Data:</strong> ${dataFmt}</p>
-            <p style="margin:0 0 8px;"><strong>Horário:</strong> ${horario}</p>
+            <p style="margin:0 0 8px;"><strong>Serviço:</strong> ${escaparHtml(servico)}</p>
+            <p style="margin:0 0 8px;"><strong>Data:</strong> ${escaparHtml(dataFmt)}</p>
+            <p style="margin:0 0 8px;"><strong>Horário:</strong> ${escaparHtml(horario)}</p>
             <p style="margin:0;"><strong>Sinal:</strong> R$ ${Number(valor).toFixed(2).replace(".", ",")}</p>
           </div>
 
@@ -152,7 +173,7 @@ async function enviarEmailReservaPix({
 
           <p style="margin:0 0 8px;"><strong>PIX copia e cola:</strong></p>
           <div style="word-break:break-all;background:#0d0d10;border:1px solid rgba(255,255,255,.08);padding:12px;border-radius:12px;font-size:12px;line-height:1.5;">
-            ${pixCode}
+            ${escaparHtml(pixCode)}
           </div>
 
           <p style="margin:16px 0 0;color:#cfcfcf;font-size:13px;">
@@ -162,6 +183,8 @@ async function enviarEmailReservaPix({
       </div>
     `,
   });
+
+  return info;
 }
 
 /* ===================== UPLOAD FOTO CLIENTE ===================== */
@@ -790,6 +813,14 @@ app.post("/public-reservar", async (req, res) => {
     data = String(data || "").trim();
     horario = String(horario || "").trim();
 
+    console.log("📌 Iniciando criação de reserva pública...");
+    console.log("👤 Nome:", nome);
+    console.log("📱 Telefone:", telefone);
+    console.log("📧 E-mail:", email || "(não informado)");
+    console.log("💼 Serviço:", servico);
+    console.log("📅 Data:", data);
+    console.log("🕒 Horário:", horario);
+
     if (!nome || !telefone || !servico || !data || !horario) {
       return res.status(400).json({ erro: "Preencha todos os campos" });
     }
@@ -857,6 +888,8 @@ app.post("/public-reservar", async (req, res) => {
       descricao: PIX_DESCRICAO,
     });
 
+    console.log("🔗 PIX gerado com sucesso para a reserva:", token);
+
     const qrCodeDataUrl = await gerarQRCodeDataURL(payloadPix);
 
     let emailEnviado = false;
@@ -864,7 +897,9 @@ app.post("/public-reservar", async (req, res) => {
 
     if (email) {
       try {
-        await enviarEmailReservaPix({
+        console.log("🚀 Tentando enviar e-mail da reserva para:", email);
+
+        const info = await enviarEmailReservaPix({
           email,
           nome,
           servico,
@@ -875,11 +910,15 @@ app.post("/public-reservar", async (req, res) => {
           qrCodeDataUrl,
           expiraEm: r.expira_em,
         });
+
         emailEnviado = true;
+        console.log("✅ E-mail enviado com sucesso:", info?.messageId || "(sem messageId)");
       } catch (mailErr) {
         emailErro = mailErr.message || "Falha ao enviar e-mail";
-        console.error("Erro ao enviar e-mail da reserva:", emailErro);
+        console.error("❌ Erro ao enviar e-mail da reserva:", emailErro);
       }
+    } else {
+      console.log("ℹ️ Reserva criada sem e-mail informado.");
     }
 
     return res.status(201).json({
@@ -895,6 +934,8 @@ app.post("/public-reservar", async (req, res) => {
       msg: `Reserva criada. Pague o sinal de R$ ${SINAL_VALOR.toFixed(2).replace(".", ",")} em até ${RESERVA_MINUTOS} min para confirmar.`,
     });
   } catch (e) {
+    console.error("❌ Falha ao criar reserva pública:", e?.message || e);
+
     if (String(e.message || "").toLowerCase().includes("unique")) {
       return res.status(409).json({ erro: "Horário em pré-reserva. Tente outro." });
     }
@@ -1135,4 +1176,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT} ✅`);
   console.log("Conectado ao Supabase/Postgres ✅");
+  console.log("EMAIL_USER configurado:", EMAIL_USER ? "SIM ✅" : "NÃO ❌");
+  console.log("EMAIL_PASS configurado:", EMAIL_PASS ? "SIM ✅" : "NÃO ❌");
 });
