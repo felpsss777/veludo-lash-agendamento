@@ -10,6 +10,45 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_dark.css">
 
   <style>
+    .booking-logo-center{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      width:100%;
+      margin-bottom: 8px;
+      text-align:center;
+    }
+
+    .booking-logo-center .logo{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      width:100%;
+    }
+
+    .booking-logo-center .logo-img{
+      display:block;
+      margin:0 auto;
+    }
+
+    .booking-tel-row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:nowrap;
+    }
+
+    .booking-tel-row #ddd{
+      flex: 0 0 80px;
+      max-width: 80px;
+      text-align:center;
+    }
+
+    .booking-tel-row #telefone{
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
     .pix-modal{
       position: fixed;
       inset: 0;
@@ -148,9 +187,6 @@
       color: rgba(255,255,255,0.92);
     }
 
-    /* =========================
-       ANIMAÇÃO PAGAMENTO OK
-    ========================= */
     .success-overlay{
       position: fixed;
       inset: 0;
@@ -275,6 +311,15 @@
     }
 
     @media (max-width: 520px){
+      .booking-tel-row{
+        flex-wrap:nowrap;
+      }
+
+      .booking-tel-row #ddd{
+        flex: 0 0 72px;
+        max-width: 72px;
+      }
+
       .paygrid{ grid-template-columns: 1fr; }
       .qr{ width: 220px; height:220px; margin: 0 auto; }
       .timer{ text-align:left; }
@@ -325,7 +370,6 @@
     </div>
   </div>
 
-  <!-- ANIMAÇÃO DE SUCESSO -->
   <div id="successOverlay" class="success-overlay" aria-hidden="true">
     <div class="success-card" id="successCard">
       <div class="success-glow"></div>
@@ -346,7 +390,7 @@
     <div class="grid" style="grid-template-columns: 1fr;">
       <div class="card glass">
 
-        <div class="brand brand-card">
+        <div class="brand brand-card booking-logo-center">
           <div class="logo-wrap">
             <div class="logo">
               <img src="img/veludo-lash-logo.png" alt="Veludo Lash" class="logo-img">
@@ -359,11 +403,13 @@
 
         <input id="nome" placeholder="Seu nome">
 
-        <div class="row">
+        <div class="row booking-tel-row">
           <input id="ddd" placeholder="DDD" inputmode="numeric" maxlength="2">
           <input id="telefone" placeholder="WhatsApp" inputmode="numeric" maxlength="9">
         </div>
         <p class="small" style="margin-top:-4px;">Ex: (11) 999999999</p>
+
+        <input id="email" type="email" placeholder="Seu e-mail">
 
         <h2>Serviço</h2>
         <div id="servicos" class="services"></div>
@@ -433,6 +479,14 @@
       if (d.length !== 2) return { ok:false, msg:"DDD inválido (2 dígitos)." };
       if (!(n.length === 8 || n.length === 9)) return { ok:false, msg:"Número inválido (8 ou 9 dígitos)." };
       return { ok:true, tel: d + n, formatado:`(${d}) ${n}` };
+    }
+
+    function validarEmailFront(email){
+      const e = String(email || "").trim();
+      if (!e) return { ok:false, msg:"Preencha o e-mail." };
+      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+      if (!ok) return { ok:false, msg:"E-mail inválido." };
+      return { ok:true, email:e };
     }
 
     function montarCatalogo(){
@@ -744,7 +798,10 @@
       const nome = document.getElementById("nome").value.trim();
       const ddd = document.getElementById("ddd").value.trim();
       const numero = document.getElementById("telefone").value.trim();
+      const email = document.getElementById("email").value.trim();
+
       const vtel = validarTelefoneFront(ddd, numero);
+      const vemail = validarEmailFront(email);
 
       const servico = document.getElementById("servico").value.trim();
       const data = document.getElementById("data").value;
@@ -755,13 +812,18 @@
 
       resetFluxoPagamento();
 
-      if(!nome || !ddd || !numero || !servico || !data || !horario){
+      if(!nome || !ddd || !numero || !email || !servico || !data || !horario){
         msg.innerHTML = "<span class='badge'>Preencha todos os campos para reservar.</span>";
         return;
       }
 
       if(!vtel.ok){
         msg.innerHTML = `<span class="badge">❌ ${vtel.msg}</span>`;
+        return;
+      }
+
+      if(!vemail.ok){
+        msg.innerHTML = `<span class="badge">❌ ${vemail.msg}</span>`;
         return;
       }
 
@@ -773,7 +835,14 @@
         const res = await fetch("/public-reservar", {
           method: "POST",
           headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({ nome, telefone: telSoDigitos, servico, data, horario })
+          body: JSON.stringify({
+            nome,
+            telefone: telSoDigitos,
+            email,
+            servico,
+            data,
+            horario
+          })
         });
 
         const payload = await res.json().catch(()=> ({}));
@@ -791,7 +860,7 @@
 
         const valor = payload.valor_sinal ?? 40;
 
-        reservaAtual = { nome, servico, data, horario, valor };
+        reservaAtual = { nome, servico, data, horario, valor, email };
 
         abrirPixModal();
 
@@ -815,7 +884,7 @@
             ✅ Reserva criada. Pague o sinal de ${brl(valor)} para confirmar.
           </div>
           <div class="small">
-            Após pagar, clique em <b>Já paguei</b> para concluir automaticamente seu agendamento.
+            O comprovante e os dados da reserva podem ser enviados para o e-mail informado assim que o backend estiver com envio de e-mail ativado.
           </div>
         `;
 

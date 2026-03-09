@@ -5,6 +5,7 @@ const QRCode = require("qrcode");
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
+const nodemailer = require("nodemailer");
 const { dbRun, dbGet, dbAll } = require("./db");
 
 const app = express();
@@ -12,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-/* ===================== ROTAS PÚBLICAS (SÓ BOOKING + ADMIN) ===================== */
+/* ===================== ROTAS PÚBLICAS ===================== */
 app.get("/", (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "booking.html"));
 });
@@ -38,16 +39,31 @@ app.get("/health", async (req, res) => {
   }
 });
 
-/* ===================== CONFIG SINAL (COBRANÇA) ===================== */
+/* ===================== CONFIG SINAL ===================== */
 const REQUIRE_SINAL_NO_PUBLICO = true;
 const SINAL_VALOR = 40.0;
 const RESERVA_MINUTOS = 15;
 
-/* ===================== CONFIG PIX (QR CODE) ===================== */
+/* ===================== CONFIG PIX ===================== */
 const PIX_CHAVE = "vmell.sj@gmail.com";
 const PIX_NOME = "VITORIA MELL";
 const PIX_CIDADE = "SAO PAULO";
 const PIX_DESCRICAO = "SINAL AGENDAMENTO";
+
+/* ===================== CONFIG EMAIL ===================== */
+const EMAIL_USER = process.env.EMAIL_USER || "";
+const EMAIL_PASS = process.env.EMAIL_PASS || "";
+
+const mailer =
+  EMAIL_USER && EMAIL_PASS
+    ? nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: EMAIL_USER,
+          pass: EMAIL_PASS,
+        },
+      })
+    : null;
 
 /* ===================== HELPERS ===================== */
 function tokenSeguro() {
@@ -64,6 +80,88 @@ function validarTelefoneBR(telefone) {
   const ddd = t.slice(0, 2);
   if (ddd === "00") return { ok: false, tel: t };
   return { ok: true, tel: t };
+}
+
+function validarEmail(email = "") {
+  const v = String(email || "").trim();
+  if (!v) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
+function formatarDataBR(data = "") {
+  if (!data || !data.includes("-")) return data || "-";
+  const [ano, mes, dia] = data.split("-");
+  return `${dia}/${mes}/${ano}`;
+}
+
+function dataUrlParaBuffer(dataUrl = "") {
+  const base64 = String(dataUrl).split(",")[1] || "";
+  return Buffer.from(base64, "base64");
+}
+
+async function enviarEmailReservaPix({
+  email,
+  nome,
+  servico,
+  data,
+  horario,
+  valor,
+  pixCode,
+  qrCodeDataUrl,
+  expiraEm,
+}) {
+  if (!mailer) {
+    throw new Error("EMAIL_USER/EMAIL_PASS não configurados");
+  }
+
+  const dataFmt = formatarDataBR(data);
+  const bufferQr = dataUrlParaBuffer(qrCodeDataUrl);
+
+  await mailer.sendMail({
+    from: `"Veludo Lash" <${EMAIL_USER}>`,
+    to: email,
+    subject: "Seu PIX de reserva • Veludo Lash",
+    attachments: [
+      {
+        filename: "qrcode-pix.png",
+        content: bufferQr,
+        cid: "qrcodepix",
+      },
+    ],
+    html: `
+      <div style="font-family:Arial,Helvetica,sans-serif;background:#0f0f12;color:#f3f3f3;padding:24px;">
+        <div style="max-width:560px;margin:0 auto;background:#17171c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px;">
+          <h2 style="margin:0 0 12px;color:#d4af37;">Reserva criada 💛</h2>
+
+          <p style="margin:0 0 14px;">Olá, <strong>${nome}</strong>!</p>
+
+          <p style="margin:0 0 14px;">
+            Sua pré-reserva foi criada com sucesso. Para confirmar o horário, faça o pagamento do sinal.
+          </p>
+
+          <div style="margin:16px 0;padding:14px;border-radius:14px;background:#101014;border:1px solid rgba(255,255,255,.08);">
+            <p style="margin:0 0 8px;"><strong>Serviço:</strong> ${servico}</p>
+            <p style="margin:0 0 8px;"><strong>Data:</strong> ${dataFmt}</p>
+            <p style="margin:0 0 8px;"><strong>Horário:</strong> ${horario}</p>
+            <p style="margin:0;"><strong>Sinal:</strong> R$ ${Number(valor).toFixed(2).replace(".", ",")}</p>
+          </div>
+
+          <div style="text-align:center;margin:22px 0;">
+            <img src="cid:qrcodepix" alt="QR Code PIX" style="width:240px;max-width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.08);" />
+          </div>
+
+          <p style="margin:0 0 8px;"><strong>PIX copia e cola:</strong></p>
+          <div style="word-break:break-all;background:#0d0d10;border:1px solid rgba(255,255,255,.08);padding:12px;border-radius:12px;font-size:12px;line-height:1.5;">
+            ${pixCode}
+          </div>
+
+          <p style="margin:16px 0 0;color:#cfcfcf;font-size:13px;">
+            Expiração da reserva: ${expiraEm ? new Date(expiraEm).toLocaleString("pt-BR") : "em breve"}.
+          </p>
+        </div>
+      </div>
+    `,
+  });
 }
 
 /* ===================== UPLOAD FOTO CLIENTE ===================== */
@@ -106,7 +204,7 @@ async function expirarReservas() {
 setInterval(() => expirarReservas().catch(() => {}), 60 * 1000);
 expirarReservas().catch(() => {});
 
-/* ===================== PIX: GERAR "COPIA E COLA" + QR ===================== */
+/* ===================== PIX HELPERS ===================== */
 function limparTextoPix(str, maxLen) {
   const s = String(str || "")
     .normalize("NFD")
@@ -151,7 +249,6 @@ function gerarPixCopiaEColaFixo({ chave, nome, cidade, valor, descricao }) {
 
   const txid = tlv("05", "***");
   const add = tlv("62", txid);
-
   const amount = Number(valor || 0).toFixed(2);
 
   const payloadSemCRC =
@@ -180,7 +277,7 @@ async function gerarQRCodeDataURL(payload) {
   });
 }
 
-/* ===================== ENDPOINT PIX FIXO (R$40) ===================== */
+/* ===================== ENDPOINT PIX FIXO ===================== */
 app.get("/pix-sinal", async (req, res) => {
   try {
     const payload = gerarPixCopiaEColaFixo({
@@ -204,7 +301,7 @@ app.get("/pix-sinal", async (req, res) => {
   }
 });
 
-/* ===================== SSE: NOTIFICAR CLIENTE AO CONFIRMAR ===================== */
+/* ===================== SSE ===================== */
 const sseClientsByToken = new Map();
 
 function sseSend(res, eventName, dataObj) {
@@ -497,6 +594,7 @@ app.get("/agendamentos", async (req, res) => {
         a.servico,
         a.confirmado,
         a.observacao,
+        a.reserva_id,
         c.nome AS cliente_nome,
         c.telefone AS cliente_telefone,
         c.foto_url AS cliente_foto_url
@@ -520,6 +618,44 @@ app.post("/agendamentos/:id/confirmar", async (req, res) => {
   }
 });
 
+app.post("/agendamentos/:id/pago", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const ag = await dbGet(
+      `SELECT id, observacao FROM agendamentos WHERE id = $1`,
+      [id]
+    );
+
+    if (!ag) {
+      return res.status(404).json({ erro: "Agendamento não encontrado" });
+    }
+
+    const observacaoAtual = String(ag.observacao || "");
+    const complemento = " • PAGAMENTO MARCADO MANUALMENTE";
+
+    const novaObservacao = observacaoAtual.includes("PAGAMENTO MARCADO MANUALMENTE")
+      ? observacaoAtual
+      : `${observacaoAtual}${complemento}`.trim();
+
+    await dbRun(
+      `
+      UPDATE agendamentos
+         SET observacao = $1,
+             confirmado = 1
+       WHERE id = $2
+      `,
+      [novaObservacao, id]
+    );
+
+    return res.json({ ok: true });
+  } catch (e) {
+    return res.status(500).json({
+      erro: e.message || "Erro ao marcar pagamento"
+    });
+  }
+});
+
 app.delete("/agendamentos/:id", async (req, res) => {
   try {
     const r = await dbRun(`DELETE FROM agendamentos WHERE id = $1`, [req.params.id]);
@@ -530,17 +666,136 @@ app.delete("/agendamentos/:id", async (req, res) => {
   }
 });
 
-/* ===================== PÚBLICO: RESERVAR COM SINAL ===================== */
-app.post("/public-reservar", async (req, res) => {
+/* ===================== ADMIN: AGENDAR CLIENTE ===================== */
+app.post("/admin-agendar", async (req, res) => {
   try {
-    let { nome, telefone, servico, data, horario } = req.body;
+    let { nome, telefone, email, servico, data, horario } = req.body;
 
     nome = String(nome || "").trim();
     telefone = String(telefone || "").trim();
+    email = String(email || "").trim();
     servico = String(servico || "").trim();
+    data = String(data || "").trim();
+    horario = String(horario || "").trim();
+
+    if (!nome || !telefone || !servico || !data || !horario) {
+      return res.status(400).json({ erro: "Preencha todos os campos obrigatórios." });
+    }
+
+    const val = validarTelefoneBR(telefone);
+    if (!val.ok) {
+      return res.status(400).json({
+        erro: "Telefone inválido. Use DDD + número (somente números).",
+      });
+    }
+
+    const tel = val.tel;
+
+    await expirarReservas();
+
+    const horarioOcupado = await dbGet(
+      `
+      SELECT id
+        FROM agendamentos
+       WHERE data = $1
+         AND horario = $2
+      `,
+      [data, horario]
+    );
+
+    if (horarioOcupado) {
+      return res.status(409).json({ erro: "Esse horário já está ocupado." });
+    }
+
+    const reservaPendente = await dbGet(
+      `
+      SELECT id
+        FROM reservas
+       WHERE data = $1
+         AND horario = $2
+         AND lower(status) = 'pendente'
+         AND expira_em > NOW()
+      `,
+      [data, horario]
+    );
+
+    if (reservaPendente) {
+      return res.status(409).json({
+        erro: "Esse horário está em pré-reserva aguardando pagamento.",
+      });
+    }
+
+    let cliente = await dbGet(
+      `SELECT id FROM clientes WHERE telefone = $1`,
+      [tel]
+    );
+
+    if (!cliente) {
+      cliente = await dbGet(
+        `
+        INSERT INTO clientes (nome, telefone, observacao, foto_url)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
+        `,
+        [
+          nome,
+          tel,
+          email ? `E-mail: ${email}` : "Criado manualmente pelo admin",
+          ""
+        ]
+      );
+    }
+
+    const agendamento = await dbGet(
+      `
+      INSERT INTO agendamentos (
+        cliente_id, data, horario, servico, observacao, confirmado
+      )
+      VALUES ($1, $2, $3, $4, $5, 1)
+      RETURNING id
+      `,
+      [
+        cliente.id,
+        data,
+        horario,
+        servico,
+        email ? `Agendado pelo admin • E-mail: ${email}` : "Agendado pelo admin"
+      ]
+    );
+
+    return res.status(201).json({
+      ok: true,
+      id: agendamento.id
+    });
+  } catch (e) {
+    if (String(e.message || "").toLowerCase().includes("unique")) {
+      return res.status(409).json({ erro: "Horário já ocupado." });
+    }
+
+    return res.status(500).json({
+      erro: e.message || "Erro ao criar agendamento manual."
+    });
+  }
+});
+
+/* ===================== PÚBLICO: RESERVAR COM SINAL ===================== */
+app.post("/public-reservar", async (req, res) => {
+  try {
+    let { nome, telefone, email, servico, data, horario } = req.body;
+
+    nome = String(nome || "").trim();
+    telefone = String(telefone || "").trim();
+    email = String(email || "").trim();
+    servico = String(servico || "").trim();
+    data = String(data || "").trim();
+    horario = String(horario || "").trim();
 
     if (!nome || !telefone || !servico || !data || !horario) {
       return res.status(400).json({ erro: "Preencha todos os campos" });
+    }
+
+    if (email && !validarEmail(email)) {
+      return res.status(400).json({ erro: "E-mail inválido." });
     }
 
     const val = validarTelefoneBR(telefone);
@@ -602,7 +857,30 @@ app.post("/public-reservar", async (req, res) => {
       descricao: PIX_DESCRICAO,
     });
 
-    const qrDataUrl = await gerarQRCodeDataURL(payloadPix);
+    const qrCodeDataUrl = await gerarQRCodeDataURL(payloadPix);
+
+    let emailEnviado = false;
+    let emailErro = "";
+
+    if (email) {
+      try {
+        await enviarEmailReservaPix({
+          email,
+          nome,
+          servico,
+          data,
+          horario,
+          valor: SINAL_VALOR,
+          pixCode: payloadPix,
+          qrCodeDataUrl,
+          expiraEm: r.expira_em,
+        });
+        emailEnviado = true;
+      } catch (mailErr) {
+        emailErro = mailErr.message || "Falha ao enviar e-mail";
+        console.error("Erro ao enviar e-mail da reserva:", emailErro);
+      }
+    }
 
     return res.status(201).json({
       ok: true,
@@ -611,7 +889,9 @@ app.post("/public-reservar", async (req, res) => {
       valor_sinal: SINAL_VALOR,
       expira_em: r.expira_em,
       pix_copia_e_cola: payloadPix,
-      qr_code_data_url: qrDataUrl,
+      qr_code_data_url: qrCodeDataUrl,
+      email_enviado: emailEnviado,
+      email_erro: emailErro || null,
       msg: `Reserva criada. Pague o sinal de R$ ${SINAL_VALOR.toFixed(2).replace(".", ",")} em até ${RESERVA_MINUTOS} min para confirmar.`,
     });
   } catch (e) {
@@ -637,7 +917,7 @@ app.get("/reservas/:token", async (req, res) => {
   }
 });
 
-/* ===================== CONFIRMAR PAGAMENTO (MANUAL) ===================== */
+/* ===================== CONFIRMAR PAGAMENTO MANUAL ===================== */
 app.post("/reservas/:token/confirmar-pagamento", async (req, res) => {
   const { token } = req.params;
 
@@ -725,7 +1005,7 @@ app.post("/reservas/:token/confirmar-pagamento", async (req, res) => {
   }
 });
 
-/* ===================== LINK PÚBLICO (LEGADO) ===================== */
+/* ===================== LINK PÚBLICO LEGADO ===================== */
 app.post("/public-agendar", (req, res) => {
   if (REQUIRE_SINAL_NO_PUBLICO) {
     return res.status(410).json({

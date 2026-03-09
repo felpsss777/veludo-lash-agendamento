@@ -6,23 +6,18 @@
   <title>Admin • Veludo Lash</title>
 
   <link rel="stylesheet" href="style.css" />
-
-  <!-- mesmo calendário do booking -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_dark.css">
 </head>
 
 <body class="admin-page loaded">
-  <!-- FUNDO -->
   <div class="ig-bg" aria-hidden="true">
     <div class="ig-bg__img" id="igBgImg"></div>
     <div class="ig-bg__overlay"></div>
   </div>
 
-  <!-- HEADER -->
   <header class="admin-header">
     <nav class="admin-tabs" aria-label="Navegação do Admin">
-      <!-- FINANCEIRO -->
       <button
         class="tab active"
         type="button"
@@ -40,7 +35,23 @@
         <span class="tab-txt">Financeiro</span>
       </button>
 
-      <!-- AGENDA -->
+      <button
+        class="tab"
+        type="button"
+        data-tab="agendar"
+        aria-controls="pane-agendar"
+        aria-selected="false"
+      >
+        <span class="tab-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </span>
+        <span class="tab-txt">Agendar</span>
+      </button>
+
       <button
         class="tab"
         type="button"
@@ -58,7 +69,6 @@
         <span class="tab-txt">Agenda</span>
       </button>
 
-      <!-- LEMBRETES -->
       <button
         class="tab"
         type="button"
@@ -77,12 +87,10 @@
     </nav>
   </header>
 
-  <!-- CONTEÚDO -->
   <main class="admin-shell">
     <div class="admin-card">
       <div id="msg" class="small"></div>
 
-      <!-- ================== FINANCEIRO ================== -->
       <section id="pane-financeiro" class="pane active" data-page="financeiro">
         <h2>Financeiro</h2>
         <p class="mut">
@@ -118,7 +126,55 @@
         <div id="financeiroLista" class="financeiro-lista"></div>
       </section>
 
-      <!-- ================== AGENDA ================== -->
+      <section id="pane-agendar" class="pane" data-page="agendar">
+        <h2>Agendar cliente</h2>
+        <p class="mut">
+          Crie agendamentos manualmente sem duplicar horário com o booking.
+        </p>
+
+        <div class="row">
+          <input id="novoNome" placeholder="Nome da cliente" />
+        </div>
+
+        <div class="row agendar-tel-row">
+          <input id="novoDDD" placeholder="DDD" inputmode="numeric" maxlength="2" />
+          <input id="novoTel" placeholder="WhatsApp" inputmode="numeric" maxlength="9" />
+        </div>
+
+        <div class="row">
+          <input id="novoEmail" type="email" placeholder="E-mail da cliente" />
+        </div>
+
+        <div class="row">
+          <select id="novoServico">
+            <option value="">Selecione o serviço</option>
+            <option value="Mega Fox">Mega Fox</option>
+            <option value="Brown Fox">Brown Fox</option>
+            <option value="Fox eyes tradicional">Fox eyes tradicional</option>
+            <option value="Mega volume brasileiro">Mega volume brasileiro</option>
+            <option value="Volume Brasil">Volume Brasil</option>
+            <option value="Fio a fio">Fio a fio</option>
+          </select>
+        </div>
+
+        <div class="row agendar-data-row">
+          <input id="novoData" type="text" placeholder="Selecione a data" readonly />
+          <select id="novoHorario">
+            <option value="">Selecione o horário</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <button class="btn-glass gold" type="button" id="btnCriarAgendamento">
+            Criar agendamento
+          </button>
+        </div>
+
+        <p class="small mut">
+          Os horários exibidos aqui seguem a mesma disponibilidade do booking.
+        </p>
+      </section>
+
       <section id="pane-agenda" class="pane" data-page="agenda">
         <h2>Agenda</h2>
 
@@ -130,7 +186,6 @@
         <div id="agendaLista" class="agenda-lista"></div>
       </section>
 
-      <!-- ================== LEMBRETES ================== -->
       <section id="pane-lembretes" class="pane" data-page="lembretes">
         <h2>Lembretes</h2>
         <p class="mut">
@@ -159,13 +214,10 @@
     </div>
   </main>
 
-  <!-- mesmo calendário do booking -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
-
   <script src="admin.js"></script>
 
-  <!-- parallax do fundo -->
   <script>
     (function () {
       const el = document.getElementById("igBgImg");

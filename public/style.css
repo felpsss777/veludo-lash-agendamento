@@ -76,7 +76,8 @@ a{ color: inherit; }
 .ig-bg__overlay{
   position: absolute;
   inset: 0;
-  background: transparent;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.24), rgba(0,0,0,0.36));
 }
 
 /* ================== BASE ================== */
@@ -163,6 +164,8 @@ input, select{
   font-size: 14px;
   outline:none;
   color: rgba(255,255,255,0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 input::placeholder,
@@ -315,6 +318,8 @@ select:focus{
   border-radius: 18px;
   padding: 18px;
   box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .card h2{
@@ -444,6 +449,8 @@ select:focus{
   transform: translateY(-6px) scale(.98);
   transition: all .18s ease;
   pointer-events:none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 #horarios_grid:not(.hidden){
@@ -563,6 +570,8 @@ body.admin-page{
   border: 1px solid rgba(255,255,255,0.10);
   border-radius: 18px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .admin-tabs .tab{
@@ -613,9 +622,11 @@ body.admin-page{
   margin: 0 auto;
   padding: 14px;
   border-radius: 18px;
-  background: rgba(15,15,18,0.34) !important;
+  background: rgba(15,15,18,0.48) !important;
   border: 1px solid rgba(255,255,255,0.10);
   box-shadow: 0 12px 30px rgba(0,0,0,0.28);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .admin-card h2{
@@ -662,6 +673,36 @@ body.admin-page{
   border-radius: 14px;
 }
 
+.agendar-tel-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:nowrap !important;
+}
+
+.agendar-tel-row #novoDDD{
+  flex: 0 0 78px;
+  max-width: 78px;
+  text-align:center;
+}
+
+.agendar-tel-row #novoTel{
+  flex: 1 1 auto;
+}
+
+.agendar-data-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:nowrap !important;
+}
+
+.agendar-data-row #novoData{
+  flex: 1 1 auto;
+}
+
+.agendar-data-row #novoHorario{
+  flex: 1 1 auto;
+}
+
 /* ================== TABELA BASE ================== */
 
 .table-wrap{
@@ -692,21 +733,16 @@ body.admin-page{
   align-items: flex-start;
   gap: 10px;
   width: 100%;
-  background: rgba(15,15,18,0.32);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: transparent;
+  border: none;
   border-radius: 14px;
-  padding: 10px 12px;
+  padding: 0;
   white-space: normal;
   overflow: hidden;
 }
 
 .table tbody tr.rowcard td::before{
-  font-size: 11px;
-  font-weight: 900;
-  color: rgba(255,255,255,0.65);
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  flex: 0 0 auto;
+  display:none;
 }
 
 /* ================== ACTIONS LEGADO ================== */
@@ -741,9 +777,9 @@ body.admin-page{
 }
 
 .finance-card{
-  background: rgba(15,15,18,0.34);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(15,15,18,0.52);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(212,175,55,0.22);
   border-radius: 18px;
   padding: 14px 14px 13px;
@@ -777,21 +813,21 @@ body.admin-page{
 
 .financeiro-item{
   width: 100%;
-  background: rgba(15,15,18,0.38);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(212,175,55,0.22);
-  border-radius: 18px;
+  background: rgba(15,15,18,0.56);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(212,175,55,0.24);
+  border-radius: 20px;
   padding: 18px;
   box-shadow:
-    0 12px 28px rgba(0,0,0,0.18),
+    0 14px 34px rgba(0,0,0,0.20),
     inset 0 1px 0 rgba(255,255,255,0.03);
   transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
 
 .financeiro-item:hover{
   transform: translateY(-1px);
-  border-color: rgba(212,175,55,0.38);
+  border-color: rgba(212,175,55,0.40);
   box-shadow:
     0 16px 34px rgba(0,0,0,0.22),
     0 0 0 1px rgba(212,175,55,0.06) inset;
@@ -929,7 +965,7 @@ body.admin-page{
 .btn-preto{
   border: 1px solid rgba(255,255,255,0.10);
   color: rgba(255,255,255,0.94);
-  background: rgba(0,0,0,0.56);
+  background: linear-gradient(180deg, rgba(28,28,28,0.98), rgba(10,10,10,0.98));
   box-shadow: 0 8px 20px rgba(0,0,0,0.18);
 }
 
@@ -949,7 +985,7 @@ body.admin-page{
   flex: 1 1 auto;
 }
 
-/* ================== LEMBRETES - CORREÇÃO FINAL ================== */
+/* ================== LEMBRETES ================== */
 
 #pane-lembretes .table,
 #pane-lembretes .table tbody,
@@ -1093,6 +1129,10 @@ body.admin-page{
   .financeiro-nome{
     font-size: 16px;
   }
+
+  .agendar-data-row{
+    flex-wrap:wrap !important;
+  }
 }
 
 @media (max-width: 520px){
@@ -1164,6 +1204,15 @@ body.admin-page{
 
   .flatpickr-day{
     border-radius: 12px !important;
+  }
+
+  .agendar-tel-row{
+    flex-wrap:nowrap !important;
+  }
+
+  .agendar-tel-row #novoDDD{
+    flex: 0 0 72px;
+    max-width: 72px;
   }
 }
 

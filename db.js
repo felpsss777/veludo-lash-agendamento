@@ -9,12 +9,13 @@ const pool = new Pool({
   }
 });
 
-// helpers iguais ao sqlite
+// helpers padrão
 async function dbRun(query, params = []) {
   const result = await pool.query(query, params);
   return {
     lastID: result.rows?.[0]?.id || null,
-    changes: result.rowCount
+    changes: result.rowCount,
+    rows: result.rows
   };
 }
 
@@ -28,9 +29,50 @@ async function dbAll(query, params = []) {
   return result.rows;
 }
 
+// transação real
+async function withTransaction(callback) {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const tx = {
+      async run(query, params = []) {
+        const result = await client.query(query, params);
+        return {
+          lastID: result.rows?.[0]?.id || null,
+          changes: result.rowCount,
+          rows: result.rows
+        };
+      },
+
+      async get(query, params = []) {
+        const result = await client.query(query, params);
+        return result.rows[0] || null;
+      },
+
+      async all(query, params = []) {
+        const result = await client.query(query, params);
+        return result.rows;
+      }
+    };
+
+    const result = await callback(tx);
+
+    await client.query("COMMIT");
+    return result;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   pool,
   dbRun,
   dbGet,
-  dbAll
+  dbAll,
+  withTransaction
 };

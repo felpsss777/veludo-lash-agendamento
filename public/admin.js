@@ -1,5 +1,14 @@
 const $ = (id) => document.getElementById(id);
 
+const SERVICOS_VALORES = {
+  "Mega Fox": 175,
+  "Brown Fox": 130,
+  "Fox eyes tradicional": 130,
+  "Mega volume brasileiro": 145,
+  "Volume Brasil": 120,
+  "Fio a fio": 150
+};
+
 function setMsg(text, ok = true) {
   const msg = $("msg");
   if (!msg) return;
@@ -74,6 +83,10 @@ function getAgendamentoValor(item) {
     if (!Number.isNaN(num) && num > 0) return num;
   }
 
+  if (item.servico && SERVICOS_VALORES[item.servico]) {
+    return SERVICOS_VALORES[item.servico];
+  }
+
   return 40;
 }
 
@@ -86,13 +99,17 @@ function isConfirmado(item) {
 }
 
 function isPago(item) {
+  const obs = String(item.observacao || "").toUpperCase();
+
   return (
     Number(item.pago) === 1 ||
     Number(item.sinal_pago) === 1 ||
     item.pagamento_status === "pago" ||
     item.pagamento_status === "Pago" ||
     item.status_pagamento === "pago" ||
-    item.status_pagamento === "Pago"
+    item.status_pagamento === "Pago" ||
+    obs.includes("SINAL PAGO") ||
+    obs.includes("PAGAMENTO MARCADO MANUALMENTE")
   );
 }
 
@@ -102,12 +119,37 @@ function getPagamentoLabel(item) {
   return "Pendente";
 }
 
+function getStatusClass(item) {
+  if (isPago(item)) return "status-pago";
+  if (isConfirmado(item)) return "status-ok";
+  return "status-pendente";
+}
+
 function sortByDataHora(rows = []) {
   return [...rows].sort((a, b) => {
     const ad = `${a.data || ""} ${a.horario || ""}`;
     const bd = `${b.data || ""} ${b.horario || ""}`;
     return ad.localeCompare(bd);
   });
+}
+
+function validarEmail(email = "") {
+  const v = String(email || "").trim();
+  if (!v) return true;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
+function limparFormularioAgendar() {
+  if ($("novoNome")) $("novoNome").value = "";
+  if ($("novoDDD")) $("novoDDD").value = "";
+  if ($("novoTel")) $("novoTel").value = "";
+  if ($("novoEmail")) $("novoEmail").value = "";
+  if ($("novoServico")) $("novoServico").value = "";
+  if ($("novoData")) $("novoData").value = "";
+  if ($("novoHorario")) {
+    $("novoHorario").innerHTML = `<option value="">Selecione o horário</option>`;
+    $("novoHorario").value = "";
+  }
 }
 
 /* =====================
@@ -136,6 +178,9 @@ function setupTabs() {
       carregarAgenda();
     }
     if (name === "lembretes") carregarLembretes();
+    if (name === "agendar") {
+      renderNovoAgendamentoCalendar();
+    }
   }
 
   tabs.forEach((t) => {
@@ -164,6 +209,66 @@ function renderAdminBookingCalendar() {
       carregarAgenda();
     }
   });
+}
+
+/* =====================
+   CALENDÁRIO NOVO AGENDAMENTO
+===================== */
+function renderNovoAgendamentoCalendar() {
+  const input = $("novoData");
+  if (!input || typeof flatpickr !== "function") return;
+  if (input._flatpickr) return;
+
+  flatpickr(input, {
+    locale: "pt",
+    dateFormat: "Y-m-d",
+    minDate: "today",
+    disableMobile: true,
+    onChange: async (_selectedDates, dateStr) => {
+      input.value = dateStr;
+      await carregarHorariosNovoAgendamento(dateStr);
+    }
+  });
+}
+
+/* =====================
+   HORÁRIOS NOVO AGENDAMENTO
+===================== */
+async function carregarHorariosNovoAgendamento(data) {
+  const select = $("novoHorario");
+  if (!select) return;
+
+  select.innerHTML = `<option value="">Carregando horários...</option>`;
+
+  if (!data) {
+    select.innerHTML = `<option value="">Selecione o horário</option>`;
+    return;
+  }
+
+  try {
+    const res = await fetch(`/horarios-disponiveis?data=${encodeURIComponent(data)}`);
+    const rows = await res.json().catch(() => []);
+
+    if (!res.ok) {
+      select.innerHTML = `<option value="">Erro ao carregar</option>`;
+      return;
+    }
+
+    if (!Array.isArray(rows) || !rows.length) {
+      select.innerHTML = `<option value="">Sem horários disponíveis</option>`;
+      return;
+    }
+
+    select.innerHTML = `<option value="">Selecione o horário</option>`;
+    rows.forEach((horario) => {
+      const opt = document.createElement("option");
+      opt.value = horario;
+      opt.textContent = horario;
+      select.appendChild(opt);
+    });
+  } catch (e) {
+    select.innerHTML = `<option value="">Erro ao carregar</option>`;
+  }
 }
 
 /* =====================
@@ -237,6 +342,7 @@ async function carregarFinanceiro() {
       const horario = escapeHtml(r.horario || "-");
       const valor = formatMoney(getAgendamentoValor(r));
       const status = getPagamentoLabel(r);
+      const statusClass = getStatusClass(r);
       const mensagem = `Olá ${r.cliente_nome || ""}! Seu agendamento está registrado para ${r.data || "-"} às ${r.horario || "-"} (${r.servico || "-"}) ✨`;
 
       const card = document.createElement("div");
@@ -244,7 +350,7 @@ async function carregarFinanceiro() {
       card.innerHTML = `
         <div class="financeiro-item-top">
           <div class="financeiro-nome">${nome}</div>
-          <div class="financeiro-status">${escapeHtml(status)}</div>
+          <div class="financeiro-status ${statusClass}">${escapeHtml(status)}</div>
         </div>
 
         <div class="financeiro-info">
@@ -278,15 +384,7 @@ async function carregarFinanceiro() {
         if (!confirm("Marcar este agendamento como pago?")) return;
 
         try {
-          let resPago = await fetch(`/agendamentos/${id}/pago`, { method: "POST" });
-
-          if (!resPago.ok) {
-            resPago = await fetch(`/agendamentos/${id}`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ pago: 1, sinal_pago: 1 })
-            });
-          }
+          const resPago = await fetch(`/agendamentos/${id}/pago`, { method: "POST" });
 
           if (resPago.ok) {
             setMsg("Pagamento marcado com sucesso.");
@@ -350,6 +448,7 @@ async function carregarAgenda() {
       const data = formatDateBR(r.data || "-");
       const horario = escapeHtml(r.horario || "-");
       const status = confirmado ? "Confirmado" : "Pendente";
+      const statusClass = confirmado ? "status-ok" : "status-pendente";
       const textoWa = `Olá ${r.cliente_nome || ""}! Só confirmando seu horário: ${r.data || "-"} às ${r.horario || "-"} (${r.servico || "-"}) ✨`;
 
       const card = document.createElement("div");
@@ -357,7 +456,7 @@ async function carregarAgenda() {
       card.innerHTML = `
         <div class="financeiro-item-top">
           <div class="financeiro-nome">${nome}</div>
-          <div class="financeiro-status">${status}</div>
+          <div class="financeiro-status ${statusClass}">${status}</div>
         </div>
 
         <div class="financeiro-info">
@@ -458,7 +557,6 @@ async function carregarLembretes() {
       tr.innerHTML = `
         <td colspan="5">
           <div class="financeiro-item">
-
             <div class="financeiro-item-top">
               <div class="financeiro-nome">${escapeHtml(r.cliente_nome || "Cliente")}</div>
             </div>
@@ -482,7 +580,6 @@ async function carregarLembretes() {
                 Marcar como enviado
               </button>
             </div>
-
           </div>
         </td>
       `;
@@ -513,6 +610,72 @@ async function carregarLembretes() {
 }
 
 /* =====================
+   NOVO AGENDAMENTO
+===================== */
+async function criarAgendamentoManual() {
+  const nome = ($("novoNome")?.value || "").trim();
+  const ddd = onlyDigits($("novoDDD")?.value || "");
+  const tel = onlyDigits($("novoTel")?.value || "");
+  const email = ($("novoEmail")?.value || "").trim();
+  const servico = ($("novoServico")?.value || "").trim();
+  const data = ($("novoData")?.value || "").trim();
+  const horario = ($("novoHorario")?.value || "").trim();
+
+  if (!nome || !ddd || !tel || !servico || !data || !horario) {
+    setMsg("Preencha todos os campos do novo agendamento.", false);
+    return;
+  }
+
+  if (ddd.length !== 2) {
+    setMsg("DDD inválido.", false);
+    return;
+  }
+
+  if (tel.length !== 8 && tel.length !== 9) {
+    setMsg("WhatsApp inválido.", false);
+    return;
+  }
+
+  if (!validarEmail(email)) {
+    setMsg("E-mail inválido.", false);
+    return;
+  }
+
+  const telefone = ddd + tel;
+
+  try {
+    const res = await fetch("/admin-agendar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        nome,
+        telefone,
+        email,
+        servico,
+        data,
+        horario
+      })
+    });
+
+    const payload = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      setMsg(payload.erro || "Não foi possível criar o agendamento.", false);
+      return;
+    }
+
+    setMsg("Agendamento criado com sucesso.");
+    limparFormularioAgendar();
+    carregarAgenda();
+    carregarFinanceiro();
+  } catch (e) {
+    setMsg("Erro ao criar o agendamento.", false);
+  }
+}
+
+/* =====================
    BOTÕES
 ===================== */
 function setupButtons() {
@@ -520,6 +683,19 @@ function setupButtons() {
   $("btnAtualizarLembretes")?.addEventListener("click", carregarLembretes);
   $("btnAtualizarFinanceiro")?.addEventListener("click", carregarFinanceiro);
   $("filtroData")?.addEventListener("change", carregarAgenda);
+
+  $("btnCriarAgendamento")?.addEventListener("click", criarAgendamentoManual);
+
+  $("novoDDD")?.addEventListener("input", () => {
+    const input = $("novoDDD");
+    input.value = onlyDigits(input.value).slice(0, 2);
+    if (input.value.length === 2) $("novoTel")?.focus();
+  });
+
+  $("novoTel")?.addEventListener("input", () => {
+    const input = $("novoTel");
+    input.value = onlyDigits(input.value).slice(0, 9);
+  });
 }
 
 /* =====================
@@ -532,6 +708,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   renderAdminBookingCalendar();
+  renderNovoAgendamentoCalendar();
   setupTabs();
   setupButtons();
 });
