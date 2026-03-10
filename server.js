@@ -511,6 +511,49 @@ app.get("/agendamentos", async (req, res) => {
   }
 });
 
+/* ===================== FINANCEIRO ===================== */
+app.get("/financeiro", async (req, res) => {
+  try {
+    await expirarReservas();
+
+    const pagosHoje = await dbGet(`
+      SELECT COALESCE(SUM(valor_sinal), 0) AS total
+      FROM reservas
+      WHERE lower(status) = 'pago'
+        AND DATE(criado_em) = CURRENT_DATE
+    `);
+
+    const pagosMes = await dbGet(`
+      SELECT COALESCE(SUM(valor_sinal), 0) AS total
+      FROM reservas
+      WHERE lower(status) = 'pago'
+        AND DATE_TRUNC('month', criado_em) = DATE_TRUNC('month', CURRENT_DATE)
+    `);
+
+    const pendentes = await dbGet(`
+      SELECT COUNT(*)::int AS total
+      FROM reservas
+      WHERE lower(status) = 'pendente'
+        AND expira_em > NOW()
+    `);
+
+    const confirmados = await dbGet(`
+      SELECT COUNT(*)::int AS total
+      FROM agendamentos
+      WHERE confirmado = 1
+    `);
+
+    res.json({
+      hoje: Number(pagosHoje?.total || 0),
+      mes: Number(pagosMes?.total || 0),
+      pendentes: Number(pendentes?.total || 0),
+      confirmados: Number(confirmados?.total || 0)
+    });
+  } catch (e) {
+    res.status(500).json({ erro: e.message || "Erro ao carregar financeiro" });
+  }
+});
+
 app.post("/agendamentos/:id/confirmar", async (req, res) => {
   try {
     await dbRun(`UPDATE agendamentos SET confirmado = 1 WHERE id = $1`, [req.params.id]);

@@ -133,17 +133,10 @@ function sortByDataHora(rows = []) {
   });
 }
 
-function validarEmail(email = "") {
-  const v = String(email || "").trim();
-  if (!v) return true;
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-}
-
 function limparFormularioAgendar() {
   if ($("novoNome")) $("novoNome").value = "";
   if ($("novoDDD")) $("novoDDD").value = "";
   if ($("novoTel")) $("novoTel").value = "";
-  if ($("novoEmail")) $("novoEmail").value = "";
   if ($("novoServico")) $("novoServico").value = "";
   if ($("novoData")) $("novoData").value = "";
   if ($("novoHorario")) {
@@ -343,6 +336,8 @@ async function carregarFinanceiro() {
       const valor = formatMoney(getAgendamentoValor(r));
       const status = getPagamentoLabel(r);
       const statusClass = getStatusClass(r);
+      const pago = isPago(r);
+
       const mensagem = `Olá ${r.cliente_nome || ""}! Seu agendamento está registrado para ${r.data || "-"} às ${r.horario || "-"} (${r.servico || "-"}) ✨`;
 
       const card = document.createElement("div");
@@ -371,7 +366,7 @@ async function carregarFinanceiro() {
              href="${waLink(r.cliente_telefone, mensagem)}">
              WhatsApp
           </a>
-          ${isPago(r) ? "" : `<button class="btn-preto" data-marcar-pago="${r.id}">Marcar como pago</button>`}
+          ${pago ? "" : `<button class="btn-preto" data-marcar-pago="${r.id}">Marcar como pago</button>`}
         </div>
       `;
 
@@ -616,7 +611,6 @@ async function criarAgendamentoManual() {
   const nome = ($("novoNome")?.value || "").trim();
   const ddd = onlyDigits($("novoDDD")?.value || "");
   const tel = onlyDigits($("novoTel")?.value || "");
-  const email = ($("novoEmail")?.value || "").trim();
   const servico = ($("novoServico")?.value || "").trim();
   const data = ($("novoData")?.value || "").trim();
   const horario = ($("novoHorario")?.value || "").trim();
@@ -636,11 +630,6 @@ async function criarAgendamentoManual() {
     return;
   }
 
-  if (!validarEmail(email)) {
-    setMsg("E-mail inválido.", false);
-    return;
-  }
-
   const telefone = ddd + tel;
 
   try {
@@ -652,7 +641,6 @@ async function criarAgendamentoManual() {
       body: JSON.stringify({
         nome,
         telefone,
-        email,
         servico,
         data,
         horario

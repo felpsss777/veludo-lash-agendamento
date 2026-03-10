@@ -151,8 +151,7 @@
       align-items:center;
       justify-content: space-between;
     }
-    .pay-actions .btn2,
-    .pay-actions .btn-glass{
+    .pay-actions .btn2{
       flex: 1 1 180px;
     }
 
@@ -168,6 +167,17 @@
       font-size: 11px;
       color: rgba(255,255,255,0.55);
       word-break: break-all;
+    }
+
+    .pix-status{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.78);
+      font-size: 12px;
+      line-height: 1.45;
     }
 
     .okbox{
@@ -359,8 +369,11 @@
 
             <div class="pay-actions">
               <button class="btn2" type="button" onclick="copiarPix()">Copiar PIX (copia e cola)</button>
-              <button class="btn-glass gold" type="button" onclick="confirmarPagamentoManual()">Já paguei</button>
               <div class="timer" id="timerTxt">Expira em: --:--</div>
+            </div>
+
+            <div class="pix-status" id="pixStatus">
+              Aguardando confirmação automática do pagamento...
             </div>
 
             <div class="tokenline" id="tokenLine"></div>
@@ -610,6 +623,7 @@
       document.getElementById("pixCode").value = "";
       document.getElementById("tokenLine").textContent = "";
       document.getElementById("timerTxt").textContent = "Expira em: --:--";
+      document.getElementById("pixStatus").textContent = "Aguardando confirmação automática do pagamento...";
       if (timerInterval) clearInterval(timerInterval);
       timerInterval = null;
     }
@@ -648,6 +662,7 @@
           clearInterval(timerInterval);
           timerInterval = null;
           document.getElementById("timerTxt").textContent = "Reserva expirada. Escolha outro horário.";
+          document.getElementById("pixStatus").textContent = "Pagamento não identificado dentro do prazo.";
           pararStream();
           document.getElementById("msg").innerHTML =
             `<span class="badge">⏳ Reserva expirada. Escolha outro horário.</span>`;
@@ -734,6 +749,7 @@
       document.getElementById("msg").innerHTML =
         `<span class="badge">✅ Pagamento confirmado! Seu agendamento foi concluído.</span>`;
 
+      document.getElementById("pixStatus").textContent = "Pagamento confirmado automaticamente.";
       fecharPixModal();
       mostrarAnimacaoConfirmado();
       await carregarHorarios();
@@ -756,41 +772,12 @@
         eventSource.addEventListener("expired", async () => {
           document.getElementById("msg").innerHTML =
             `<span class="badge">⏳ Reserva expirada. Escolha outro horário.</span>`;
+          document.getElementById("pixStatus").textContent = "Pagamento não identificado dentro do prazo.";
           fecharPixModal();
           await carregarHorarios();
           pararStream();
         });
       }catch(e){}
-    }
-
-    async function confirmarPagamentoManual(){
-      if (!tokenAtual) {
-        document.getElementById("msg").innerHTML =
-          `<span class="badge">❌ Reserva não encontrada para confirmação.</span>`;
-        return;
-      }
-
-      const oldText = document.getElementById("msg").innerHTML;
-      document.getElementById("msg").innerHTML =
-        `<span class="badge">⏳ Confirmando pagamento...</span>`;
-
-      try {
-        const res = await fetch(`/reservas/${encodeURIComponent(tokenAtual)}/confirmar-pagamento`, {
-          method: "POST"
-        });
-
-        const payload = await res.json().catch(() => ({}));
-
-        if (!res.ok) {
-          document.getElementById("msg").innerHTML =
-            `<span class="badge">❌ ${escapeHtml(payload.erro || "Não foi possível confirmar o pagamento.")}</span>`;
-          return;
-        }
-
-        await concluirConfirmacaoPagamento(payload.agendamento_id || null);
-      } catch (e) {
-        document.getElementById("msg").innerHTML = oldText || `<span class="badge">❌ Erro ao confirmar pagamento.</span>`;
-      }
     }
 
     async function reservarComSinal(){
@@ -865,6 +852,8 @@
         document.getElementById("tokenLine").textContent = payload.token
           ? `Código da reserva: ${payload.token}`
           : "";
+
+        document.getElementById("pixStatus").textContent = "Aguardando confirmação automática do pagamento...";
 
         if(payload.expira_em){
           iniciarTimer(payload.expira_em);
