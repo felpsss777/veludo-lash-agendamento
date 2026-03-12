@@ -5,7 +5,7 @@ const QRCode = require("qrcode");
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
-const { dbRun, dbGet, dbAll } = require("./db");
+const { dbRun, dbGet, dbAll, withTransaction } = require("./db");
 
 const app = express();
 app.use(cors());
@@ -554,6 +554,55 @@ app.get("/financeiro", async (req, res) => {
   }
 });
 
+app.get("/financeiro/lista", async (req, res) => {
+  try {
+    await expirarReservas();
+
+    const rows = await dbAll(`
+      SELECT
+        a.id,
+        a.data,
+        a.horario,
+        a.servico,
+        a.confirmado,
+        a.observacao,
+        a.reserva_id,
+        c.nome AS cliente_nome,
+        c.telefone AS cliente_telefone,
+        c.foto_url AS cliente_foto_url,
+        NULL::numeric AS valor_sinal,
+        'agendamento' AS tipo
+      FROM agendamentos a
+      JOIN clientes c ON c.id = a.cliente_id
+
+      UNION ALL
+
+      SELECT
+        r.id,
+        r.data,
+        r.horario,
+        r.servico,
+        0 AS confirmado,
+        'AGUARDANDO PAGAMENTO' AS observacao,
+        NULL::integer AS reserva_id,
+        r.nome AS cliente_nome,
+        r.telefone AS cliente_telefone,
+        '' AS cliente_foto_url,
+        r.valor_sinal,
+        'reserva' AS tipo
+      FROM reservas r
+      WHERE lower(r.status) = 'pendente'
+        AND r.expira_em > NOW()
+
+      ORDER BY data DESC, horario DESC
+    `);
+
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ erro: e.message || "Erro ao carregar lista do financeiro" });
+  }
+});
+
 app.post("/agendamentos/:id/confirmar", async (req, res) => {
   try {
     await dbRun(`UPDATE agendamentos SET confirmado = 1 WHERE id = $1`, [req.params.id]);
@@ -855,19 +904,17 @@ app.post("/reservas/:token/confirmar-pagamento", async (req, res) => {
 
     if (!okRow) return res.status(409).json({ erro: "Reserva expirada" });
 
-    await dbRun("BEGIN");
-
-    try {
-      await dbRun(`UPDATE reservas SET status = 'pago' WHERE token = $1`, [token]);
+    const result = await withTransaction(async (tx) => {
+      await tx.run(`UPDATE reservas SET status = 'pago' WHERE token = $1`, [token]);
 
       const nome = rsv.nome;
       const tel = rsv.telefone;
 
-      let cliente = await dbGet(`SELECT id FROM clientes WHERE telefone = $1`, [tel]);
+      let cliente = await tx.get(`SELECT id FROM clientes WHERE telefone = $1`, [tel]);
 
       if (!cliente) {
         try {
-          cliente = await dbGet(
+          cliente = await tx.get(
             `
             INSERT INTO clientes (nome, telefone, observacao, foto_url)
             VALUES ($1, $2, $3, $4)
@@ -877,7 +924,7 @@ app.post("/reservas/:token/confirmar-pagamento", async (req, res) => {
           );
         } catch (e) {
           if (String(e.message || "").toLowerCase().includes("unique")) {
-            cliente = await dbGet(`SELECT id FROM clientes WHERE telefone = $1`, [tel]);
+            cliente = await tx.get(`SELECT id FROM clientes WHERE telefone = $1`, [tel]);
           } else {
             throw e;
           }
@@ -888,7 +935,7 @@ app.post("/reservas/:token/confirmar-pagamento", async (req, res) => {
         .toFixed(2)
         .replace(".", ",")}) - via link público`;
 
-      const rAg = await dbGet(
+      const rAg = await tx.get(
         `
         INSERT INTO agendamentos (
           cliente_id, data, horario, servico, observacao, confirmado, reserva_id
@@ -899,15 +946,12 @@ app.post("/reservas/:token/confirmar-pagamento", async (req, res) => {
         [cliente.id, rsv.data, rsv.horario, rsv.servico, obs, rsv.id]
       );
 
-      await dbRun("COMMIT");
+      return rAg;
+    });
 
-      notifyToken(token, "paid", { ok: true, agendamento_id: rAg.id });
+    notifyToken(token, "paid", { ok: true, agendamento_id: result.id });
 
-      return res.json({ ok: true, agendamento_id: rAg.id });
-    } catch (e) {
-      await dbRun("ROLLBACK");
-      throw e;
-    }
+    return res.json({ ok: true, agendamento_id: result.id });
   } catch (e) {
     if (String(e.message || "").toLowerCase().includes("unique")) {
       return res.status(409).json({ erro: "Horário já ocupado" });
