@@ -88,7 +88,7 @@ function getAgendamentoValor(item) {
 }
 
 function isConfirmado(item) {
-  const status = String(item.status || "").toLowerCase();
+  const status = String(item.status || item.status_financeiro || "").toLowerCase();
 
   return (
     Number(item.confirmado) === 1 ||
@@ -99,16 +99,18 @@ function isConfirmado(item) {
 
 function isPago(item) {
   const obs = String(item.observacao || "").toUpperCase();
-  const status = String(item.status || "").toLowerCase();
+  const status = String(
+    item.status_financeiro ||
+    item.status ||
+    item.pagamento_status ||
+    item.status_pagamento ||
+    ""
+  ).toLowerCase();
 
   return (
     status === "pago" ||
     Number(item.pago) === 1 ||
     Number(item.sinal_pago) === 1 ||
-    item.pagamento_status === "pago" ||
-    item.pagamento_status === "Pago" ||
-    item.status_pagamento === "pago" ||
-    item.status_pagamento === "Pago" ||
     obs.includes("SINAL PAGO") ||
     obs.includes("PAGAMENTO MARCADO MANUALMENTE")
   );
@@ -116,7 +118,7 @@ function isPago(item) {
 
 function isReservaPendente(item) {
   const tipo = String(item.tipo || "").toLowerCase();
-  const status = String(item.status || "").toLowerCase();
+  const status = String(item.status_financeiro || item.status || "").toLowerCase();
 
   return tipo === "reserva" && status === "pendente";
 }
@@ -214,6 +216,7 @@ function renderAdminBookingCalendar() {
     disableMobile: true,
     defaultDate: input.value || todayISO(),
     position: "above center",
+    static: false,
     onChange: (_selectedDates, dateStr) => {
       input.value = dateStr;
       carregarAgenda();
@@ -237,6 +240,7 @@ function renderNovoAgendamentoCalendar() {
     minDate: "today",
     disableMobile: true,
     position: "above center",
+    static: false,
     onChange: async (_selectedDates, dateStr) => {
       input.value = dateStr;
       await carregarHorariosNovoAgendamento(dateStr);

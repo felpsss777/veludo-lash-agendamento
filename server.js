@@ -497,11 +497,14 @@ app.get("/agendamentos", async (req, res) => {
         a.confirmado,
         a.observacao,
         a.reserva_id,
+        r.valor_sinal,
+        r.status AS reserva_status,
         c.nome AS cliente_nome,
         c.telefone AS cliente_telefone,
         c.foto_url AS cliente_foto_url
       FROM agendamentos a
       JOIN clientes c ON c.id = a.cliente_id
+      LEFT JOIN reservas r ON r.id = a.reserva_id
       ORDER BY a.data DESC, a.horario DESC
       `
     );
@@ -559,42 +562,53 @@ app.get("/financeiro/lista", async (req, res) => {
     await expirarReservas();
 
     const rows = await dbAll(`
-      SELECT
-        a.id,
-        a.data,
-        a.horario,
-        a.servico,
-        a.confirmado,
-        a.observacao,
-        a.reserva_id,
-        c.nome AS cliente_nome,
-        c.telefone AS cliente_telefone,
-        c.foto_url AS cliente_foto_url,
-        NULL::numeric AS valor_sinal,
-        'agendamento' AS tipo
-      FROM agendamentos a
-      JOIN clientes c ON c.id = a.cliente_id
+      SELECT *
+      FROM (
+        SELECT
+          a.id,
+          a.data,
+          a.horario,
+          a.servico,
+          a.confirmado,
+          a.observacao,
+          a.reserva_id,
+          COALESCE(r.valor_sinal, NULL) AS valor_sinal,
+          c.nome AS cliente_nome,
+          c.telefone AS cliente_telefone,
+          c.foto_url AS cliente_foto_url,
+          'agendamento' AS tipo,
+          CASE
+            WHEN UPPER(COALESCE(a.observacao, '')) LIKE '%SINAL PAGO%'
+              OR UPPER(COALESCE(a.observacao, '')) LIKE '%PAGAMENTO MARCADO MANUALMENTE%'
+            THEN 'pago'
+            WHEN a.confirmado = 1 THEN 'confirmado'
+            ELSE 'pendente'
+          END AS status_financeiro
+        FROM agendamentos a
+        JOIN clientes c ON c.id = a.cliente_id
+        LEFT JOIN reservas r ON r.id = a.reserva_id
 
-      UNION ALL
+        UNION ALL
 
-      SELECT
-        r.id,
-        r.data,
-        r.horario,
-        r.servico,
-        0 AS confirmado,
-        'AGUARDANDO PAGAMENTO' AS observacao,
-        NULL::integer AS reserva_id,
-        r.nome AS cliente_nome,
-        r.telefone AS cliente_telefone,
-        '' AS cliente_foto_url,
-        r.valor_sinal,
-        'reserva' AS tipo
-      FROM reservas r
-      WHERE lower(r.status) = 'pendente'
-        AND r.expira_em > NOW()
-
-      ORDER BY data DESC, horario DESC
+        SELECT
+          r.id,
+          r.data,
+          r.horario,
+          r.servico,
+          0 AS confirmado,
+          'AGUARDANDO PAGAMENTO' AS observacao,
+          NULL::integer AS reserva_id,
+          r.valor_sinal,
+          r.nome AS cliente_nome,
+          r.telefone AS cliente_telefone,
+          '' AS cliente_foto_url,
+          'reserva' AS tipo,
+          'pendente' AS status_financeiro
+        FROM reservas r
+        WHERE lower(r.status) = 'pendente'
+          AND r.expira_em > NOW()
+      ) x
+      ORDER BY x.data DESC, x.horario DESC
     `);
 
     res.json(rows);
