@@ -54,10 +54,6 @@ function todayISO() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-function monthPrefix() {
-  return todayISO().slice(0, 7);
-}
-
 function escapeHtml(value = "") {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -75,7 +71,8 @@ function getAgendamentoValor(item) {
     item.price,
     item.sinal_valor,
     item.sinal,
-    item.valor_servico
+    item.valor_servico,
+    item.valor_sinal
   ];
 
   for (const v of candidatos) {
@@ -91,17 +88,21 @@ function getAgendamentoValor(item) {
 }
 
 function isConfirmado(item) {
+  const status = String(item.status || "").toLowerCase();
+
   return (
     Number(item.confirmado) === 1 ||
-    item.status === "confirmado" ||
-    item.status === "Confirmado"
+    status === "confirmado" ||
+    status === "confirmada"
   );
 }
 
 function isPago(item) {
   const obs = String(item.observacao || "").toUpperCase();
+  const status = String(item.status || "").toLowerCase();
 
   return (
+    status === "pago" ||
     Number(item.pago) === 1 ||
     Number(item.sinal_pago) === 1 ||
     item.pagamento_status === "pago" ||
@@ -113,13 +114,22 @@ function isPago(item) {
   );
 }
 
+function isReservaPendente(item) {
+  const tipo = String(item.tipo || "").toLowerCase();
+  const status = String(item.status || "").toLowerCase();
+
+  return tipo === "reserva" && status === "pendente";
+}
+
 function getPagamentoLabel(item) {
+  if (isReservaPendente(item)) return "Pendente";
   if (isPago(item)) return "Pago";
   if (isConfirmado(item)) return "Confirmado";
   return "Pendente";
 }
 
 function getStatusClass(item) {
+  if (isReservaPendente(item)) return "status-pendente";
   if (isPago(item)) return "status-pago";
   if (isConfirmado(item)) return "status-ok";
   return "status-pendente";
@@ -154,7 +164,7 @@ function setupTabs() {
 
   if (!tabs.length || !panes.length) return;
 
-  function setActive(name) {
+  async function setActive(name) {
     tabs.forEach((t) => {
       const active = t.dataset.tab === name;
       t.classList.toggle("active", active);
@@ -165,12 +175,16 @@ function setupTabs() {
       p.classList.toggle("active", p.dataset.page === name);
     });
 
-    if (name === "financeiro") carregarFinanceiro();
+    if (name === "financeiro") {
+      await carregarFinanceiro();
+    }
     if (name === "agenda") {
       renderAdminBookingCalendar();
-      carregarAgenda();
+      await carregarAgenda();
     }
-    if (name === "lembretes") carregarLembretes();
+    if (name === "lembretes") {
+      await carregarLembretes();
+    }
     if (name === "agendar") {
       renderNovoAgendamentoCalendar();
     }
@@ -195,8 +209,11 @@ function renderAdminBookingCalendar() {
   flatpickr(input, {
     locale: "pt",
     dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d/m/y",
     disableMobile: true,
     defaultDate: input.value || todayISO(),
+    position: "above center",
     onChange: (_selectedDates, dateStr) => {
       input.value = dateStr;
       carregarAgenda();
@@ -215,8 +232,11 @@ function renderNovoAgendamentoCalendar() {
   flatpickr(input, {
     locale: "pt",
     dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d/m/y",
     minDate: "today",
     disableMobile: true,
+    position: "above center",
     onChange: async (_selectedDates, dateStr) => {
       input.value = dateStr;
       await carregarHorariosNovoAgendamento(dateStr);
@@ -279,46 +299,42 @@ async function carregarFinanceiro() {
   if (lista) lista.innerHTML = "";
 
   try {
-    const res = await fetch("/agendamentos");
-    const rows = await res.json().catch(() => []);
+    const [resResumo, resLista] = await Promise.all([
+      fetch("/financeiro"),
+      fetch("/financeiro/lista")
+    ]);
 
-    if (!res.ok) {
-      setMsg("Falha ao carregar financeiro.", false);
+    const resumo = await resResumo.json().catch(() => ({}));
+    const rows = await resLista.json().catch(() => []);
+
+    if (!resResumo.ok) {
+      setMsg("Falha ao carregar resumo financeiro.", false);
       return;
     }
 
-    const hoje = todayISO();
-    const mesAtual = monthPrefix();
-
-    let totalHoje = 0;
-    let totalMes = 0;
-    let totalPendentes = 0;
-    let totalConfirmados = 0;
-
-    rows.forEach((r) => {
-      const valor = getAgendamentoValor(r);
-      const pago = isPago(r);
-      const confirmado = isConfirmado(r);
-
-      if (confirmado) totalConfirmados += 1;
-      if (!pago) totalPendentes += 1;
-
-      if (pago && r.data === hoje) totalHoje += valor;
-      if (pago && String(r.data || "").startsWith(mesAtual)) totalMes += valor;
-    });
-
-    if (recebidoHoje) recebidoHoje.textContent = formatMoney(totalHoje);
-    if (recebidoMes) recebidoMes.textContent = formatMoney(totalMes);
-    if (pendentesSinal) pendentesSinal.textContent = String(totalPendentes);
-    if (confirmadosTotal) confirmadosTotal.textContent = String(totalConfirmados);
+    if (recebidoHoje) recebidoHoje.textContent = formatMoney(resumo.hoje || 0);
+    if (recebidoMes) recebidoMes.textContent = formatMoney(resumo.mes || 0);
+    if (pendentesSinal) pendentesSinal.textContent = String(resumo.pendentes || 0);
+    if (confirmadosTotal) confirmadosTotal.textContent = String(resumo.confirmados || 0);
 
     if (!lista) return;
+
+    if (!resLista.ok) {
+      lista.innerHTML = `
+        <div class="financeiro-item">
+          <div class="financeiro-info">
+            <span>Resumo carregado, mas não foi possível listar o financeiro.</span>
+          </div>
+        </div>
+      `;
+      return;
+    }
 
     if (!rows.length) {
       lista.innerHTML = `
         <div class="financeiro-item">
           <div class="financeiro-info">
-            <span>Nenhum agendamento encontrado.</span>
+            <span>Nenhum registro financeiro encontrado.</span>
           </div>
         </div>
       `;
@@ -337,8 +353,30 @@ async function carregarFinanceiro() {
       const status = getPagamentoLabel(r);
       const statusClass = getStatusClass(r);
       const pago = isPago(r);
+      const tipo = String(r.tipo || "").toLowerCase();
 
-      const mensagem = `Olá ${r.cliente_nome || ""}! Seu agendamento está registrado para ${r.data || "-"} às ${r.horario || "-"} (${r.servico || "-"}) ✨`;
+      const mensagem = tipo === "reserva"
+        ? `Olá ${r.cliente_nome || ""}! Sua reserva está pendente de pagamento para ${r.data || "-"} às ${r.horario || "-"} (${r.servico || "-"}) ✨`
+        : `Olá ${r.cliente_nome || ""}! Seu agendamento está registrado para ${r.data || "-"} às ${r.horario || "-"} (${r.servico || "-"}) ✨`;
+
+      const acoes = [];
+
+      if (r.cliente_telefone) {
+        acoes.push(`
+          <a class="btn-dourado" target="_blank" rel="noopener noreferrer"
+             href="${waLink(r.cliente_telefone, mensagem)}">
+             WhatsApp
+          </a>
+        `);
+      }
+
+      if (!pago && tipo === "agendamento") {
+        acoes.push(`
+          <button class="btn-preto" data-marcar-pago="${r.id}">
+            Marcar como pago
+          </button>
+        `);
+      }
 
       const card = document.createElement("div");
       card.className = "financeiro-item";
@@ -361,12 +399,12 @@ async function carregarFinanceiro() {
           <span><strong>Valor:</strong> ${valor}</span>
         </div>
 
+        <div class="financeiro-info">
+          <span><strong>Tipo:</strong> ${tipo === "reserva" ? "Reserva" : "Agendamento"}</span>
+        </div>
+
         <div class="financeiro-acoes">
-          <a class="btn-dourado" target="_blank" rel="noopener noreferrer"
-             href="${waLink(r.cliente_telefone, mensagem)}">
-             WhatsApp
-          </a>
-          ${pago ? "" : `<button class="btn-preto" data-marcar-pago="${r.id}">Marcar como pago</button>`}
+          ${acoes.join("")}
         </div>
       `;
 

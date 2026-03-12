@@ -904,9 +904,18 @@
         altFormat: "d/m/y",
         minDate: "today",
         disableMobile: true,
-        static: true,
-        position: "auto center",
-        onChange: () => {
+        static: false,
+        position: "above center",
+        onOpen: (_selectedDates, _dateStr, instance) => {
+          setTimeout(() => {
+            if (instance.calendarContainer) {
+              instance.calendarContainer.style.zIndex = "99999";
+            }
+          }, 0);
+        },
+        onChange: (_selectedDates, dateStr) => {
+          const originalInput = document.getElementById("data");
+          if (originalInput) originalInput.value = dateStr;
           resetFluxoPagamento();
           carregarHorarios();
         }
