@@ -27,13 +27,17 @@
 *{ box-sizing: border-box; }
 
 html, body{ height: 100%; }
-html{ background:#000; }
+html{
+  background:#000;
+  overflow-x: hidden;
+}
 
 body{
   margin:0;
   font-family: Inter, sans-serif;
   background:#000;
   color: var(--text);
+  overflow-x: hidden;
 }
 
 a{ color: inherit; }
@@ -148,6 +152,7 @@ a{ color: inherit; }
   gap: 10px;
   align-items:center;
   flex-wrap: wrap;
+  overflow: visible;
 }
 
 .row > *{
@@ -320,6 +325,7 @@ select:focus{
   box-shadow: 0 12px 30px rgba(0,0,0,0.25);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  overflow: visible;
 }
 
 .card h2{
@@ -411,6 +417,7 @@ select:focus{
   width: 160px;
   margin-left:auto;
   z-index: 30;
+  overflow: visible;
 }
 
 .slot-toggle{
@@ -432,34 +439,38 @@ select:focus{
 
 #horarios_grid{
   position: absolute;
-  right:0;
-  top:48px;
-  width:170px;
-  max-height:210px;
-  padding:10px;
+  right: 0;
+  bottom: calc(100% + 8px);
+  top: auto;
+  width: 170px;
+  max-height: 210px;
+  padding: 10px;
   background: rgba(15,15,18,0.35);
-  border-radius:18px;
+  border-radius: 18px;
   border: 1px solid rgba(255,255,255,0.10);
   box-shadow: 0 25px 45px rgba(0,0,0,.35);
-  display:grid;
+  display: grid;
   grid-template-columns: repeat(2,1fr);
-  gap:8px;
-  overflow-y:auto;
-  opacity:0;
-  transform: translateY(-6px) scale(.98);
+  gap: 8px;
+  overflow-y: auto;
+  opacity: 0;
+  transform: translateY(6px) scale(.98);
   transition: all .18s ease;
-  pointer-events:none;
+  pointer-events: none;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  z-index: 80;
 }
 
 #horarios_grid:not(.hidden){
-  opacity:1;
+  opacity: 1;
   transform: translateY(0) scale(1);
-  pointer-events:auto;
+  pointer-events: auto;
 }
 
-#horarios_grid.hidden{ display:none; }
+#horarios_grid.hidden{
+  display:none;
+}
 
 #horarios_grid .slot{
   width: 100%;
@@ -490,6 +501,7 @@ select:focus{
   box-shadow: 0 22px 60px rgba(0,0,0,0.55) !important;
   border-radius: 18px !important;
   overflow: hidden !important;
+  z-index: 99999 !important;
 }
 
 .flatpickr-months,
@@ -627,6 +639,7 @@ body.admin-page{
   box-shadow: 0 12px 30px rgba(0,0,0,0.28);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  overflow: visible;
 }
 
 .admin-card h2{
@@ -657,6 +670,8 @@ body.admin-page{
   border-radius: 14px;
   font-size: 13px;
   margin-bottom: 0;
+  position: relative;
+  z-index: 5;
 }
 
 #msg{
@@ -693,14 +708,18 @@ body.admin-page{
   display:flex;
   gap:8px;
   flex-wrap:nowrap !important;
+  align-items: stretch;
+  overflow: visible;
 }
 
 .agendar-data-row #novoData{
   flex: 1 1 auto;
+  min-width: 0;
 }
 
 .agendar-data-row #novoHorario{
   flex: 1 1 auto;
+  min-width: 0;
 }
 
 /* ================== TABELA BASE ================== */
@@ -1186,7 +1205,6 @@ body.admin-page{
 
   #horarios_grid{
     width: 150px;
-    top: 44px;
     padding: 8px;
     border-radius: 14px;
   }

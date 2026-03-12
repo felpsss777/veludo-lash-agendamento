@@ -583,13 +583,17 @@
     }
 
     function abrirDropdown(){
-      document.getElementById("horarios_grid").classList.remove("hidden");
-      document.getElementById("slot_chev").classList.add("open");
+      const grid = document.getElementById("horarios_grid");
+      const chev = document.getElementById("slot_chev");
+      grid.classList.remove("hidden");
+      chev.classList.add("open");
     }
 
     function fecharDropdown(){
-      document.getElementById("horarios_grid").classList.add("hidden");
-      document.getElementById("slot_chev").classList.remove("open");
+      const grid = document.getElementById("horarios_grid");
+      const chev = document.getElementById("slot_chev");
+      grid.classList.add("hidden");
+      chev.classList.remove("open");
     }
 
     function soNumero(el){
@@ -896,8 +900,12 @@
       flatpickr("#data", {
         locale: "pt",
         dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "d/m/y",
         minDate: "today",
         disableMobile: true,
+        static: true,
+        position: "auto center",
         onChange: () => {
           resetFluxoPagamento();
           carregarHorarios();
