@@ -1,0 +1,15 @@
+{
+  "name": "Veludo Lash Admin",
+  "short_name": "VL Admin",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#0f0f12",
+  "theme_color": "#c9a46c",
+  "icons": [
+    {
+      "src": "/img/icon-admin-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
