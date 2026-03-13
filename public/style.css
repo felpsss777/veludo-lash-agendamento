@@ -32,6 +32,7 @@ html{
   background:#000;
   overflow-x: hidden;
   scroll-behavior: auto !important;
+  -webkit-text-size-adjust: 100%;
 }
 
 body{
@@ -171,6 +172,7 @@ a{ color: inherit; }
 
 input,
 select,
+textarea,
 button,
 .slot-toggle,
 .service-card,
@@ -178,13 +180,13 @@ button,
   touch-action: manipulation;
 }
 
-input, select{
+input, select, textarea{
   width:100%;
   padding: 12px 12px;
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.16);
   background: var(--glass-2);
-  font-size: 14px;
+  font-size: 16px !important;
   outline:none;
   color: rgba(255,255,255,0.92);
   backdrop-filter: blur(8px);
@@ -192,12 +194,14 @@ input, select{
 }
 
 input::placeholder,
-select::placeholder{
+select::placeholder,
+textarea::placeholder{
   color: rgba(255,255,255,0.65);
 }
 
 input:focus,
-select:focus{
+select:focus,
+textarea:focus{
   border-color: rgba(201,164,108,0.85);
   box-shadow: 0 0 0 4px rgba(201,164,108,0.14);
 }
@@ -534,6 +538,11 @@ select:focus{
   cursor: pointer;
 }
 
+.flatpickr-input,
+.flatpickr-alt-input{
+  font-size: 16px !important;
+}
+
 .flatpickr-alt-input{
   background: var(--glass-2) !important;
   border: 1px solid rgba(255,255,255,0.16) !important;
@@ -701,11 +710,12 @@ body.admin-page{
 }
 
 .admin-page input,
-.admin-page select{
+.admin-page select,
+.admin-page textarea{
   height: 44px;
   padding: 10px 12px;
   border-radius: 14px;
-  font-size: 13px;
+  font-size: 16px !important;
   margin-bottom: 0;
   position: relative;
   z-index: 5;
@@ -1213,10 +1223,10 @@ body.admin-page{
     margin: 6px 0 18px;
   }
 
-  input, select{
+  input, select, textarea{
     padding: 10px 10px;
     border-radius: 12px;
-    font-size: 13px;
+    font-size: 16px !important;
   }
 
   .services{
