@@ -151,10 +151,102 @@ function limparFormularioAgendar() {
   if ($("novoTel")) $("novoTel").value = "";
   if ($("novoServico")) $("novoServico").value = "";
   if ($("novoData")) $("novoData").value = "";
+
+  const alt = document.querySelector("#pane-agendar .flatpickr-input[readonly]");
+  if (alt) alt.value = "";
+
   if ($("novoHorario")) {
     $("novoHorario").innerHTML = `<option value="">Selecione o horário</option>`;
     $("novoHorario").value = "";
   }
+}
+
+/* =====================
+   ANTI JUMP / SCROLL FIX
+===================== */
+let lastScrollY = 0;
+
+function saveScrollPosition() {
+  lastScrollY = window.scrollY || window.pageYOffset || 0;
+}
+
+function restoreScrollPosition() {
+  window.scrollTo(0, lastScrollY);
+}
+
+function lockScrollForMoment() {
+  saveScrollPosition();
+
+  requestAnimationFrame(() => restoreScrollPosition());
+  setTimeout(() => restoreScrollPosition(), 0);
+  setTimeout(() => restoreScrollPosition(), 60);
+  setTimeout(() => restoreScrollPosition(), 140);
+}
+
+function activateNoJump() {
+  document.body.classList.add("no-jump");
+}
+
+function setupNoJumpFocus() {
+  const selectors = [
+    "input",
+    "select",
+    "button",
+    ".slot-toggle",
+    ".tab",
+    ".service-card"
+  ];
+
+  document.querySelectorAll(selectors.join(",")).forEach((el) => {
+    el.addEventListener("touchstart", saveScrollPosition, { passive: true });
+    el.addEventListener("mousedown", saveScrollPosition, { passive: true });
+    el.addEventListener("focus", () => {
+      lockScrollForMoment();
+    });
+  });
+}
+
+function styleCalendarCentered(instance) {
+  if (!instance?.calendarContainer) return;
+
+  const cal = instance.calendarContainer;
+  cal.style.position = "fixed";
+  cal.style.left = "50%";
+  cal.style.top = "50%";
+  cal.style.right = "auto";
+  cal.style.bottom = "auto";
+  cal.style.transform = "translate(-50%, -50%)";
+  cal.style.zIndex = "99999";
+  cal.style.margin = "0";
+}
+
+function clearCalendarInlineStyle(instance) {
+  if (!instance?.calendarContainer) return;
+  const cal = instance.calendarContainer;
+
+  cal.style.position = "";
+  cal.style.left = "";
+  cal.style.top = "";
+  cal.style.right = "";
+  cal.style.bottom = "";
+  cal.style.transform = "";
+  cal.style.zIndex = "";
+  cal.style.margin = "";
+}
+
+function setupFlatpickrInputLock(instance) {
+  const input = instance?.input;
+  const altInput = instance?.altInput;
+
+  [input, altInput].forEach((el) => {
+    if (!el) return;
+
+    el.addEventListener("touchstart", saveScrollPosition, { passive: true });
+    el.addEventListener("mousedown", saveScrollPosition, { passive: true });
+    el.addEventListener("focus", () => {
+      lockScrollForMoment();
+    });
+  });
 }
 
 /* =====================
@@ -180,16 +272,21 @@ function setupTabs() {
     if (name === "financeiro") {
       await carregarFinanceiro();
     }
+
     if (name === "agenda") {
       renderAdminBookingCalendar();
       await carregarAgenda();
     }
+
     if (name === "lembretes") {
       await carregarLembretes();
     }
+
     if (name === "agendar") {
       renderNovoAgendamentoCalendar();
     }
+
+    lockScrollForMoment();
   }
 
   tabs.forEach((t) => {
@@ -202,50 +299,79 @@ function setupTabs() {
 
 /* =====================
    CALENDÁRIO DA AGENDA
+   -> abre para baixo
 ===================== */
 function renderAdminBookingCalendar() {
   const input = $("filtroData");
   if (!input || typeof flatpickr !== "function") return;
   if (input._flatpickr) return;
 
-  flatpickr(input, {
+  const fp = flatpickr(input, {
     locale: "pt",
     dateFormat: "Y-m-d",
     altInput: true,
     altFormat: "d/m/y",
     disableMobile: true,
     defaultDate: input.value || todayISO(),
-    position: "above center",
+    position: "below center",
     static: false,
+    clickOpens: true,
+    onOpen: (_selectedDates, _dateStr, instance) => {
+      clearCalendarInlineStyle(instance);
+      if (instance.calendarContainer) {
+        instance.calendarContainer.style.zIndex = "99999";
+      }
+      lockScrollForMoment();
+    },
+    onClose: () => {
+      lockScrollForMoment();
+    },
     onChange: (_selectedDates, dateStr) => {
       input.value = dateStr;
+      lockScrollForMoment();
       carregarAgenda();
     }
   });
+
+  setupFlatpickrInputLock(fp);
 }
 
 /* =====================
    CALENDÁRIO NOVO AGENDAMENTO
+   -> centralizado
 ===================== */
 function renderNovoAgendamentoCalendar() {
   const input = $("novoData");
   if (!input || typeof flatpickr !== "function") return;
   if (input._flatpickr) return;
 
-  flatpickr(input, {
+  const fp = flatpickr(input, {
     locale: "pt",
     dateFormat: "Y-m-d",
     altInput: true,
     altFormat: "d/m/y",
     minDate: "today",
     disableMobile: true,
-    position: "above center",
+    position: "auto center",
     static: false,
-    onChange: async (_selectedDates, dateStr) => {
+    clickOpens: true,
+    onOpen: (_selectedDates, _dateStr, instance) => {
+      styleCalendarCentered(instance);
+      lockScrollForMoment();
+    },
+    onClose: (_selectedDates, _dateStr, instance) => {
+      clearCalendarInlineStyle(instance);
+      lockScrollForMoment();
+    },
+    onChange: async (_selectedDates, dateStr, instance) => {
       input.value = dateStr;
+      styleCalendarCentered(instance);
+      lockScrollForMoment();
       await carregarHorariosNovoAgendamento(dateStr);
     }
   });
+
+  setupFlatpickrInputLock(fp);
 }
 
 /* =====================
@@ -283,6 +409,8 @@ async function carregarHorariosNovoAgendamento(data) {
       opt.textContent = horario;
       select.appendChild(opt);
     });
+
+    lockScrollForMoment();
   } catch (e) {
     select.innerHTML = `<option value="">Erro ao carregar</option>`;
   }
@@ -425,8 +553,8 @@ async function carregarFinanceiro() {
 
           if (resPago.ok) {
             setMsg("Pagamento marcado com sucesso.");
-            carregarFinanceiro();
-            carregarAgenda();
+            await carregarFinanceiro();
+            await carregarAgenda();
           } else {
             setMsg("Não foi possível marcar como pago.", false);
           }
@@ -527,8 +655,8 @@ async function carregarAgenda() {
           const res = await fetch(`/agendamentos/${id}/confirmar`, { method: "POST" });
           if (res.ok) {
             setMsg("Agendamento confirmado.");
-            carregarAgenda();
-            carregarFinanceiro();
+            await carregarAgenda();
+            await carregarFinanceiro();
           } else {
             setMsg("Não foi possível confirmar.", false);
           }
@@ -547,8 +675,8 @@ async function carregarAgenda() {
           const res = await fetch(`/agendamentos/${id}`, { method: "DELETE" });
           if (res.ok) {
             setMsg("Agendamento excluído.");
-            carregarAgenda();
-            carregarFinanceiro();
+            await carregarAgenda();
+            await carregarFinanceiro();
           } else {
             setMsg("Não foi possível excluir.", false);
           }
@@ -632,7 +760,7 @@ async function carregarLembretes() {
           const res = await fetch(`/lembretes/${id}/enviado`, { method: "POST" });
           if (res.ok) {
             setMsg("Lembrete marcado como enviado.");
-            carregarLembretes();
+            await carregarLembretes();
           } else {
             setMsg("Não foi possível marcar como enviado.", false);
           }
@@ -698,8 +826,9 @@ async function criarAgendamentoManual() {
 
     setMsg("Agendamento criado com sucesso.");
     limparFormularioAgendar();
-    carregarAgenda();
-    carregarFinanceiro();
+    await carregarAgenda();
+    await carregarFinanceiro();
+    lockScrollForMoment();
   } catch (e) {
     setMsg("Erro ao criar o agendamento.", false);
   }
@@ -732,13 +861,20 @@ function setupButtons() {
    INIT
 ===================== */
 document.addEventListener("DOMContentLoaded", () => {
+  activateNoJump();
+
   const filtro = $("filtroData");
   if (filtro && !filtro.value) {
     filtro.value = todayISO();
   }
 
+  setupNoJumpFocus();
   renderAdminBookingCalendar();
   renderNovoAgendamentoCalendar();
   setupTabs();
   setupButtons();
+
+  window.addEventListener("scroll", () => {
+    lastScrollY = window.scrollY || 0;
+  }, { passive: true });
 });

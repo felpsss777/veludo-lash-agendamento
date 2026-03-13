@@ -27,9 +27,11 @@
 *{ box-sizing: border-box; }
 
 html, body{ height: 100%; }
+
 html{
   background:#000;
   overflow-x: hidden;
+  scroll-behavior: auto !important;
 }
 
 body{
@@ -38,6 +40,13 @@ body{
   background:#000;
   color: var(--text);
   overflow-x: hidden;
+  overscroll-behavior-x: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.no-jump,
+body.no-jump *{
+  overscroll-behavior: none;
 }
 
 a{ color: inherit; }
@@ -158,6 +167,15 @@ a{ color: inherit; }
 .row > *{
   flex: 1;
   min-width: 0;
+}
+
+input,
+select,
+button,
+.slot-toggle,
+.service-card,
+.flatpickr-input{
+  touch-action: manipulation;
 }
 
 input, select{
@@ -418,6 +436,7 @@ select:focus{
   margin-left:auto;
   z-index: 40;
   overflow: visible;
+  scroll-margin-top: 0 !important;
 }
 
 .slot-toggle{
@@ -460,6 +479,7 @@ select:focus{
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   z-index: 90;
+  scroll-margin-top: 0 !important;
 }
 
 #horarios_grid:not(.hidden){
@@ -502,6 +522,7 @@ select:focus{
   border-radius: 18px !important;
   overflow: hidden !important;
   z-index: 99999 !important;
+  scroll-margin-top: 0 !important;
 }
 
 .flatpickr-calendar.open,
@@ -676,6 +697,7 @@ body.admin-page{
   gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 10px;
+  overflow: visible;
 }
 
 .admin-page input,
