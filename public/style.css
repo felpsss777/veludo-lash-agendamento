@@ -65,7 +65,7 @@ a{
   pointer-events: none;
 }
 
-/* AGORA É IMG REAL */
+/* compatível com <img id="igBgImg"> */
 .ig-bg__img{
   position: absolute;
   inset: -8%;
@@ -82,7 +82,7 @@ a{
   pointer-events: none;
 }
 
-/* topo mais suave/desfocado */
+/* topo mais suave */
 .ig-bg::before{
   content: "";
   position: absolute;

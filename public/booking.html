@@ -22,7 +22,7 @@
       justify-content:center;
       align-items:center;
       width:100%;
-      margin-bottom: 8px;
+      margin-bottom:8px;
       text-align:center;
     }
 
@@ -46,337 +46,374 @@
     }
 
     .booking-tel-row #ddd{
-      flex: 0 0 80px;
-      max-width: 80px;
+      flex:0 0 80px;
+      max-width:80px;
       text-align:center;
     }
 
     .booking-tel-row #telefone{
-      flex: 1 1 auto;
-      min-width: 0;
+      flex:1 1 auto;
+      min-width:0;
     }
 
     /* FUNDO MELHORADO */
     .ig-bg{
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      overflow: hidden;
-      pointer-events: none;
+      position:fixed;
+      inset:0;
+      z-index:0;
+      overflow:hidden;
+      pointer-events:none;
     }
 
     .ig-bg__img{
-      position: absolute;
-      inset: -8%;
-      width: 116%;
-      height: 116%;
-      object-fit: cover;
-      object-position: center top;
-      transform: translate3d(0,0,0) scale(1.04);
-      will-change: transform, opacity;
-      opacity: 0;
-      filter: none;
+      position:absolute;
+      inset:-8%;
+      width:116%;
+      height:116%;
+      object-fit:cover;
+      object-position:center top;
+      transform:translate3d(0,0,0) scale(1.04);
+      will-change:transform, opacity;
+      opacity:0;
+      filter:none;
     }
 
     .ig-bg__overlay{
-      position: absolute;
-      inset: 0;
+      position:absolute;
+      inset:0;
       background:
         linear-gradient(
           180deg,
-          rgba(0,0,0,0.10) 0%,
-          rgba(0,0,0,0.18) 22%,
-          rgba(0,0,0,0.28) 60%,
-          rgba(0,0,0,0.38) 100%
+          rgba(0,0,0,0.08) 0%,
+          rgba(0,0,0,0.14) 20%,
+          rgba(0,0,0,0.24) 58%,
+          rgba(0,0,0,0.34) 100%
         );
-      backdrop-filter: blur(0px);
+      backdrop-filter:blur(0px);
     }
 
     @media (prefers-reduced-motion: no-preference){
       .ig-bg__img{
-        animation: bgFadeInReal 1.25s cubic-bezier(.16, 1, .3, 1) forwards;
+        animation:bgFadeInReal 1.25s cubic-bezier(.16, 1, .3, 1) forwards;
       }
 
       @keyframes bgFadeInReal{
         0%{
           opacity:0;
-          transform: translate3d(0, 12px, 0) scale(1.08);
+          transform:translate3d(0, 12px, 0) scale(1.08);
         }
         100%{
           opacity:1;
-          transform: translate3d(0, 0, 0) scale(1.04);
+          transform:translate3d(0, 0, 0) scale(1.04);
         }
+      }
+    }
+
+    .container,
+    .grid,
+    .card{
+      position:relative;
+      z-index:2;
+    }
+
+    .card{
+      animation:appEnter .55s cubic-bezier(.16,1,.3,1);
+    }
+
+    @keyframes appEnter{
+      0%{
+        opacity:0;
+        transform:translateY(18px) scale(.985);
+      }
+      100%{
+        opacity:1;
+        transform:translateY(0) scale(1);
       }
     }
 
     .pix-modal{
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
     }
-    .pix-modal.open{ display: flex; }
+    .pix-modal.open{ display:flex; }
 
     .pix-backdrop{
       position:absolute;
       inset:0;
-      background: rgba(0,0,0,0.65);
-      backdrop-filter: blur(6px);
+      background:rgba(0,0,0,0.65);
+      backdrop-filter:blur(6px);
     }
 
     .pix-card{
-      position: relative;
-      z-index: 2;
-      width: min(560px, 100%);
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(15,15,18,0.55);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.55);
-      overflow: hidden;
+      position:relative;
+      z-index:2;
+      width:min(560px, 100%);
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,0.16);
+      background:rgba(15,15,18,0.55);
+      box-shadow:0 30px 80px rgba(0,0,0,0.55);
+      overflow:hidden;
     }
 
     .pix-head{
-      padding: 14px 14px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.10);
+      padding:14px 14px 10px;
+      border-bottom:1px solid rgba(255,255,255,0.10);
       display:flex;
       align-items:flex-start;
-      justify-content: space-between;
-      gap: 10px;
+      justify-content:space-between;
+      gap:10px;
     }
+
     .pix-head h3{
       margin:0;
-      font-family: "Playfair Display", serif;
-      font-size: 16px;
-      color: rgba(255,255,255,0.92);
-      text-shadow: 0 10px 26px rgba(0,0,0,0.55);
+      font-family:"Playfair Display", serif;
+      font-size:16px;
+      color:rgba(255,255,255,0.92);
+      text-shadow:0 10px 26px rgba(0,0,0,0.55);
     }
+
     .pix-close{
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.14);
-      color: rgba(255,255,255,0.92);
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 900;
-      padding: 8px 10px;
-      line-height: 1;
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,255,255,0.14);
+      color:rgba(255,255,255,0.92);
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:900;
+      padding:8px 10px;
+      line-height:1;
     }
-    .pix-close:hover{ background: rgba(255,255,255,0.14); }
+
+    .pix-close:hover{
+      background:rgba(255,255,255,0.14);
+    }
 
     .pix-body{
-      padding: 14px;
+      padding:14px;
     }
 
     .paygrid{
       display:grid;
-      grid-template-columns: 170px 1fr;
-      gap: 12px;
+      grid-template-columns:170px 1fr;
+      gap:12px;
       align-items:center;
     }
 
     .qr{
-      width: 170px;
-      height: 170px;
-      border-radius: 16px;
+      width:170px;
+      height:170px;
+      border-radius:16px;
       overflow:hidden;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(0,0,0,0.2);
+      border:1px solid rgba(255,255,255,0.14);
+      background:rgba(0,0,0,0.2);
       display:flex;
       align-items:center;
       justify-content:center;
     }
-    .qr img{ width:100%; height:100%; object-fit:cover; }
+
+    .qr img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
 
     .pixcode{
       width:100%;
       resize:none;
-      min-height: 110px;
-      padding: 10px 10px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(20, 20, 24, 0.28);
-      color: rgba(255,255,255,0.92);
-      font-size: 12px;
+      min-height:110px;
+      padding:10px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,0.16);
+      background:rgba(20, 20, 24, 0.28);
+      color:rgba(255,255,255,0.92);
+      font-size:12px;
       outline:none;
-      line-height: 1.35;
+      line-height:1.35;
     }
 
     .pay-actions{
-      margin-top: 10px;
+      margin-top:10px;
       display:flex;
       gap:10px;
-      flex-wrap: wrap;
+      flex-wrap:wrap;
       align-items:center;
-      justify-content: space-between;
+      justify-content:space-between;
     }
+
     .pay-actions .btn2{
-      flex: 1 1 180px;
+      flex:1 1 180px;
     }
 
     .timer{
-      font-size: 12px;
-      color: rgba(255,255,255,0.72);
+      font-size:12px;
+      color:rgba(255,255,255,0.72);
       text-align:right;
-      flex: 1 1 160px;
+      flex:1 1 160px;
     }
 
     .tokenline{
-      margin-top: 8px;
-      font-size: 11px;
-      color: rgba(255,255,255,0.55);
-      word-break: break-all;
+      margin-top:8px;
+      font-size:11px;
+      color:rgba(255,255,255,0.55);
+      word-break:break-all;
     }
 
     .pix-status{
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.04);
-      color: rgba(255,255,255,0.78);
-      font-size: 12px;
-      line-height: 1.45;
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.04);
+      color:rgba(255,255,255,0.78);
+      font-size:12px;
+      line-height:1.45;
     }
 
     .okbox{
-      margin-top: 14px;
-      padding: 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(15,15,18,0.30);
-      backdrop-filter: blur(1px);
+      margin-top:14px;
+      padding:14px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,0.14);
+      background:rgba(15,15,18,0.30);
+      backdrop-filter:blur(1px);
       display:none;
     }
-    .okbox.open{ display:block; }
+
+    .okbox.open{
+      display:block;
+    }
+
     .oktitle{
       margin:0 0 6px;
-      font-family: "Playfair Display", serif;
-      font-size: 16px;
-      color: rgba(255,255,255,0.92);
+      font-family:"Playfair Display", serif;
+      font-size:16px;
+      color:rgba(255,255,255,0.92);
     }
 
     .success-overlay{
-      position: fixed;
-      inset: 0;
-      z-index: 10000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: rgba(0,0,0,0.72);
-      backdrop-filter: blur(10px);
+      position:fixed;
+      inset:0;
+      z-index:10000;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(0,0,0,0.72);
+      backdrop-filter:blur(10px);
     }
 
     .success-overlay.open{
-      display: flex;
-      animation: fadeInOverlay .35s ease;
+      display:flex;
+      animation:fadeInOverlay .35s ease;
     }
 
     .success-card{
-      width: min(420px, 100%);
-      padding: 28px 22px;
-      border-radius: 24px;
-      text-align: center;
-      background: rgba(15,15,18,0.80);
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.55);
-      position: relative;
-      overflow: hidden;
+      width:min(420px, 100%);
+      padding:28px 22px;
+      border-radius:24px;
+      text-align:center;
+      background:rgba(15,15,18,0.80);
+      border:1px solid rgba(255,255,255,0.12);
+      box-shadow:0 30px 80px rgba(0,0,0,0.55);
+      position:relative;
+      overflow:hidden;
     }
 
     .success-card h3{
-      margin: 18px 0 8px;
-      font-family: "Playfair Display", serif;
-      font-size: 24px;
-      color: #fff;
+      margin:18px 0 8px;
+      font-family:"Playfair Display", serif;
+      font-size:24px;
+      color:#fff;
     }
 
     .success-card p{
-      margin: 0;
-      color: rgba(255,255,255,0.78);
-      line-height: 1.45;
-      font-size: 14px;
+      margin:0;
+      color:rgba(255,255,255,0.78);
+      line-height:1.45;
+      font-size:14px;
     }
 
     .checkmark-wrap{
-      width: 120px;
-      height: 120px;
-      margin: 0 auto;
-      position: relative;
+      width:120px;
+      height:120px;
+      margin:0 auto;
+      position:relative;
     }
 
     .checkmark-wrap svg{
-      width: 100%;
-      height: 100%;
-      display: block;
+      width:100%;
+      height:100%;
+      display:block;
     }
 
     .checkmark-wrap circle{
-      stroke: #d4af37;
-      stroke-width: 3;
-      stroke-dasharray: 160;
-      stroke-dashoffset: 160;
-      animation: drawCircle .8s ease forwards;
+      stroke:#d4af37;
+      stroke-width:3;
+      stroke-dasharray:160;
+      stroke-dashoffset:160;
+      animation:drawCircle .8s ease forwards;
     }
 
     .checkmark-wrap path{
-      stroke: #d4af37;
-      stroke-width: 4;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      stroke-dasharray: 48;
-      stroke-dashoffset: 48;
-      animation: drawCheck .45s ease .75s forwards;
+      stroke:#d4af37;
+      stroke-width:4;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      stroke-dasharray:48;
+      stroke-dashoffset:48;
+      animation:drawCheck .45s ease .75s forwards;
     }
 
     .success-glow{
-      position: absolute;
-      inset: auto;
-      width: 220px;
-      height: 220px;
-      left: 50%;
-      top: 20px;
-      transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(212,175,55,0.22), transparent 70%);
-      pointer-events: none;
-      filter: blur(10px);
+      position:absolute;
+      inset:auto;
+      width:220px;
+      height:220px;
+      left:50%;
+      top:20px;
+      transform:translateX(-50%);
+      background:radial-gradient(circle, rgba(212,175,55,0.22), transparent 70%);
+      pointer-events:none;
+      filter:blur(10px);
     }
 
     .confetti{
-      position: absolute;
-      width: 8px;
-      height: 14px;
-      border-radius: 999px;
-      opacity: 0;
-      animation: confettiFall 1.4s ease forwards;
+      position:absolute;
+      width:8px;
+      height:14px;
+      border-radius:999px;
+      opacity:0;
+      animation:confettiFall 1.4s ease forwards;
     }
 
     @keyframes drawCircle{
-      to{ stroke-dashoffset: 0; }
+      to{ stroke-dashoffset:0; }
     }
 
     @keyframes drawCheck{
-      to{ stroke-dashoffset: 0; }
+      to{ stroke-dashoffset:0; }
     }
 
     @keyframes fadeInOverlay{
-      from{ opacity: 0; }
-      to{ opacity: 1; }
+      from{ opacity:0; }
+      to{ opacity:1; }
     }
 
     @keyframes confettiFall{
       0%{
-        transform: translateY(-30px) rotate(0deg);
-        opacity: 0;
+        transform:translateY(-30px) rotate(0deg);
+        opacity:0;
       }
       15%{
-        opacity: 1;
+        opacity:1;
       }
       100%{
-        transform: translateY(220px) rotate(260deg);
-        opacity: 0;
+        transform:translateY(220px) rotate(260deg);
+        opacity:0;
       }
     }
 
@@ -386,17 +423,27 @@
       }
 
       .booking-tel-row #ddd{
-        flex: 0 0 72px;
-        max-width: 72px;
+        flex:0 0 72px;
+        max-width:72px;
       }
 
-      .paygrid{ grid-template-columns: 1fr; }
-      .qr{ width: 220px; height:220px; margin: 0 auto; }
-      .timer{ text-align:left; }
+      .paygrid{
+        grid-template-columns:1fr;
+      }
+
+      .qr{
+        width:220px;
+        height:220px;
+        margin:0 auto;
+      }
+
+      .timer{
+        text-align:left;
+      }
     }
   </style>
 </head>
-<body>
+<body class="loaded">
 
   <div class="ig-bg" aria-hidden="true">
     <img class="ig-bg__img" id="igBgImg" src="img/instagram-longo.jpg" alt="">
@@ -1021,6 +1068,7 @@
       }
 
       window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("load", updateParallax);
       updateParallax();
     })();
   </script>
