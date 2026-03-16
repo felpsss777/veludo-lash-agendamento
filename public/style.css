@@ -50,7 +50,10 @@ body.no-jump *{
   overscroll-behavior: none;
 }
 
-a{ color: inherit; text-decoration: none; }
+a{
+  color: inherit;
+  text-decoration: none;
+}
 
 /* ================== FUNDO ================== */
 
@@ -62,19 +65,24 @@ a{ color: inherit; text-decoration: none; }
   pointer-events: none;
 }
 
+/* AGORA É IMG REAL */
 .ig-bg__img{
   position: absolute;
-  inset: 0;
-  background-image: url("img/instagram-longo.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center 0px;
-  will-change: transform, opacity, background-position;
+  inset: -8%;
+  width: 116%;
+  height: 116%;
+  object-fit: cover;
+  object-position: center top;
+  will-change: transform, opacity;
   opacity: 0;
-  transform: scale(1.04);
+  transform: translate3d(0,0,0) scale(1.04);
   filter: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 
+/* topo mais suave/desfocado */
 .ig-bg::before{
   content: "";
   position: absolute;
@@ -100,12 +108,12 @@ a{ color: inherit; text-decoration: none; }
   @keyframes bgFadeIn{
     0%{
       opacity: 0;
-      transform: scale(1.08);
+      transform: translate3d(0, 12px, 0) scale(1.08);
       filter: blur(6px);
     }
     100%{
       opacity: 1;
-      transform: scale(1);
+      transform: translate3d(0, 0, 0) scale(1.04);
       filter: blur(0px);
     }
   }
