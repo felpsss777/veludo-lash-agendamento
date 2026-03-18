@@ -3,10 +3,11 @@
 <head>
   <link rel="manifest" href="/manifest-admin.json">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Veludo Lash Admin">
-<link rel="apple-touch-icon" href="/img/icon-admin-512.png">
-<meta name="theme-color" content="#c9a46c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Veludo Lash Admin">
+  <link rel="apple-touch-icon" href="/img/icon-admin-512.png">
+  <meta name="theme-color" content="#c9a46c">
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin • Veludo Lash</title>
@@ -18,7 +19,7 @@
 
 <body class="admin-page loaded">
   <div class="ig-bg" aria-hidden="true">
-    <div class="ig-bg__img" id="igBgImg"></div>
+    <img class="ig-bg__img" id="igBgImg" src="img/instagram-longo.jpg" alt="">
     <div class="ig-bg__overlay"></div>
   </div>
 
@@ -225,15 +226,35 @@
       const el = document.getElementById("igBgImg");
       if (!el) return;
 
-      const speed = 0.35;
+      const speed = 0.22;
+      let rafId = null;
 
-      function onScroll() {
-        const y = Math.round(window.scrollY * speed);
-        el.style.backgroundPosition = `center ${-y}px`;
+      function updateParallax() {
+        const y =
+          window.pageYOffset ||
+          window.scrollY ||
+          document.documentElement.scrollTop ||
+          0;
+
+        el.style.transform = `translate3d(0, ${y * speed}px, 0) scale(1.04)`;
+        rafId = null;
       }
 
-      window.addEventListener("scroll", onScroll, { passive: true });
-      onScroll();
+      function requestUpdate() {
+        if (rafId !== null) return;
+        rafId = window.requestAnimationFrame(updateParallax);
+      }
+
+      window.addEventListener("scroll", requestUpdate, { passive: true });
+      window.addEventListener("touchmove", requestUpdate, { passive: true });
+      window.addEventListener("resize", requestUpdate, { passive: true });
+      window.addEventListener("load", requestUpdate);
+
+      el.addEventListener("load", requestUpdate);
+
+      requestUpdate();
+      setTimeout(requestUpdate, 120);
+      setTimeout(requestUpdate, 500);
     })();
   </script>
 </body>
