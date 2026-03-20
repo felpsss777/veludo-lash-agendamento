@@ -9,6 +9,9 @@ const SERVICOS_VALORES = {
   "Fio a fio": 150
 };
 
+const SINAL_PADRAO = 40;
+const LIBERAR_RESTANTE_APOS_HORAS = 2;
+
 function setMsg(text, ok = true) {
   const msg = $("msg");
   if (!msg) return;
@@ -63,16 +66,34 @@ function escapeHtml(value = "") {
     .replaceAll("'", "&#039;");
 }
 
-function getAgendamentoValor(item) {
+function toNumberSafe(v) {
+  const n = Number(v);
+  return Number.isNaN(n) ? 0 : n;
+}
+
+function getSinalValor(item) {
   const candidatos = [
-    item.valor,
-    item.valor_total,
-    item.preco,
-    item.price,
+    item.valor_sinal,
     item.sinal_valor,
     item.sinal,
+    item.valor_entrada
+  ];
+
+  for (const v of candidatos) {
+    const num = Number(v);
+    if (!Number.isNaN(num) && num > 0) return num;
+  }
+
+  return SINAL_PADRAO;
+}
+
+function getValorTotalServico(item) {
+  const candidatos = [
+    item.valor_total,
     item.valor_servico,
-    item.valor_sinal
+    item.preco,
+    item.price,
+    item.valor
   ];
 
   for (const v of candidatos) {
@@ -84,7 +105,11 @@ function getAgendamentoValor(item) {
     return SERVICOS_VALORES[item.servico];
   }
 
-  return 40;
+  return getSinalValor(item);
+}
+
+function getRestanteValor(item) {
+  return Math.max(0, getValorTotalServico(item) - getSinalValor(item));
 }
 
 function isConfirmado(item) {
@@ -159,6 +184,138 @@ function limparFormularioAgendar() {
     $("novoHorario").innerHTML = `<option value="">Selecione o horário</option>`;
     $("novoHorario").value = "";
   }
+}
+
+/* =====================
+   DATA / LIBERAÇÃO FINANCEIRA
+===================== */
+function getAgendamentoDate(item) {
+  if (!item?.data || !item?.horario) return null;
+
+  const horario = String(item.horario).slice(0, 5);
+  const iso = `${item.data}T${horario}:00`;
+  const dt = new Date(iso);
+
+  return Number.isNaN(dt.getTime()) ? null : dt;
+}
+
+function getDataLiberacaoValorTotal(item) {
+  const base = getAgendamentoDate(item);
+  if (!base) return null;
+
+  const dt = new Date(base.getTime());
+  dt.setHours(dt.getHours() + LIBERAR_RESTANTE_APOS_HORAS);
+  return dt;
+}
+
+function jaLiberouValorTotal(item, agora = new Date()) {
+  const liberacao = getDataLiberacaoValorTotal(item);
+  if (!liberacao) return false;
+  return agora.getTime() >= liberacao.getTime();
+}
+
+function getValorExibidoFinanceiro(item, agora = new Date()) {
+  const sinal = getSinalValor(item);
+  const total = getValorTotalServico(item);
+
+  if (!isPago(item) && isReservaPendente(item)) {
+    return sinal;
+  }
+
+  if (!isPago(item) && !isConfirmado(item)) {
+    return sinal;
+  }
+
+  if (jaLiberouValorTotal(item, agora)) {
+    return total;
+  }
+
+  return sinal;
+}
+
+function getDataEventoSinal(item) {
+  const candidatos = [
+    item.pago_em,
+    item.pagamento_em,
+    item.created_at,
+    item.criado_em,
+    item.data_criacao,
+    item.reservado_em
+  ];
+
+  for (const c of candidatos) {
+    if (!c) continue;
+    const dt = new Date(c);
+    if (!Number.isNaN(dt.getTime())) return dt;
+  }
+
+  const ag = getAgendamentoDate(item);
+  return ag ? new Date(ag.getTime()) : null;
+}
+
+function isSameDay(a, b) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function isSameMonth(a, b) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth()
+  );
+}
+
+function calcularResumoFinanceiroNoFront(rows = []) {
+  const agora = new Date();
+  let hoje = 0;
+  let mes = 0;
+  let pendentes = 0;
+  let confirmados = 0;
+
+  rows.forEach((item) => {
+    const sinal = getSinalValor(item);
+    const restante = getRestanteValor(item);
+    const dataSinal = getDataEventoSinal(item);
+    const dataLiberacao = getDataLiberacaoValorTotal(item);
+
+    if (isReservaPendente(item)) {
+      pendentes += 1;
+    }
+
+    if (isConfirmado(item)) {
+      confirmados += 1;
+    }
+
+    if (!isPago(item) && !isConfirmado(item)) {
+      return;
+    }
+
+    if (dataSinal) {
+      if (isSameDay(dataSinal, agora)) hoje += sinal;
+      if (isSameMonth(dataSinal, agora)) mes += sinal;
+    }
+
+    if (restante > 0 && dataLiberacao && agora >= dataLiberacao) {
+      if (isSameDay(dataLiberacao, agora)) hoje += restante;
+      if (isSameMonth(dataLiberacao, agora)) mes += restante;
+    }
+  });
+
+  return { hoje, mes, pendentes, confirmados };
+}
+
+function getValorDescricao(item, agora = new Date()) {
+  const sinal = getSinalValor(item);
+  const total = getValorTotalServico(item);
+
+  if (jaLiberouValorTotal(item, agora)) {
+    return `Total liberado: ${formatMoney(total)}`;
+  }
+
+  return `Sinal por enquanto: ${formatMoney(sinal)} • Total libera após o horário + ${LIBERAR_RESTANTE_APOS_HORAS}h`;
 }
 
 /* =====================
@@ -299,7 +456,6 @@ function setupTabs() {
 
 /* =====================
    CALENDÁRIO DA AGENDA
-   -> abre para baixo
 ===================== */
 function renderAdminBookingCalendar() {
   const input = $("filtroData");
@@ -338,7 +494,6 @@ function renderAdminBookingCalendar() {
 
 /* =====================
    CALENDÁRIO NOVO AGENDAMENTO
-   -> centralizado
 ===================== */
 function renderNovoAgendamentoCalendar() {
   const input = $("novoData");
@@ -436,31 +591,41 @@ async function carregarFinanceiro() {
       fetch("/financeiro/lista")
     ]);
 
-    const resumo = await resResumo.json().catch(() => ({}));
+    const resumoBackend = await resResumo.json().catch(() => ({}));
     const rows = await resLista.json().catch(() => []);
 
-    if (!resResumo.ok) {
-      setMsg("Falha ao carregar resumo financeiro.", false);
+    if (!resLista.ok) {
+      setMsg("Falha ao carregar financeiro.", false);
       return;
     }
 
-    if (recebidoHoje) recebidoHoje.textContent = formatMoney(resumo.hoje || 0);
-    if (recebidoMes) recebidoMes.textContent = formatMoney(resumo.mes || 0);
-    if (pendentesSinal) pendentesSinal.textContent = String(resumo.pendentes || 0);
-    if (confirmadosTotal) confirmadosTotal.textContent = String(resumo.confirmados || 0);
+    const resumoFront = calcularResumoFinanceiroNoFront(rows);
+
+    if (recebidoHoje) {
+      recebidoHoje.textContent = formatMoney(
+        resumoFront.hoje || resumoBackend.hoje || 0
+      );
+    }
+
+    if (recebidoMes) {
+      recebidoMes.textContent = formatMoney(
+        resumoFront.mes || resumoBackend.mes || 0
+      );
+    }
+
+    if (pendentesSinal) {
+      pendentesSinal.textContent = String(
+        resumoFront.pendentes || resumoBackend.pendentes || 0
+      );
+    }
+
+    if (confirmadosTotal) {
+      confirmadosTotal.textContent = String(
+        resumoFront.confirmados || resumoBackend.confirmados || 0
+      );
+    }
 
     if (!lista) return;
-
-    if (!resLista.ok) {
-      lista.innerHTML = `
-        <div class="financeiro-item">
-          <div class="financeiro-info">
-            <span>Resumo carregado, mas não foi possível listar o financeiro.</span>
-          </div>
-        </div>
-      `;
-      return;
-    }
 
     if (!rows.length) {
       lista.innerHTML = `
@@ -474,6 +639,7 @@ async function carregarFinanceiro() {
     }
 
     const ordenados = sortByDataHora(rows);
+    const agora = new Date();
     lista.innerHTML = "";
 
     ordenados.forEach((r) => {
@@ -481,11 +647,12 @@ async function carregarFinanceiro() {
       const servico = escapeHtml(r.servico || "-");
       const data = formatDateBR(r.data || "-");
       const horario = escapeHtml(r.horario || "-");
-      const valor = formatMoney(getAgendamentoValor(r));
+      const valorExibido = formatMoney(getValorExibidoFinanceiro(r, agora));
       const status = getPagamentoLabel(r);
       const statusClass = getStatusClass(r);
       const pago = isPago(r);
       const tipo = String(r.tipo || "").toLowerCase();
+      const descricaoValor = getValorDescricao(r, agora);
 
       const mensagem = tipo === "reserva"
         ? `Olá ${r.cliente_nome || ""}! Sua reserva está pendente de pagamento para ${r.data || "-"} às ${r.horario || "-"} (${r.servico || "-"}) ✨`
@@ -528,7 +695,11 @@ async function carregarFinanceiro() {
         </div>
 
         <div class="financeiro-info" style="margin-top:10px;">
-          <span><strong>Valor:</strong> ${valor}</span>
+          <span><strong>Valor exibido:</strong> ${valorExibido}</span>
+        </div>
+
+        <div class="financeiro-info">
+          <span><strong>Regra:</strong> ${escapeHtml(descricaoValor)}</span>
         </div>
 
         <div class="financeiro-info">
