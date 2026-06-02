@@ -25,13 +25,7 @@
 
   <header class="admin-header">
     <nav class="admin-tabs" aria-label="Navegação do Admin">
-      <button
-        class="tab active"
-        type="button"
-        data-tab="financeiro"
-        aria-controls="pane-financeiro"
-        aria-selected="true"
-      >
+      <button class="tab active" type="button" data-tab="financeiro" aria-controls="pane-financeiro" aria-selected="true">
         <span class="tab-ico" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path d="M3 7h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -42,13 +36,7 @@
         <span class="tab-txt">Financeiro</span>
       </button>
 
-      <button
-        class="tab"
-        type="button"
-        data-tab="agendar"
-        aria-controls="pane-agendar"
-        aria-selected="false"
-      >
+      <button class="tab" type="button" data-tab="agendar" aria-controls="pane-agendar" aria-selected="false">
         <span class="tab-ico" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -59,13 +47,7 @@
         <span class="tab-txt">Agendar</span>
       </button>
 
-      <button
-        class="tab"
-        type="button"
-        data-tab="agenda"
-        aria-controls="pane-agenda"
-        aria-selected="false"
-      >
+      <button class="tab" type="button" data-tab="agenda" aria-controls="pane-agenda" aria-selected="false">
         <span class="tab-ico" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path d="M8 2v3M16 2v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -76,13 +58,7 @@
         <span class="tab-txt">Agenda</span>
       </button>
 
-      <button
-        class="tab"
-        type="button"
-        data-tab="lembretes"
-        aria-controls="pane-lembretes"
-        aria-selected="false"
-      >
+      <button class="tab" type="button" data-tab="lembretes" aria-controls="pane-lembretes" aria-selected="false">
         <span class="tab-ico" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
@@ -100,9 +76,7 @@
 
       <section id="pane-financeiro" class="pane active" data-page="financeiro">
         <h2>Financeiro</h2>
-        <p class="mut">
-          Resumo dos recebimentos, sinais pendentes e agendamentos confirmados.
-        </p>
+        <p class="mut">Resumo dos recebimentos, sinais pendentes e agendamentos confirmados.</p>
 
         <div class="financeiro-resumo">
           <div class="finance-card">
@@ -135,17 +109,15 @@
 
       <section id="pane-agendar" class="pane" data-page="agendar">
         <h2>Agendar cliente</h2>
-        <p class="mut">
-          Crie agendamentos manualmente sem duplicar horário com o booking.
-        </p>
+        <p class="mut">Crie agendamentos manualmente sem duplicar horário com o booking.</p>
 
         <div class="row">
-          <input id="novoNome" placeholder="Nome da cliente" />
+          <input id="novoNome" placeholder="Nome da cliente" autocomplete="name" />
         </div>
 
         <div class="row agendar-tel-row">
-          <input id="novoDDD" placeholder="DDD" inputmode="numeric" maxlength="2" />
-          <input id="novoTel" placeholder="WhatsApp" inputmode="numeric" maxlength="9" />
+          <input id="novoDDD" placeholder="DDD" inputmode="numeric" maxlength="2" autocomplete="tel-area-code" />
+          <input id="novoTel" placeholder="WhatsApp" inputmode="numeric" maxlength="9" autocomplete="tel" />
         </div>
 
         <div class="row">
@@ -173,9 +145,7 @@
           </button>
         </div>
 
-        <p class="small mut">
-          Os horários exibidos aqui seguem a mesma disponibilidade do booking.
-        </p>
+        <p class="small mut">Os horários exibidos aqui seguem a mesma disponibilidade do booking.</p>
       </section>
 
       <section id="pane-agenda" class="pane" data-page="agenda">
@@ -191,28 +161,13 @@
 
       <section id="pane-lembretes" class="pane" data-page="lembretes">
         <h2>Lembretes</h2>
-        <p class="mut">
-          Aqui aparecem agendamentos confirmados com lembrete ainda não enviado.
-        </p>
+        <p class="mut">Aqui aparecem agendamentos confirmados com lembrete ainda não enviado.</p>
 
         <div class="row">
           <button class="btn2" type="button" id="btnAtualizarLembretes">Atualizar</button>
         </div>
 
-        <div class="table-wrap">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Horário</th>
-                <th>Serviço</th>
-                <th>Cliente</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody id="lembretesBody"></tbody>
-          </table>
-        </div>
+        <div id="lembretesLista" class="lembretes-lista"></div>
       </section>
     </div>
   </main>

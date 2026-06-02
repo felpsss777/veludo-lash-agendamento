@@ -22,13 +22,6 @@ function onlyDigits(v = "") {
   return String(v).replace(/\D/g, "");
 }
 
-function fmtTel(t) {
-  const d = onlyDigits(t);
-  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
-  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
-  return t || "";
-}
-
 function waLink(tel, text) {
   const phone = "55" + onlyDigits(tel);
   const msg = encodeURIComponent(text || "");
@@ -36,8 +29,7 @@ function waLink(tel, text) {
 }
 
 function formatMoney(v = 0) {
-  const n = Number(v || 0);
-  return n.toLocaleString("pt-BR", {
+  return Number(v || 0).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL"
   });
@@ -66,18 +58,8 @@ function escapeHtml(value = "") {
     .replaceAll("'", "&#039;");
 }
 
-function toNumberSafe(v) {
-  const n = Number(v);
-  return Number.isNaN(n) ? 0 : n;
-}
-
 function getSinalValor(item) {
-  const candidatos = [
-    item.valor_sinal,
-    item.sinal_valor,
-    item.sinal,
-    item.valor_entrada
-  ];
+  const candidatos = [item.valor_sinal, item.sinal_valor, item.sinal, item.valor_entrada];
 
   for (const v of candidatos) {
     const num = Number(v);
@@ -88,13 +70,7 @@ function getSinalValor(item) {
 }
 
 function getValorTotalServico(item) {
-  const candidatos = [
-    item.valor_total,
-    item.valor_servico,
-    item.preco,
-    item.price,
-    item.valor
-  ];
+  const candidatos = [item.valor_total, item.valor_servico, item.preco, item.price, item.valor];
 
   for (const v of candidatos) {
     const num = Number(v);
@@ -187,14 +163,13 @@ function limparFormularioAgendar() {
 }
 
 /* =====================
-   DATA / LIBERAÇÃO FINANCEIRA
+   DATA / FINANCEIRO
 ===================== */
 function getAgendamentoDate(item) {
   if (!item?.data || !item?.horario) return null;
 
   const horario = String(item.horario).slice(0, 5);
-  const iso = `${item.data}T${horario}:00`;
-  const dt = new Date(iso);
+  const dt = new Date(`${item.data}T${horario}:00`);
 
   return Number.isNaN(dt.getTime()) ? null : dt;
 }
@@ -218,17 +193,9 @@ function getValorExibidoFinanceiro(item, agora = new Date()) {
   const sinal = getSinalValor(item);
   const total = getValorTotalServico(item);
 
-  if (!isPago(item) && isReservaPendente(item)) {
-    return sinal;
-  }
-
-  if (!isPago(item) && !isConfirmado(item)) {
-    return sinal;
-  }
-
-  if (jaLiberouValorTotal(item, agora)) {
-    return total;
-  }
+  if (!isPago(item) && isReservaPendente(item)) return sinal;
+  if (!isPago(item) && !isConfirmado(item)) return sinal;
+  if (jaLiberouValorTotal(item, agora)) return total;
 
   return sinal;
 }
@@ -262,10 +229,7 @@ function isSameDay(a, b) {
 }
 
 function isSameMonth(a, b) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth()
-  );
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
 }
 
 function calcularResumoFinanceiroNoFront(rows = []) {
@@ -281,17 +245,10 @@ function calcularResumoFinanceiroNoFront(rows = []) {
     const dataSinal = getDataEventoSinal(item);
     const dataLiberacao = getDataLiberacaoValorTotal(item);
 
-    if (isReservaPendente(item)) {
-      pendentes += 1;
-    }
+    if (isReservaPendente(item)) pendentes += 1;
+    if (isConfirmado(item)) confirmados += 1;
 
-    if (isConfirmado(item)) {
-      confirmados += 1;
-    }
-
-    if (!isPago(item) && !isConfirmado(item)) {
-      return;
-    }
+    if (!isPago(item) && !isConfirmado(item)) return;
 
     if (dataSinal) {
       if (isSameDay(dataSinal, agora)) hoje += sinal;
@@ -319,7 +276,7 @@ function getValorDescricao(item, agora = new Date()) {
 }
 
 /* =====================
-   ANTI JUMP / SCROLL FIX
+   SCROLL / CALENDÁRIO
 ===================== */
 let lastScrollY = 0;
 
@@ -333,7 +290,6 @@ function restoreScrollPosition() {
 
 function lockScrollForMoment() {
   saveScrollPosition();
-
   requestAnimationFrame(() => restoreScrollPosition());
   setTimeout(() => restoreScrollPosition(), 0);
   setTimeout(() => restoreScrollPosition(), 60);
@@ -345,50 +301,29 @@ function activateNoJump() {
 }
 
 function setupNoJumpFocus() {
-  const selectors = [
-    "input",
-    "select",
-    "button",
-    ".slot-toggle",
-    ".tab",
-    ".service-card"
-  ];
-
-  document.querySelectorAll(selectors.join(",")).forEach((el) => {
+  document.querySelectorAll("input, select, button, .tab").forEach((el) => {
     el.addEventListener("touchstart", saveScrollPosition, { passive: true });
     el.addEventListener("mousedown", saveScrollPosition, { passive: true });
-    el.addEventListener("focus", () => {
-      lockScrollForMoment();
-    });
+    el.addEventListener("focus", lockScrollForMoment);
   });
 }
 
-function styleCalendarCentered(instance) {
+function smartCenterCalendar(instance) {
   if (!instance?.calendarContainer) return;
 
   const cal = instance.calendarContainer;
+  const width = Math.min(window.innerWidth - 24, 330);
+
   cal.style.position = "fixed";
   cal.style.left = "50%";
   cal.style.top = "50%";
   cal.style.right = "auto";
   cal.style.bottom = "auto";
+  cal.style.width = `${width}px`;
+  cal.style.maxWidth = "calc(100vw - 24px)";
   cal.style.transform = "translate(-50%, -50%)";
-  cal.style.zIndex = "99999";
+  cal.style.zIndex = "999999";
   cal.style.margin = "0";
-}
-
-function clearCalendarInlineStyle(instance) {
-  if (!instance?.calendarContainer) return;
-  const cal = instance.calendarContainer;
-
-  cal.style.position = "";
-  cal.style.left = "";
-  cal.style.top = "";
-  cal.style.right = "";
-  cal.style.bottom = "";
-  cal.style.transform = "";
-  cal.style.zIndex = "";
-  cal.style.margin = "";
 }
 
 function setupFlatpickrInputLock(instance) {
@@ -397,12 +332,9 @@ function setupFlatpickrInputLock(instance) {
 
   [input, altInput].forEach((el) => {
     if (!el) return;
-
     el.addEventListener("touchstart", saveScrollPosition, { passive: true });
     el.addEventListener("mousedown", saveScrollPosition, { passive: true });
-    el.addEventListener("focus", () => {
-      lockScrollForMoment();
-    });
+    el.addEventListener("focus", lockScrollForMoment);
   });
 }
 
@@ -426,22 +358,13 @@ function setupTabs() {
       p.classList.toggle("active", p.dataset.page === name);
     });
 
-    if (name === "financeiro") {
-      await carregarFinanceiro();
-    }
-
+    if (name === "financeiro") await carregarFinanceiro();
     if (name === "agenda") {
       renderAdminBookingCalendar();
       await carregarAgenda();
     }
-
-    if (name === "lembretes") {
-      await carregarLembretes();
-    }
-
-    if (name === "agendar") {
-      renderNovoAgendamentoCalendar();
-    }
+    if (name === "lembretes") await carregarLembretes();
+    if (name === "agendar") renderNovoAgendamentoCalendar();
 
     lockScrollForMoment();
   }
@@ -455,7 +378,7 @@ function setupTabs() {
 }
 
 /* =====================
-   CALENDÁRIO DA AGENDA
+   CALENDÁRIOS
 ===================== */
 function renderAdminBookingCalendar() {
   const input = $("filtroData");
@@ -466,24 +389,29 @@ function renderAdminBookingCalendar() {
     locale: "pt",
     dateFormat: "Y-m-d",
     altInput: true,
-    altFormat: "d/m/y",
+    altFormat: "d/m/Y",
     disableMobile: true,
     defaultDate: input.value || todayISO(),
-    position: "below center",
-    static: false,
     clickOpens: true,
     onOpen: (_selectedDates, _dateStr, instance) => {
-      clearCalendarInlineStyle(instance);
-      if (instance.calendarContainer) {
-        instance.calendarContainer.style.zIndex = "99999";
-      }
+      smartCenterCalendar(instance);
       lockScrollForMoment();
+    },
+    onReady: (_selectedDates, _dateStr, instance) => {
+      smartCenterCalendar(instance);
+    },
+    onMonthChange: (_selectedDates, _dateStr, instance) => {
+      smartCenterCalendar(instance);
+    },
+    onYearChange: (_selectedDates, _dateStr, instance) => {
+      smartCenterCalendar(instance);
     },
     onClose: () => {
       lockScrollForMoment();
     },
-    onChange: (_selectedDates, dateStr) => {
+    onChange: (_selectedDates, dateStr, instance) => {
       input.value = dateStr;
+      smartCenterCalendar(instance);
       lockScrollForMoment();
       carregarAgenda();
     }
@@ -492,9 +420,6 @@ function renderAdminBookingCalendar() {
   setupFlatpickrInputLock(fp);
 }
 
-/* =====================
-   CALENDÁRIO NOVO AGENDAMENTO
-===================== */
 function renderNovoAgendamentoCalendar() {
   const input = $("novoData");
   if (!input || typeof flatpickr !== "function") return;
@@ -504,23 +429,29 @@ function renderNovoAgendamentoCalendar() {
     locale: "pt",
     dateFormat: "Y-m-d",
     altInput: true,
-    altFormat: "d/m/y",
+    altFormat: "d/m/Y",
     minDate: "today",
     disableMobile: true,
-    position: "auto center",
-    static: false,
     clickOpens: true,
     onOpen: (_selectedDates, _dateStr, instance) => {
-      styleCalendarCentered(instance);
+      smartCenterCalendar(instance);
       lockScrollForMoment();
     },
-    onClose: (_selectedDates, _dateStr, instance) => {
-      clearCalendarInlineStyle(instance);
+    onReady: (_selectedDates, _dateStr, instance) => {
+      smartCenterCalendar(instance);
+    },
+    onMonthChange: (_selectedDates, _dateStr, instance) => {
+      smartCenterCalendar(instance);
+    },
+    onYearChange: (_selectedDates, _dateStr, instance) => {
+      smartCenterCalendar(instance);
+    },
+    onClose: () => {
       lockScrollForMoment();
     },
     onChange: async (_selectedDates, dateStr, instance) => {
       input.value = dateStr;
-      styleCalendarCentered(instance);
+      smartCenterCalendar(instance);
       lockScrollForMoment();
       await carregarHorariosNovoAgendamento(dateStr);
     }
@@ -529,9 +460,6 @@ function renderNovoAgendamentoCalendar() {
   setupFlatpickrInputLock(fp);
 }
 
-/* =====================
-   HORÁRIOS NOVO AGENDAMENTO
-===================== */
 async function carregarHorariosNovoAgendamento(data) {
   const select = $("novoHorario");
   if (!select) return;
@@ -558,6 +486,7 @@ async function carregarHorariosNovoAgendamento(data) {
     }
 
     select.innerHTML = `<option value="">Selecione o horário</option>`;
+
     rows.forEach((horario) => {
       const opt = document.createElement("option");
       opt.value = horario;
@@ -601,46 +530,20 @@ async function carregarFinanceiro() {
 
     const resumoFront = calcularResumoFinanceiroNoFront(rows);
 
-    if (recebidoHoje) {
-      recebidoHoje.textContent = formatMoney(
-        resumoFront.hoje || resumoBackend.hoje || 0
-      );
-    }
-
-    if (recebidoMes) {
-      recebidoMes.textContent = formatMoney(
-        resumoFront.mes || resumoBackend.mes || 0
-      );
-    }
-
-    if (pendentesSinal) {
-      pendentesSinal.textContent = String(
-        resumoFront.pendentes || resumoBackend.pendentes || 0
-      );
-    }
-
-    if (confirmadosTotal) {
-      confirmadosTotal.textContent = String(
-        resumoFront.confirmados || resumoBackend.confirmados || 0
-      );
-    }
+    if (recebidoHoje) recebidoHoje.textContent = formatMoney(resumoFront.hoje || resumoBackend.hoje || 0);
+    if (recebidoMes) recebidoMes.textContent = formatMoney(resumoFront.mes || resumoBackend.mes || 0);
+    if (pendentesSinal) pendentesSinal.textContent = String(resumoFront.pendentes || resumoBackend.pendentes || 0);
+    if (confirmadosTotal) confirmadosTotal.textContent = String(resumoFront.confirmados || resumoBackend.confirmados || 0);
 
     if (!lista) return;
 
     if (!rows.length) {
-      lista.innerHTML = `
-        <div class="financeiro-item">
-          <div class="financeiro-info">
-            <span>Nenhum registro financeiro encontrado.</span>
-          </div>
-        </div>
-      `;
+      lista.innerHTML = `<div class="financeiro-item"><div class="financeiro-info">Nenhum registro financeiro encontrado.</div></div>`;
       return;
     }
 
     const ordenados = sortByDataHora(rows);
     const agora = new Date();
-    lista.innerHTML = "";
 
     ordenados.forEach((r) => {
       const nome = escapeHtml(r.cliente_nome || "Cliente");
@@ -662,19 +565,14 @@ async function carregarFinanceiro() {
 
       if (r.cliente_telefone) {
         acoes.push(`
-          <a class="btn-dourado" target="_blank" rel="noopener noreferrer"
-             href="${waLink(r.cliente_telefone, mensagem)}">
-             WhatsApp
+          <a class="btn-dourado" target="_blank" rel="noopener noreferrer" href="${waLink(r.cliente_telefone, mensagem)}">
+            WhatsApp
           </a>
         `);
       }
 
       if (!pago && tipo === "agendamento") {
-        acoes.push(`
-          <button class="btn-preto" data-marcar-pago="${r.id}">
-            Marcar como pago
-          </button>
-        `);
+        acoes.push(`<button class="btn-preto" type="button" data-marcar-pago="${r.id}">Marcar como pago</button>`);
       }
 
       const card = document.createElement("div");
@@ -685,30 +583,16 @@ async function carregarFinanceiro() {
           <div class="financeiro-status ${statusClass}">${escapeHtml(status)}</div>
         </div>
 
-        <div class="financeiro-info">
-          <span><strong>Data:</strong> ${data}</span>
-        </div>
-
+        <div class="financeiro-info"><strong>Data:</strong> ${data}</div>
         <div class="lembrete-linha-dupla">
           <span><strong>Serviço:</strong> ${servico}</span>
           <span><strong>Horário:</strong> ${horario}</span>
         </div>
+        <div class="financeiro-info"><strong>Valor:</strong> ${valorExibido}</div>
+        <div class="financeiro-info"><strong>Regra:</strong> ${escapeHtml(descricaoValor)}</div>
+        <div class="financeiro-info"><strong>Tipo:</strong> ${tipo === "reserva" ? "Reserva" : "Agendamento"}</div>
 
-        <div class="financeiro-info" style="margin-top:10px;">
-          <span><strong>Valor exibido:</strong> ${valorExibido}</span>
-        </div>
-
-        <div class="financeiro-info">
-          <span><strong>Regra:</strong> ${escapeHtml(descricaoValor)}</span>
-        </div>
-
-        <div class="financeiro-info">
-          <span><strong>Tipo:</strong> ${tipo === "reserva" ? "Reserva" : "Agendamento"}</span>
-        </div>
-
-        <div class="financeiro-acoes">
-          ${acoes.join("")}
-        </div>
+        <div class="financeiro-acoes">${acoes.join("")}</div>
       `;
 
       lista.appendChild(card);
@@ -747,6 +631,7 @@ async function carregarAgenda() {
 
   const lista = $("agendaLista");
   if (!lista) return;
+
   lista.innerHTML = "";
 
   const dataFiltro = $("filtroData")?.value || "";
@@ -763,19 +648,11 @@ async function carregarAgenda() {
     const filtrados = dataFiltro ? rows.filter((r) => r.data === dataFiltro) : rows;
 
     if (!filtrados.length) {
-      lista.innerHTML = `
-        <div class="financeiro-item">
-          <div class="financeiro-info">
-            <span>Nenhum agendamento encontrado para esta data.</span>
-          </div>
-        </div>
-      `;
+      lista.innerHTML = `<div class="financeiro-item"><div class="financeiro-info">Nenhum agendamento encontrado para esta data.</div></div>`;
       return;
     }
 
-    const ordenados = [...filtrados].sort((a, b) => {
-      return String(a.horario || "").localeCompare(String(b.horario || ""));
-    });
+    const ordenados = [...filtrados].sort((a, b) => String(a.horario || "").localeCompare(String(b.horario || "")));
 
     ordenados.forEach((r) => {
       const confirmado = isConfirmado(r);
@@ -785,6 +662,7 @@ async function carregarAgenda() {
       const horario = escapeHtml(r.horario || "-");
       const status = confirmado ? "Confirmado" : "Pendente";
       const statusClass = confirmado ? "status-ok" : "status-pendente";
+
       const textoWa = `Olá ${r.cliente_nome || ""}! Só confirmando seu horário: ${r.data || "-"} às ${r.horario || "-"} (${r.servico || "-"}) ✨`;
 
       const card = document.createElement("div");
@@ -795,22 +673,20 @@ async function carregarAgenda() {
           <div class="financeiro-status ${statusClass}">${status}</div>
         </div>
 
-        <div class="financeiro-info">
-          <span><strong>Data:</strong> ${data}</span>
-        </div>
-
+        <div class="financeiro-info"><strong>Data:</strong> ${data}</div>
         <div class="lembrete-linha-dupla">
           <span><strong>Serviço:</strong> ${servico}</span>
           <span><strong>Horário:</strong> ${horario}</span>
         </div>
 
-        <div class="financeiro-acoes" style="margin-top:14px;">
-          <a class="btn-dourado" target="_blank" rel="noopener noreferrer"
-             href="${waLink(r.cliente_telefone, textoWa)}">
-             WhatsApp
-          </a>
-          ${confirmado ? "" : `<button class="btn-preto" data-confirmar="${r.id}">Confirmar</button>`}
-          <button class="btn-preto" data-excluir="${r.id}">Excluir</button>
+        <div class="financeiro-acoes">
+          ${
+            r.cliente_telefone
+              ? `<a class="btn-dourado" target="_blank" rel="noopener noreferrer" href="${waLink(r.cliente_telefone, textoWa)}">WhatsApp</a>`
+              : ""
+          }
+          ${confirmado ? "" : `<button class="btn-preto" type="button" data-confirmar="${r.id}">Confirmar</button>`}
+          <button class="btn-vermelho" type="button" data-excluir="${r.id}">Excluir</button>
         </div>
       `;
 
@@ -823,8 +699,9 @@ async function carregarAgenda() {
         if (!confirm("Confirmar este agendamento?")) return;
 
         try {
-          const res = await fetch(`/agendamentos/${id}/confirmar`, { method: "POST" });
-          if (res.ok) {
+          const resConfirmar = await fetch(`/agendamentos/${id}/confirmar`, { method: "POST" });
+
+          if (resConfirmar.ok) {
             setMsg("Agendamento confirmado.");
             await carregarAgenda();
             await carregarFinanceiro();
@@ -843,8 +720,9 @@ async function carregarAgenda() {
         if (!confirm("Excluir este agendamento?")) return;
 
         try {
-          const res = await fetch(`/agendamentos/${id}`, { method: "DELETE" });
-          if (res.ok) {
+          const resExcluir = await fetch(`/agendamentos/${id}`, { method: "DELETE" });
+
+          if (resExcluir.ok) {
             setMsg("Agendamento excluído.");
             await carregarAgenda();
             await carregarFinanceiro();
@@ -862,14 +740,15 @@ async function carregarAgenda() {
 }
 
 /* =====================
-   LEMBRETES
+   LEMBRETES EM CARDS
 ===================== */
 async function carregarLembretes() {
   setMsg("", true);
 
-  const tbody = $("lembretesBody");
-  if (!tbody) return;
-  tbody.innerHTML = "";
+  const lista = $("lembretesLista");
+  if (!lista) return;
+
+  lista.innerHTML = "";
 
   try {
     const res = await fetch("/lembretes-pendentes");
@@ -881,55 +760,49 @@ async function carregarLembretes() {
     }
 
     if (!rows.length) {
-      tbody.innerHTML = `<tr><td colspan="5" class="mut">Nenhum lembrete pendente.</td></tr>`;
+      lista.innerHTML = `<div class="financeiro-item"><div class="financeiro-info">Nenhum lembrete pendente.</div></div>`;
       return;
     }
 
     rows.forEach((r) => {
-      const texto = `Olá ${r.cliente_nome}! Passando para te lembrar do seu horário: ${r.data} às ${r.horario} (${r.servico}). ✨`;
+      const texto = `Olá ${r.cliente_nome || ""}! Passando para te lembrar do seu horário: ${r.data || "-"} às ${r.horario || "-"} (${r.servico || "-"}). ✨`;
 
-      const tr = document.createElement("tr");
-      tr.className = "rowcard";
-      tr.innerHTML = `
-        <td colspan="5">
-          <div class="financeiro-item">
-            <div class="financeiro-item-top">
-              <div class="financeiro-nome">${escapeHtml(r.cliente_nome || "Cliente")}</div>
-            </div>
+      const card = document.createElement("div");
+      card.className = "financeiro-item";
+      card.innerHTML = `
+        <div class="financeiro-item-top">
+          <div class="financeiro-nome">${escapeHtml(r.cliente_nome || "Cliente")}</div>
+          <div class="financeiro-status status-pendente">Lembrete</div>
+        </div>
 
-            <div class="financeiro-info">
-              <span><strong>Data:</strong> ${formatDateBR(r.data || "-")}</span>
-            </div>
+        <div class="financeiro-info"><strong>Data:</strong> ${formatDateBR(r.data || "-")}</div>
+        <div class="lembrete-linha-dupla">
+          <span><strong>Serviço:</strong> ${escapeHtml(r.servico || "-")}</span>
+          <span><strong>Horário:</strong> ${escapeHtml(r.horario || "-")}</span>
+        </div>
 
-            <div class="lembrete-linha-dupla">
-              <span><strong>Serviço:</strong> ${escapeHtml(r.servico || "-")}</span>
-              <span><strong>Horário:</strong> ${escapeHtml(r.horario || "-")}</span>
-            </div>
-
-            <div class="financeiro-acoes" style="margin-top:14px;">
-              <a class="btn-dourado" target="_blank" rel="noopener noreferrer"
-                 href="${waLink(r.cliente_telefone, texto)}">
-                 Enviar WhatsApp
-              </a>
-
-              <button class="btn-preto" data-enviado="${r.id}">
-                Marcar como enviado
-              </button>
-            </div>
-          </div>
-        </td>
+        <div class="financeiro-acoes">
+          ${
+            r.cliente_telefone
+              ? `<a class="btn-dourado" target="_blank" rel="noopener noreferrer" href="${waLink(r.cliente_telefone, texto)}">Enviar WhatsApp</a>`
+              : ""
+          }
+          <button class="btn-preto" type="button" data-enviado="${r.id}">Marcar como enviado</button>
+        </div>
       `;
-      tbody.appendChild(tr);
+
+      lista.appendChild(card);
     });
 
-    tbody.querySelectorAll("[data-enviado]").forEach((btn) => {
+    lista.querySelectorAll("[data-enviado]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.getAttribute("data-enviado");
         if (!confirm("Marcar lembrete como enviado?")) return;
 
         try {
-          const res = await fetch(`/lembretes/${id}/enviado`, { method: "POST" });
-          if (res.ok) {
+          const resEnviado = await fetch(`/lembretes/${id}/enviado`, { method: "POST" });
+
+          if (resEnviado.ok) {
             setMsg("Lembrete marcado como enviado.");
             await carregarLembretes();
           } else {
@@ -971,8 +844,6 @@ async function criarAgendamentoManual() {
     return;
   }
 
-  const telefone = ddd + tel;
-
   try {
     const res = await fetch("/admin-agendar", {
       method: "POST",
@@ -981,7 +852,7 @@ async function criarAgendamentoManual() {
       },
       body: JSON.stringify({
         nome,
-        telefone,
+        telefone: ddd + tel,
         servico,
         data,
         horario
@@ -1013,7 +884,6 @@ function setupButtons() {
   $("btnAtualizarLembretes")?.addEventListener("click", carregarLembretes);
   $("btnAtualizarFinanceiro")?.addEventListener("click", carregarFinanceiro);
   $("filtroData")?.addEventListener("change", carregarAgenda);
-
   $("btnCriarAgendamento")?.addEventListener("click", criarAgendamentoManual);
 
   $("novoDDD")?.addEventListener("input", () => {
@@ -1025,6 +895,15 @@ function setupButtons() {
   $("novoTel")?.addEventListener("input", () => {
     const input = $("novoTel");
     input.value = onlyDigits(input.value).slice(0, 9);
+  });
+
+  window.addEventListener("resize", () => {
+    document.querySelectorAll(".flatpickr-calendar.open").forEach((cal) => {
+      cal.style.left = "50%";
+      cal.style.top = "50%";
+      cal.style.transform = "translate(-50%, -50%)";
+      cal.style.maxWidth = "calc(100vw - 24px)";
+    });
   });
 }
 

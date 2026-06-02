@@ -65,7 +65,6 @@ a{
   pointer-events: none;
 }
 
-/* compatível com <img id="igBgImg"> */
 .ig-bg__img{
   position: absolute;
   inset: -8%;
@@ -82,7 +81,6 @@ a{
   pointer-events: none;
 }
 
-/* topo mais suave */
 .ig-bg::before{
   content: "";
   position: absolute;
@@ -123,7 +121,8 @@ a{
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(0,0,0,0.14), rgba(0,0,0,0.26));
+    radial-gradient(circle at 50% 0%, rgba(201,164,108,0.14), transparent 36%),
+    linear-gradient(180deg, rgba(0,0,0,0.16), rgba(0,0,0,0.34));
   z-index: 1;
 }
 
@@ -658,6 +657,18 @@ input.flatpickr-input{
 
 body.admin-page{
   overflow-x: hidden;
+  min-height: 100vh;
+}
+
+body.admin-page::after{
+  content:"";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(201,164,108,.18), transparent 35%),
+    linear-gradient(180deg, rgba(0,0,0,.04), rgba(0,0,0,.35));
 }
 
 .admin-topbar{
@@ -672,28 +683,29 @@ body.admin-page{
 .admin-tabs{
   position: relative !important;
   z-index: 50 !important;
-  max-width: 380px;
+  width: calc(100% - 24px);
+  max-width: 430px;
   margin: 14px auto 12px;
   padding: 8px;
   display: flex;
   gap: 8px;
   justify-content: space-between;
-  background: rgba(10,10,12,0.42);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 18px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(10,10,12,0.50);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 22px;
+  box-shadow: 0 18px 45px rgba(0,0,0,0.38);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .admin-tabs .tab{
   flex: 1;
   min-height: 58px;
   padding: 8px 6px;
-  border-radius: 14px;
+  border-radius: 17px;
   border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
-  color: #fff;
+  background: rgba(255,255,255,0.045);
+  color: rgba(255,255,255,0.84);
   font-weight: 800;
   cursor:pointer;
   display: flex;
@@ -709,9 +721,13 @@ body.admin-page{
 }
 
 .admin-tabs .tab.active{
-  background: rgba(201,164,108,0.12);
-  outline: 2px solid rgba(201,164,108,0.55);
-  box-shadow: 0 0 24px rgba(201,164,108,0.16);
+  color: #fff;
+  background: linear-gradient(135deg, rgba(201,164,108,.28), rgba(241,217,170,.13));
+  border-color: rgba(201,164,108,.42);
+  outline: none;
+  box-shadow:
+    0 0 0 1px rgba(201,164,108,.18),
+    0 12px 28px rgba(201,164,108,.16);
 }
 
 .admin-tabs .tab .tab-ico{
@@ -725,27 +741,31 @@ body.admin-page{
 }
 
 .admin-shell{
-  max-width: 380px;
+  width: 100%;
+  max-width: 460px;
   margin: 0 auto;
-  padding: 8px 10px 24px;
+  padding: 6px 12px 34px;
 }
 
 .admin-card{
-  max-width: 340px;
+  width: 100%;
+  max-width: 420px;
   margin: 0 auto;
-  padding: 14px;
-  border-radius: 18px;
-  background: rgba(10,11,18,0.30) !important;
-  border: 1px solid rgba(255,255,255,0.10);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.28);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  padding: 16px;
+  border-radius: 26px;
+  background: rgba(9,10,15,.42) !important;
+  border: 1px solid rgba(255,255,255,.13);
+  box-shadow:
+    0 25px 65px rgba(0,0,0,.42),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   overflow: visible;
 }
 
 .admin-card h2{
   font-family: 'Great Vibes', cursive;
-  font-size: 34px;
+  font-size: 40px;
   line-height: 1;
   margin: 4px 0 10px;
   background: linear-gradient(135deg, var(--gold), var(--gold2));
@@ -759,22 +779,32 @@ body.admin-page{
 
 .admin-page .row{
   display: flex;
-  gap: 8px;
+  gap: 9px;
   flex-wrap: wrap;
-  margin-bottom: 10px;
+  margin-bottom: 11px;
   overflow: visible;
 }
 
 .admin-page input,
 .admin-page select,
 .admin-page textarea{
-  height: 44px;
+  height: 46px;
   padding: 10px 12px;
-  border-radius: 14px;
+  border-radius: 16px;
   font-size: 16px !important;
   margin-bottom: 0;
   position: relative;
   z-index: 5;
+  background: rgba(8,9,13,.50);
+  border: 1px solid rgba(255,255,255,.14);
+  color: rgba(255,255,255,.94);
+}
+
+.admin-page input:focus,
+.admin-page select:focus,
+.admin-page textarea:focus{
+  border-color: rgba(201,164,108,.78);
+  box-shadow: 0 0 0 4px rgba(201,164,108,.13);
 }
 
 #msg{
@@ -785,10 +815,11 @@ body.admin-page{
 #btnAtualizarLembretes,
 #btnAtualizarFinanceiro{
   width: auto;
-  min-width: 110px;
+  min-width: 112px;
   padding: 0 14px;
   height: 44px;
   border-radius: 14px;
+  flex: 0 0 auto;
 }
 
 .agendar-tel-row{
@@ -815,13 +846,9 @@ body.admin-page{
   overflow: visible;
 }
 
-.agendar-data-row #novoData{
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
+.agendar-data-row #novoData,
 .agendar-data-row #novoHorario{
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
 }
 
@@ -889,7 +916,7 @@ body.admin-page{
   font-weight: 800 !important;
 }
 
-/* ================== FINANCEIRO + AGENDA ================== */
+/* ================== FINANCEIRO + AGENDA + LEMBRETES ================== */
 
 .financeiro-resumo{
   display: grid;
@@ -899,35 +926,47 @@ body.admin-page{
 }
 
 .finance-card{
-  background: rgba(10,11,18,0.38);
+  min-height: 92px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.035));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(212,175,55,0.22);
-  border-radius: 18px;
-  padding: 14px 14px 13px;
+  border-radius: 20px;
+  padding: 14px;
   box-shadow:
-    0 10px 30px rgba(0,0,0,0.20),
+    0 14px 30px rgba(0,0,0,0.25),
     inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.finance-card:hover{
+  transform: translateY(-2px);
+  border-color: rgba(201,164,108,.32);
+  box-shadow: 0 20px 42px rgba(0,0,0,.34);
 }
 
 .finance-label{
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   color: rgba(212,175,55,0.92);
-  letter-spacing: .2px;
-  margin-bottom: 7px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 800;
 }
 
 .finance-card strong{
   display: block;
-  color: rgba(255,255,255,0.96);
+  color: #f6dfb1;
   font-size: 20px;
   line-height: 1.1;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .financeiro-lista,
-.agenda-lista{
+.agenda-lista,
+.lembretes-lista{
   display: grid;
   gap: 12px;
   margin-top: 14px;
@@ -935,29 +974,31 @@ body.admin-page{
 
 .financeiro-item{
   width: 100%;
-  background: rgba(10,11,18,0.40);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.095), rgba(255,255,255,.035));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(212,175,55,0.22);
-  border-radius: 20px;
-  padding: 18px;
+  border-radius: 22px;
+  padding: 16px;
   box-shadow:
-    0 14px 34px rgba(0,0,0,0.20),
+    0 14px 34px rgba(0,0,0,0.24),
     inset 0 1px 0 rgba(255,255,255,0.03);
   transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  overflow: hidden;
 }
 
 .financeiro-item:hover{
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   border-color: rgba(212,175,55,0.40);
   box-shadow:
-    0 16px 34px rgba(0,0,0,0.22),
+    0 20px 42px rgba(0,0,0,0.34),
     0 0 0 1px rgba(212,175,55,0.06) inset;
 }
 
 .financeiro-item-top{
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 10px;
@@ -965,8 +1006,8 @@ body.admin-page{
 
 .financeiro-nome{
   color: rgba(255,255,255,0.96);
-  font-weight: 700;
-  font-size: 17px;
+  font-weight: 900;
+  font-size: 16px;
   line-height: 1.3;
   margin: 0;
 }
@@ -982,9 +1023,10 @@ body.admin-page{
   border: 1px solid rgba(212,175,55,0.26);
   background: rgba(212,175,55,0.08);
   color: rgba(244,216,145,0.98);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .2px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
 }
 
 .status-pago{
@@ -1007,27 +1049,31 @@ body.admin-page{
 
 .financeiro-info{
   display: block;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  color: rgba(255,255,255,0.82);
+  font-size: 13px;
+  line-height: 1.45;
+  word-break: break-word;
 }
 
 .financeiro-info span{
   display: block;
   color: rgba(255,255,255,0.82);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.45;
   word-break: break-word;
 }
 
 .financeiro-info strong{
   color: rgba(255,255,255,0.96);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .lembrete-linha-dupla{
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .lembrete-linha-dupla span{
@@ -1038,13 +1084,13 @@ body.admin-page{
   border-radius: 12px;
   background: rgba(255,255,255,0.05);
   color: rgba(255,255,255,0.90);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.35;
 }
 
 .lembrete-linha-dupla strong{
   color: #fff;
-  font-weight: 700;
+  font-weight: 800;
   margin-right: 6px;
 }
 
@@ -1052,17 +1098,18 @@ body.admin-page{
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 0;
+  margin-top: 12px;
 }
 
 .btn-dourado,
-.btn-preto{
+.btn-preto,
+.btn-vermelho{
   appearance: none;
   width: 100%;
   border-radius: 14px;
   min-height: 44px;
   padding: 10px 14px;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 14px;
   cursor: pointer;
   transition: transform .16s ease, opacity .16s ease, box-shadow .16s ease, border-color .16s ease;
@@ -1096,88 +1143,86 @@ body.admin-page{
   border-color: rgba(212,175,55,0.26);
 }
 
+.btn-vermelho,
+button[data-excluir]{
+  border: 1px solid rgba(255,90,90,0.35) !important;
+  color: #fff !important;
+  background: linear-gradient(180deg, #ff5b5b 0%, #a81717 100%) !important;
+  box-shadow: 0 10px 24px rgba(255,60,60,0.18);
+}
+
+.btn-vermelho:hover,
+button[data-excluir]:hover{
+  transform: translateY(-1px);
+  opacity: .96;
+}
+
 .agenda-topbar{
   display: flex;
   align-items: center;
   gap: 10px;
   margin: 12px 0 6px;
+  flex-wrap: nowrap !important;
 }
 
 .agenda-topbar input{
   flex: 1 1 auto;
 }
 
-/* ================== LEMBRETES ================== */
+/* ================== LEMBRETES NOVO ================== */
 
-#pane-lembretes .table,
-#pane-lembretes .table tbody,
-#pane-lembretes .table tr,
-#pane-lembretes .table td{
-  width: 100%;
-}
-
+#pane-lembretes .table-wrap,
 #pane-lembretes .table{
-  border-spacing: 0 12px !important;
-}
-
-#pane-lembretes .table tbody tr.rowcard{
-  display: table-row !important;
-  margin-bottom: 0 !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-}
-
-#pane-lembretes .table tbody tr.rowcard td{
-  display: table-cell !important;
-  width: 100% !important;
-  padding: 0 !important;
-  background: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  margin: 0 !important;
-  box-shadow: none !important;
-}
-
-#pane-lembretes .table tbody tr.rowcard td::before{
   display: none !important;
-  content: none !important;
 }
 
-#pane-lembretes .financeiro-item{
+.lembretes-lista{
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+/* ================== FLATPICKR CENTRALIZADO ================== */
+
+.flatpickr-calendar{
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(330px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  z-index: 999999 !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(201,164,108,.22) !important;
+  background: rgba(10,10,13,.98) !important;
+  box-shadow: 0 28px 80px rgba(0,0,0,.68) !important;
+}
+
+.flatpickr-calendar.open{
+  display: block !important;
+}
+
+.flatpickr-innerContainer,
+.flatpickr-rContainer,
+.flatpickr-days,
+.dayContainer{
   width: 100% !important;
+  min-width: 100% !important;
   max-width: 100% !important;
-  margin: 0 !important;
 }
 
-#pane-lembretes .financeiro-item-top{
-  display: block !important;
-  margin-bottom: 10px !important;
+.flatpickr-day{
+  max-width: none !important;
 }
 
-#pane-lembretes .financeiro-nome{
-  display: block !important;
+.flatpickr-months .flatpickr-month{
+  height: 48px !important;
 }
 
-#pane-lembretes .financeiro-info{
-  display: block !important;
-  margin-bottom: 12px !important;
-}
-
-#pane-lembretes .financeiro-info span{
-  display: block !important;
-}
-
-#pane-lembretes .lembrete-linha-dupla{
-  margin-top: 0 !important;
-  margin-bottom: 14px !important;
-}
-
-#pane-lembretes .financeiro-acoes{
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 10px !important;
+.flatpickr-current-month{
+  padding-top: 12px !important;
 }
 
 /* ================== RESPONSIVO ================== */
@@ -1213,7 +1258,7 @@ body.admin-page{
 
   .financeiro-item{
     padding: 16px;
-    border-radius: 16px;
+    border-radius: 18px;
   }
 
   .financeiro-item-top{
@@ -1235,13 +1280,30 @@ body.admin-page{
   }
 }
 
+@media (min-width: 760px){
+  .admin-shell{
+    max-width: 760px;
+  }
+
+  .admin-card{
+    max-width: 720px;
+    padding: 22px;
+  }
+
+  .admin-tabs{
+    max-width: 720px;
+  }
+
+  .financeiro-lista,
+  .agenda-lista,
+  .lembretes-lista{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 600px){
   .lembrete-linha-dupla{
     grid-template-columns: 1fr;
-  }
-
-  #pane-lembretes .lembrete-linha-dupla{
-    grid-template-columns: 1fr !important;
   }
 
   .financeiro-item{
@@ -1319,7 +1381,7 @@ body.admin-page{
   }
 
   .flatpickr-calendar{
-    width: 320px !important;
+    width: min(320px, calc(100vw - 24px)) !important;
     border-radius: 16px !important;
   }
 
@@ -1334,6 +1396,43 @@ body.admin-page{
   .agendar-tel-row #novoDDD{
     flex: 0 0 72px;
     max-width: 72px;
+  }
+
+  .admin-shell{
+    max-width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .admin-card{
+    max-width: 100%;
+    border-radius: 24px;
+  }
+
+  .admin-tabs{
+    width: calc(100% - 20px);
+    gap: 6px;
+    padding: 7px;
+  }
+
+  .admin-tabs .tab{
+    min-height: 54px;
+    padding: 7px 4px;
+  }
+
+  .admin-tabs .tab .tab-txt{
+    font-size: 10px;
+  }
+
+  .financeiro-acoes{
+    flex-direction: column;
+  }
+
+  .btn-dourado,
+  .btn-preto,
+  .btn-vermelho,
+  button[data-excluir]{
+    width: 100%;
   }
 }
 
@@ -1350,7 +1449,8 @@ body.admin-page{
     font-size: 17px;
   }
 
-  .financeiro-info span{
+  .financeiro-info span,
+  .financeiro-info{
     font-size: 13px;
   }
 
